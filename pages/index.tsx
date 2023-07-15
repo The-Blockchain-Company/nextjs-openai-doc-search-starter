@@ -14,7 +14,7 @@ export default function Home() {
         <title>Next.js OpenAI Template</title>
         <meta
           name="description"
-          content="Next.js Template for building OpenAI applications with Supabase."
+          content="Heart.ai's Vectorized Embedding Starter App with OpenAI and Supabase"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -27,7 +27,7 @@ export default function Home() {
         <div className="py-8 w-full flex items-center justify-center space-x-6">
           <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
             <Link href="https://hearti.co" className="flex items-center justify-center">
-              <p className="text-base mr-2">Hearti.ai Embeddings Starter</p>
+              <p className="text-base mr-2">Hearti Starter</p>
               <Image src={'/hearty2.svg'} width="20" height="20" alt="Hearti logo" />
             </Link>
           </div>

@@ -14,7 +14,7 @@ export default function Home() {
         <title>Hearti.ai Embedding Starter</title>
         <meta
           name="description"
-          content="Heart.ai's Vectorized Embedding Starter App with OpenAI and Supabase"
+          content="Heart.ai Vectorized Embedding Starter App with OpenAI and Supabase"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

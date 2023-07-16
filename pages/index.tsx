@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Hearti.ai's Embedding Starter</title>
+        <title>Hearti.ai Embedding Starter</title>
         <meta
           name="description"
           content="Heart.ai's Vectorized Embedding Starter App with OpenAI and Supabase"

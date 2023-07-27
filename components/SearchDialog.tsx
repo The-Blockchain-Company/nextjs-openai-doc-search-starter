@@ -197,7 +197,7 @@ export function SearchDialog() {
           <DialogHeader>
             <DialogTitle>Hearti.ai Embedding Starter</DialogTitle>
             <DialogDescription>
-              Convert this Supabase docs ChatGPT search agent to a 'RUMI health plan agent' and or anything Hearti.ai related. 
+              Convert this Supabase docs ChatGPT search agent to a RUMI health plan agent and or anything Hearti.ai related. 
             </DialogDescription>
             <hr />
             <button className="absolute top-0 right-2 p-2" onClick={() => setOpen(false)}>

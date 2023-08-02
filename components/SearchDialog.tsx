@@ -195,7 +195,7 @@ export function SearchDialog() {
       <Dialog open={open}>
         <DialogContent className="sm:max-w-[850px] text-black">
           <DialogHeader>
-            <DialogTitle>Hearti.ai Embedding Starter</DialogTitle>
+            <DialogTitle>Hearti AI</DialogTitle>
             <DialogDescription>
               Ask about PCI Compliance, Cardano, or Quantum One to test our Supabase and OpenAI powered vectorized embeddings.
             </DialogDescription>

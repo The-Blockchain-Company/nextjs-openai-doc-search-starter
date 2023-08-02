@@ -272,7 +272,7 @@ export function SearchDialog() {
                     setSearch('Create a table called profiles with fields id, name, email')
                   }
                 >
-                  Create a table called profiles with fields id, name, email
+                  How does PCI compliance affect my mobile payments business
                 </button>
               </div>
             </div>

@@ -14,7 +14,7 @@ export default function Home() {
         <title>Hearti.ai Embedding Starter</title>
         <meta
           name="description"
-          content="Heart.ai Vectorized Embedding Starter App with OpenAI and Supabase"
+          content="Heart.ai Vectorized Embedding Starter App"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -35,7 +35,7 @@ export default function Home() {
           <div className="flex items-center justify-center space-x-4">
             <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
               <Link
-                href="https://github.com/supabase/supabase"
+                href="https://github.com/the-blockchain-company"
                 className="flex items-center justify-center"
               >
                 <Image src={'/github.svg'} width="20" height="20" alt="Github logo" />
@@ -43,7 +43,7 @@ export default function Home() {
             </div>
             <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
               <Link
-                href="https://twitter.com/supabase"
+                href="https://twitter.com/blockchaincoio"
                 className="flex items-center justify-center"
               >
                 <Image src={'/twitter.svg'} width="20" height="20" alt="Twitter logo" />

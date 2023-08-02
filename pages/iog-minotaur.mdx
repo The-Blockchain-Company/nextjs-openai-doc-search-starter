@@ -1,0 +1,2562 @@
+---
+title: "Minotaur: Multi-Resource Blockchain Consensus"
+---
+
+> Matthias Fitzi∗
+>
+> IOHK
+>
+> <matthias.fitzi@iohk.io>
+>
+> Aggelos Kiayias
+>
+> University of Edinburgh and IOHK <aggelos.kiayias@iohk.io>
+>
+> Xuechao Wang∗ University of Illinois Urbana-Champaign
+> <xuechao2@illinois.edu>
+>
+> Nikos Leonardos University of Athens <nikos.leonardos@gmail.com>
+>
+> Gerui Wang University of Illinois Urbana-Champaign
+> <gerui2@illinois.edu>
+>
+> Sreeram Kannan
+>
+> University of Washington at Seattle <ksreeram@uw.edu>
+>
+> Pramod Viswanath University of Illinois Urbana-Champaign
+> <pramodv@illinois.edu>
+
+# ABSTRACT
+
+Resource-based consensus is the backbone of permissionless dis- tributed
+ledger systems. The security of such protocols relies funda- mentally on
+the level of resources actively engaged in the system. The variety of
+different resources (and related proof protocols, some times referred to
+as PoX in the literature) raises the fundamental question whether it is
+possible to utilize many of them in tandem and build *multi-resource*
+consensus protocols. The challenge in com- bining different resources is
+to achieve *fungibility* between them, in the sense that security would
+hold as long as the *cumulative* adversarial power across all resources
+is bounded.
+
+In this work, we put forth Minotaur, a multi-resource blockchain
+consensus protocol that combines proof of work (PoW) and proof- of-stake
+(PoS), and we prove it *optimally* fungible. At the core of our design,
+Minotaur operates in epochs while continuously sampling the active
+computational power to provide a fair exchange between the two
+resources, work and stake. Further, we demonstrate the ability of
+Minotaur to handle a higher degree of work fluctuation as compared to
+the Bitcoin blockchain; we also generalize Minotaur to any number of
+resources.
+
+We demonstrate the simplicity of Minotaur via implementing a full stack
+client in Rust (available open source \[[25](#_bookmark68)\]). We use
+the client to test the robustness of Minotaur to variable mining power
+and combined work/stake attacks and demonstrate concrete empirical
+evidence towards the suitability of Minotaur to serve as the consensus
+layer of a real-world blockchain.
+
+# INTRODUCTION
+
+**Resource-based Consensus**. The fundamental feature of the de-
+centralized computing paradigm of permissionless blockchains is that
+participation in the consensus protocol is enabled by prov- ing
+possession of a resource. Bitcoin pioneered this idea based on
+proof-of-work (PoW), and its implied energy wastage inspired new designs
+based on alternative resources such as proof-of-stake (PoS),
+proof-of-space (PoSp) and proof-of-elapsed-time (PoD). These dif- ferent
+resources cover the variegated and multidimensional forms of 'capital'
+that the participants bring. Each proof-of-X mechanism
+
+> ∗The first two authors contributed equally to this work.
+>
+> is interesting on their merit in appropriate settings (computation in
+> PoW, memory and storage in PoSp and time/delay in PoD, to-
+> kens/capital in PoS). Further, the mechanisms trigger different in-
+> centives even within the same resource format; focusing on PoW for
+> example, we see that the hashcash algorithm \[[2](#_bookmark56)\]
+> instantiated by the SHA256 function \[[29](#_bookmark72)\] implemented
+> in Bitcoin has been re- placed by others, including scrypt
+> \[[32](#_bookmark75)\] and ethash \[[12](#_bookmark46)\]. Each of
+> these different proof-of-X mechanisms have led to different, and
+> isolated, blockchain ecosystems.
+>
+> **Combining different resources**. Given the diversity of incen-
+
+tivization embodied by different resources, it is a natural ques- tion
+whether it is feasible to combine their features into a single
+blockchain design (e.g., hybrid PoW-PoS permissioned blockchains). The
+key challenge to combining multiple resources is in determin- ing the
+*exchange rate*, i.e., to what extent the different resources are
+translated into power of authority in the system and to extract security
+from these resources in an optimal manner. Adapting the exchange rate
+dynamically to the participation levels in each re- source type,
+resulting in a truly *fungible* notion of resource, is a basic and
+fundamental goal. By truly fungible, we mean that the security of the
+multi-resource consensus protocol is guaranteed as long as the honest
+players control a majority of the combined resources that consist of
+each resource type in the system --- con-
+
+> cretely, *M βi* \< *M* 2 where *M* is the number of resources and *βi*
+>
+> the adversarial power in the *i*-th resource (this property is
+> appropri-
+
+ately generalized to any linear combination in Definition
+[2).](#_bookmark5) Next we give some examples of *non-fungible* hybrid
+PoW/PoS protocol designs.
+
+> **First order hybrid PoW/PoS protocols.** Given the basic impor-
+
+tance of incorporating multiple resources in a single blockchain design,
+there are several designs of hybrid PoW/PoS protocols in the literature
+\[[4](#_bookmark58), [10](#_bookmark44), [11](#_bookmark45),
+[19](#_bookmark53), [23](#_bookmark66)\]. These protocols, however, are
+ei- ther heuristic (lacking a formal security analysis)
+\[[4](#_bookmark58), [10](#_bookmark44), [23](#_bookmark66)\], or make
+assumptions that break fungibility (e.g. honest majority in stake
+\[[10](#_bookmark44), [11](#_bookmark45), [19](#_bookmark53)\] and/or
+static mining power \[[11](#_bookmark45)\]). Indeed, with sufficient
+assumptions the problem of a hybrid protocol is trivially resolved. For
+instance, if we assume an honest majority in stake (at all time), we can
+use a committee chosen randomly from the pool of stakeholders to assist
+a PoW ledger by regularly issuing
+
+*checkpoints* \[[19](#_bookmark53)\]. However, the security of this
+scheme is solely guaranteed by the stakeholders, and the trust is
+entirely supported by PoS (not from PoW).
+
+> **Natural solutions**. In fact, if we assume a static setting (where
+
+both the total mining power and total 'active' stake are fixed and known
+to the protocol designer), a simple solution is the following: PoW and
+PoS mining occur in parallel; and whichever PoW or PoS succeeds first,
+goes ahead and extends the longest chain. However, there does not appear
+to be any straightforward (or otherwise) approach to extend this simple
+idea to the non-static setting, since we can no longer normalize the
+stake and work in the system when the total mining power is changing and
+unknown [(§4).](#baseline-approaches) Even a fungible combination of
+work (i.e., total amount of honest work is more than total Byzantine
+work) emanating from two different hash functions (thus allowing two PoW
+blockchains using the same longest-chain consensus protocol to co-exist)
+has been unsolved. **Minotaur Protocol.** In this paper we present
+Minotaur, a block- chain protocol with proof of fungible work and stake.
+At its core, Minotaur is a longest chain protocol that bases its
+block-proposer schedule on our concept of *virtual stake* that fuses
+active *actual stake* and *work stake*. The work-stake distribution is
+determined per epoch by measuring the participants' contributions in
+hashing power during a prior epoch. Work contribution is achieved by
+con- current PoW mining of *PoW blocks* (similar to 'endorser inputs'
+\[[21](#_bookmark64)\] or 'fruits' \[[31](#_bookmark74)\]) to be
+eventually referenced by main-chain blocks. The work-stake distribution
+is then assigned proportionally to a participant's share of endorser
+blocks referenced from the main chain during that epoch; and applying
+the fairness mechanisms in \[[17](#_bookmark51), [21](#_bookmark64),
+[31](#_bookmark74)\], this assignment indeed truly represents the PoW-
+resource distribution among the participants. Figure [1a](#_bookmark1)
+illustrates the protocol (a detailed description is given in
+[§5).](#the-full-protocol)
+
+**Minotaur security is optimal.** We show that Minotaur is truly
+fungible between work and stake by showing it is secure when the sum of
+*ω* times the proportion of adversarial hash power (*βw* ) and
+
+1.  *ω* times the proportion of the adversarial stake (*βs* ) is smaller
+    than 1 2, for any *ω* 0, 1 , a weighing parameter of PoW/PoS (see
+    Figure [1b](#_bookmark1) for *ω* = 0.5). Figure [1b](#_bookmark1)
+    also compares the security guarantee of Minotaur and a couple of non
+    fungible PoW/PoS
+
+protocols in the literature (the checkpointed ledger
+\[[19](#_bookmark53)\], the 2-hop blockchain \[[11](#_bookmark45)\], and
+a few finality gadgets \[[6](#_bookmark60), [28](#_bookmark71),
+[33](#_bookmark76), [36](#_bookmark79)\]), with more details in Appendix
+[A.](#appendix) We give a formal security analysis in
+[§6.](#security-analysis) The new challenge that we have to tackle in
+our security analysis is to show a *fairness* guarantee in the
+work-stake conversion (e.g., a miner with 10% mining power should gain
+10% work stake) in the *non-static* setting and in the presence of an
+*adversarial majority* of mining power. This requires a new
+understanding of how to bound the evolution of mining difficulty in the
+system compared to techniques used in previous works and the Bitcoin
+blockchain, and presents a significant barrier to surmount in our
+analysis. One immediate consequence is that Minotaur can tolerate a 51%
+mining adversary, as long as there is a supermajority in honest stake
+(and vice verse, a 51% stake adversary). We prove our security guarantee
+to be optimal, see [§3,](#impossibility-result) in the sense that
+otherwise the adversary will control the majority of the combined
+"resource" in the system and an analogy of Nakamoto's private chain
+attack \[[26](#_bookmark69)\] could break the security (formal and
+detailed proof in [§3).](#impossibility-result) We also show that
+
+> ![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image1.png){width="3.1537489063867015in"
+> height="1.39875in"}
+>
+> []{#_bookmark1 .anchor}**(a)**
+
+![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image2.png){width="2.4587489063867016in"
+height="1.9315616797900264in"}
+
+> **(b)**
+
+### Figure 1: (a) Architecture of Minotaur consensus protocol. (b) Comparison of security regions achieved by different hybrid PoW/PoS protocols (more details in Appendix [A).](#appendix)
+
+Minotaur is capable of tolerating fluctuations of work much more
+effectively than Bitcoin, cf. [§6.4.](#comparison-to-bitcoin)
+
+> **Implementation.** We have implemented a prototype of a Mino-
+
+taur client in about 6000 lines of Rust code \[[25](#_bookmark68)\] and
+provide experi- mental results to evaluate the concrete performance of
+Minotaur under different scenarios. We also implemented a Bitcoin client
+as a benchmark. We use that client to validate also experimentally that
+Minotaur can survive more drastic variations of network hash power,
+while Bitcoin is no longer live under the same scenario.We also evaluate
+practical security concerns, like selfish mining and spamming, on our
+Minotaur client. Our implementation shows that Minotaur performs well
+even under these attacks, and makes a stronger case for the practical
+viability and robustness of the sys- tem. More details on the
+implementation and the experiments can be found in [§7.](#experiments)
+
+> **Launching considerations.** We point out that Minotaur provides
+
+also a secure and efficient method to bootstrap a PoW-based block-
+chains. In general, it is more challenging to securely launch PoW
+blockchains, as a new blockchain would presumably start off with a
+relatively smaller total computation power and be vulnerable to the
+so-called "51% attacks". On the other hand, PoS blockchains are easy to
+launch with existing techniques, such as proof-of-burn
+\[[20](#_bookmark54)\], initial coin offering \[[24](#_bookmark67)\] and
+airdrop \[[1](#references)\]. The key advantage of Minotaur is that it
+can launch in pure PoS mode (setting parameter
+
+*ω* = 0) and later transit into a pure PoW blockchain by gradually
+changing the weighing parameter *ω* to a higher value
+[(§8).](#discussion)
+
+> **Related work.** The idea of hybrid PoW/PoS block production was
+
+first mentioned in \[[23](#_bookmark66)\]. A first concrete construction
+was given in \[[4](#_bookmark58)\] under the label 'proof of activity',
+but without giving a rig- orous security analysis. Their
+block-production mechanism essen- tially extends standard Bitcoin mining
+by having the mined block implicitly elect a set of stakeholders that
+are required to sign the block in order to validate it.
+
+A similar construction was proposed in \[[11](#_bookmark45)\] and proven
+secure under a majority of adversarial hashing power---however, their
+security proof still implies an honest majority of stake. In particular,
+and contrary to their initial claims, the protocol is not proven secure
+
+under the condition that *any* minority of the combined resources is
+controlled by the adversary.1
+
+The work of \[[11](#_bookmark45)\] was extended in
+\[[10](#_bookmark44)\], to adapt to dynamic participation of both,
+hashing power and stake, and in \[[37](#_bookmark80)\], to combine PoW
+with multiple resources (rather than just PoS)---both works lack a
+rigorous security analysis.
+
+The application of PoW/PoS hybrid block production for the goal of
+protecting early-stage PoW systems against initial periods of
+adversarial dominance in hashing power was explored in
+\[[7](#_bookmark61)\]. They propose to start the system with hybrid
+block production (where each resource contributes to a certain fraction
+of the blocks) and then slowly fade out the stake contribution to
+eventually turn the system into pure PoW. Also this protocol is not
+proven secure.
+
+There also exist another class of hybrid PoW/PoS protocols
+\[[6](#_bookmark60), [28](#_bookmark71), [33](#_bookmark76),
+[36](#_bookmark79)\], which uses a BFT protocol (PoS) to build a
+finality gad- get/layer on the top of a Nakamoto-style longest chain
+protocol (PoW) to achieve important properties such as accountability
+and fi- nality. However, these protocols require an honest majority (or
+even supermajority) on both the set of miners and the set of
+stakeholders hence they are not fungible.
+
+2.  # PRELIMINARIES
+
+    1.  ## Security model
+
+**Time, slots, and synchrony.** We consider a setting where time is
+divided into discrete units called *slots*. Players are equipped with
+(roughly synchronized) clocks that indicate the current slot. Slots
+
+are indexed by integers, and further grouped into epochs with fixed size
+*R*, i.e., epoch *e* composes of slots *e* 1 *R*+1, *e* 1 *R*+2, , *eR*
+. And we assume that the real time window that corresponds to each
+
+slot has the following two properties: (1) The current slot is deter-
+mined by a publicly-known and monotonically increasing function of
+current time; (2) Each player has access to the current time and any
+discrepancies between parties' local time are insignificant in
+comparison with the duration of a slot.
+
+We describe our protocols in the now-standard ∆-synchronous network
+model considered in \[[3](#_bookmark57), [8](#_bookmark62),
+[18](#_bookmark52), [30](#_bookmark73)\], where there is an (un- known)
+upper bound ∆ in the delay (measured in number of slots) that the
+adversary may inflict to the delivery of any message. Simi- lar to
+\[[18](#_bookmark52), [30](#_bookmark73)\], the protocol execution
+proceeds in slots with inputs
+
+> network is modeled as a diffusion functionality similar to those in
+> \[[18](#_bookmark52), [30](#_bookmark73)\]: it allows message ordering
+> to be controlled by the adver- sary , i.e., can inject messages for
+> selective delivery but cannot change the contents of the honest
+> parties' messages nor prevent them from being delivered within ∆ slots
+> of delay --- a functional- ity parameter. Specially, for ∆ = 1, the
+> network model is reduced to the so-called *lock-step synchronous
+> model*, where messages are guaranteed to be delivered within one slot.
+>
+> **Protocol player.** The protocol is executed by two types of players,
+>
+> PoW-miners (miners for short) and PoS-holders (stakeholders for
+> short), who generate different types of blocks, PoW blocks and PoS
+> blocks. Note that we allow for any relation among the sets of miners
+> and stakeholders, including the possibility that all players play both
+> roles, or the two types of players are disjoint.
+>
+> **Random oracle.** For PoW mining, we abstract the hash function
+>
+> as a random-oracle functionality. It accepts queries of the form
+> compute, *x* and verify, *x*, *y* . For the first type of query,
+> assum- ing *x* was never queried before, a value *y* is sampled from
+> 0, 1 *κ*
+>
+> and it is entered to a table *TH* . If *x* was queried before, the
+> pair *x*, *y* is recovered from *TH* . In both cases, the value *y* is
+> provided as an answer to the query. For the second type of query, a
+> lookup
+
+operation is performed on the table. Honest miners are allowed to ask
+one query per slot of the type compute and unlimited queries of the type
+verify. The adversary is given a bounded number of compute queries per
+slot and also unlimited number of verify queries. The bound for the
+adversary is determined as follows. Whenever a corrupted miner is
+activated the bound is increased by 1; whenever a query is asked the
+bound is decreased by 1 (it does not matter which specific corrupted
+miner makes the query).
+
+**Adversarial control of resources.** We assume a Byzantine ad- versary
+who can decide on the spot how many honest/corrupted miners are
+activated adaptively. In a slot *r* , the number of honest miners that
+are active in the protocol is denoted by *hr* and the number of all
+active miners in slot *r* is denoted by *nr* . Note that *hr* can only
+be determined by examining the view of all honest miners and is not a
+quantity that is accessible to any of the honest miners individually. In
+order to obtain meaningful concentration bounds on the number of PoW
+blocks in a long enough window, we set a lower bound *α*~0~ on the
+fraction of honest mining power, i.e., *hr α*0*nr* for all *r* . Note
+that *α*0 does not have to be 1 2 as required by Bitcoin, it can be a
+small positive constant. Sudden decreases of total mining power could
+hurt the liveness of the protocol due to too few PoW blocks mined in one
+epoch. Therefore, we need to re- strict the fluctuation of the number of
+honest/adversarial queries in
+
+> a certain limited fashion. Suppose , with fixed coins produces
+>
+> a sequence of honest miners *hr* , where *r* ranges over all slots of
+> the
+>
+> entire execution, we define the following notation.
+>
+> Definition 1 (from \[[16](#_bookmark50)\]). *For γ* 1, *, we call a
+> sequence xr* , *r LR , as γ* , *s -respecting if for any set S* 0, *LR
+> of at most s consecutive slots,*
+>
+> max *x* ≤ *γ* min *x* ,
+
+provided by an environment program denoted by 1*κ* to parties
+
+that execute the protocol Π, where *κ* is a security parameter. The
+
+*r*
+
+> *r* ∈*S*
+>
+> *r*
+>
+> *r* ∈*S*
+>
+> 1 This point was also confirmed by the last author of
+> \[[11](#_bookmark45)\] in personal communication.
+>
+> *We say that* Z *is* (*γ* , *s*)*-respecting if for all* A *and coins
+> for* Z *and*
+>
+> A*, both the sequences of* (*hr* ) *and* (*nr* ) *are* (*γ* ,
+> *s*)*-respecting.*
+
+Finally, Minotaur achieves consensus via proof of fungible work and
+stake. The following is the formal definition of fungibility and our
+major assumptions on the adversarial power.
+
+> []{#_bookmark5 .anchor}Definition 2 (Fungibility of resources). *For a
+> time window W , let βW be the maximum fraction of adversarial stake in
+> W , where the maximum is taken over all views of all honest players
+> across all slots in W ; and let βW be the maximum fraction of
+> adversarial*
+>
+> *blocks with timestamps in S (or r*~1~, *r*~2~ *). We say that a chain
+> is held by or belongs to an honest node if it is one of the best
+> chains in*
+>
+> *its view.*
+>
+> Definition 3 (Common Prefix (CP)). *The common prefix prop- erty with
+> parameter* ℓcp ∈ N *states that for any two honest nodes holding
+> chains* C1*,* C2 *at slots r*1*, r*2*, with r*1 ≤ *r*2*, it holds
+> that*
+>
+> C1⌈ℓcp ≺ C *.*
+>
+> *mining power over all slots in W (i.e., βw* = 1 − min*r* ∈*W hr* /*nr
+> ). For*
+
+Definition 4 (Existential Chain Quality (∃CQ)). *The exis-*
+
+> *θ* ∈ \[0, 1\]*, we say the adversary* A *is* (*θ*, *m*, *ω*)*-bounded
+> if for any*
+>
+> *time window W with at most m slots, we have ωβW* +(1 − *ω*)*βW* ≤ *θ
+> .*
+>
+> *tential chain quality property with parameter* ℓcq
+>
+> *for any chain*
+>
+> ∈ N *states that*
+>
+> *We say a blockchain protocol achieves fungibility of work and stake
+> if it is secure against such an adversary.*
+>
+> []{#_bookmark6 .anchor}Assumption 1 (Initialization). *During the
+> initialization phase*
+>
+> C *held by any honest party at slot r and any interval S* ⊆ \[0, *r*
+> \] *with at least* ℓcq *consecutive slots, there is at least one
+> honestly generated block in* C(*S*)*.*
+>
+> Our goal is to generate a robust transaction ledger that satisfies
+>
+> *of the protocol, we assume:*
+>
+> 0 *persistence* and *liveness* as defined in [\[21\].](#_bookmark64)
+
+1.  *The initial stake distribution has honest majority, i.e., β*
+
+> 1 2 *σ , where β*^0^ *is the fraction of initial stake controlled by
+> the adversary.*
+
+2.  *We have a good estimate of the initial honest mining power h*1*. In
+    > particular, let h*˜1 *be the estimate of h*1*, we have h*1/(1 +
+    > *δ* )*γ* 2 ≤ *h*˜1 ≤ *γ* 2*h*1/(1 − *δ* )*α*0*.*
+
+To keep the paper simple, the Minotaur protocol, as described, relies on
+Assumption [1,](#_bookmark6) while we refer the reader to
+[§8](#discussion) for a discus- sion on how to modify the protocol such
+that this initial assumption (of an honest majority of stake) is no
+longer required.
+
+> []{#_bookmark7 .anchor}Assumption 2 (Execution). *During the execution
+> phase of the protocol, we assume:*
+
+1.  *Stake-work bound: The adversary* A *is* (1/2−2*σ*, 2*R*,
+    > *ω*)*-bounded.*
+
+2.  *Work fluctuation bound: The environment* Z *is* (*γ* ,
+    > 2*R*)*-respecting.*
+
+3.  *Work participation bound:For any slot r* ∈ \[*LR*\]*, hr* ≥ *α*0*nr
+    > .*
+
+**Participation model.** Minotaur can be constructed based on dif-
+ferent PoS longest chain protocols. Various versions of Minotaur will
+take different subsets of the following assumptions on the participation
+model:
+
+> (P1) Honest stakeholders are always online2;
+>
+> (P2) Honest miners who mined PoW blocks in epoch *e* will stay online
+> in epoch *e* + 2;3
+>
+> (P3) In case an honest party joins after the beginning of the pro-
+> tocol, its initialization chain provided by the environment should
+> match an honest party's chain which was active in the previous slot.
+
+## Blockchain security properties
+
+> Notation 1. *We denote by* C ⌈ℓ *the chain resulting from "pruning"
+> the blocks with timestamps within the last* ℓ *slots. If* C~1~ *is a
+> prefix of* C2*, we write* C1 ≺ C2*. The latest block in the chain* C
+> *is called the head of the chain and is denoted by head*(C)*. We
+> denote by* C~1~ ∩C~2~ *the common prefix of chains* C~1~ *and* C~2~*.
+> Given a chain* C *and an interval [S (or ]{.underline}*[\[*r*1,
+> *r*2\]*),*]{.underline} *let* C(*S*) *(or* C\[*r*1, *r*2\]*) be the
+> segment of* C *containing*
+>
+> 2 This assumption can be easily relaxed. Namely, it is sufficient for
+> an honest stakeholder to come online at the beginning of each epoch,
+> determine whether it belongs to the slot leader set for any slots
+> within this epoch, and then come online and act on those slots while
+> maintaining online presence at least every *k* slots. See Appendix H
+> of \[[8](#_bookmark62)\] for more detail.
+>
+> 3 This can be relaxed similarly as P1.
+>
+> Definition 5. *A protocol* Π *maintains a robust public transaction
+> ledger if it organizes the ledger as a blockchain of transactions and
+> it satisfies the following two properties:*
+
+-   *(Persistence) Consider the confirmed ledger L*~1~ *on any node p*1
+    > *at any slot r*1*, and the confirmed ledger L*2 *on any node p*2
+    > *at any slot r*2 *(here u*1 *(r*1*) may or may not equal u*2
+    > *(r*2*)). If*
+
+> *r*1 + ∆ \< *r*2*, then L*1 *is a prefix of L*2*.*
+>
+> *(Liveness) Parameterized by u* R*, if a transaction* tx *is re-*
+>
+> *ceived by all honest nodes for more than u slots, then all honest
+> nodes will contain* tx *in the same place in the confirmed ledger.*
+
+# IMPOSSIBILITY RESULT
+
+Consider any protocol Π executed by two types of players, miners and
+stakeholders, and let *D*Π be the region of *βw* , *βs* such that Π can
+generate a robust public transaction ledger under an adversary
+
+controlling a *βw* fraction of mining power and a *βs* fraction of stake
+(see Figure [1b).](#_bookmark1)
+
+> []{#_bookmark12 .anchor}Theorem 3.1. *Any two points, X*1 = (*p*1,
+> *q*1) *and X*2 = (*p*2, *q*2)
+>
+> *such that p*1 + *p*2 ≥ 1 *and q*1 + *q*2 ≥ 1*, cannot co-exist in D*Π
+> *.*
+
+Proof. We show that if there exists a protocol Π secure under both both
+points *X*~1~ and *X*~2~, then we can use Π to implement a robust
+transaction ledger with two players, one of them being Byzantine, which
+is impossible.
+
+Let Alice and Bob be two players, one of them possibly being malicious.
+Let Alice control a *p*~1~ fraction of mining power and a
+
+1 *q*~2~ fraction of stake. Let Bob control a 1 *p*~1~ fraction of
+mining power and a *q*~2~ fraction of stake. In the case where Alice is
+malicious, a *p*1 fraction of mining power and a 1 *q*2 *q*1 fraction of
+stake are malicious, which is dominated by point *X*~1~. In the case
+where Bob is malicious, a 1 *p*1 *p*2 fraction of mining power and a
+*q*2 fraction of stake are malicious, which is dominated by point
+*X*~2~. Assuming that Π implements a robust public transaction ledger
+implies that also the protocol among the 2 players does while one of
+them being malicious. However, by Theorem 1 in \[[15](#_bookmark49)\],
+tolerating *f* = 1 malicious player requires at least 2*f* + 1 = 3
+players. This is a contradiction. □
+
+Figure
+[2](#figure-2-a-few-examples-of-possible-security-regions-satis--fying-the-constraint-by-theorem-3.1.)
+gives a few examples of possible *maximum* security regions that satisfy
+the constraint by Theorem [3.1.](#_bookmark12) By maximum, we mean the
+region cannot be enlarged any more. All these regions
+
+> ![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image3.png){width="2.785207786526684in"
+> height="2.4045833333333335in"}
+
+### Figure 2: A few examples of possible security regions satis- fying the constraint by Theorem [3.1.](#_bookmark12)
+
+are bounded by a *non-increasing* curve that is *symmetrical* about the
+point 1 2, 1 2 . Therefore, all these security regions have area 1 2,
+which is an analogy of the 1 2 fault tolerance in the single-resource
+
+systems. In this work, we focus on achieving the security regions
+bounded by a linear curve (the yellow and red ones in Figure
+[2)](#figure-2-a-few-examples-of-possible-security-regions-satis--fying-the-constraint-by-theorem-3.1.)
+and leave the achievability of other possible regions (e.g., the green
+and blue ones) to future work.
+
+> []{#_bookmark14 .anchor}Corollary 1. *No protocol* Π *can generate a
+> robust public trans- action ledger under a* (1/2, *m*, ·)*-bounded
+> adversary for any m.*
+
+Corollary [1](#_bookmark14) thus implies that Assumption
+[2.1](#_bookmark7) is not only sufficient but also necessary.
+
+# BASELINE APPROACHES
+
+In this section, we provide a couple of natural designs of hybrid
+PoW/PoS protocols, which fail to achieve the full goal as Minotaur.
+**Idea 1: Securing PoW chain via checkpointing.** The check- pointed
+ledger \[[19](#_bookmark53)\] employs an external set of parties or a
+committee chosen randomly from the pool of stakeholders to assist a PoW
+ledger by finalizing blocks shortly after their creation. The finalized
+blocks are called checkpoints and the final ledger is formed by the
+chain of checkpoints. This mechanism can also secure a PoW ledger in the
+presence of adversarial mining majorities, but the security is solely
+guaranteed by the external set or the stakeholders.
+
+There also exist other checkpointing protocols \[[6](#_bookmark60),
+[28](#_bookmark71), [33](#_bookmark76), [36](#_bookmark79)\] achieving
+properties that are not possible with pure PoW protocols, such as
+accountability and finality. However, these protocols require an honest
+majority (or even supermajority) on both the set of miners and the set
+of stakeholders.
+
+### Idea 2: Smooth interpolation among PoW and PoS blocks. In
+
+the static setting (where both the total mining power and total active
+stake are fixed and known to the protocol designer), there is a simple
+protocol that can also achieve the regions defined by the red line in
+Figure [1b.](#_bookmark1) In this protocol, PoW and PoS mining occur in
+parallel, following the longest chain rule. In the initialization phase,
+we tune the mining targets such that the mining rate (i.e., number of
+blocks produced per unit time) of PoW blocks is *ωf* and
+
+the mining rate of PoS blocks is 1 *ω f* . In the execution phase,
+whichever miners or stakeholders succeeds first, it goes ahead and
+extends the longest chain.
+
+Compared with a pure PoS protocol (e.g., Ouroboros Praos
+\[[3](#_bookmark57)\]), the adversary in this protocol has strictly
+smaller action space be- cause it cannot equivocate with the PoW blocks.
+Therefore, the secu- rity of this protocol follows directly from the
+security of Ouroboros Praos via either the forkable string argument
+\[[3](#_bookmark57)\] or the Nakamoto block method developed in
+\[[9](#_bookmark63)\]. We remark that the existence of this simple
+protocol makes the 2-hop blockchain \[[11](#_bookmark45)\] less
+interesting as it only works in the static setting and does not even
+allow weighing PoW and PoS.
+
+However, it is very hard to extend this simple idea to the non- static
+setting, particularly with variable mining power. A natural approach to
+support variable mining power is to have fixed-length epochs and adjust
+the mining target of PoW blocks every epoch as in Bitcoin. From the
+simple protocol described above, we learn that in order to guarantee
+security in the non-static setting, we need to make sure that the ratio
+of total mining rates of PoW blocks and PoS blocks is a constant *ω* 1
+*ω* in every epoch. However, this is impossible to achieve in the
+variable mining power setting because the adversary can always decide to
+hide or release its PoW blocks so that there is no way to estimate the
+total mining power accurately. Inaccurate PoW mining target adjustment
+could lead to a different weighing parameter *ω* of the security region
+than the desired one. More importantly, the value of *ω* can be easily
+manipulated by the adversary (via selectively publishing its PoW
+blocks), and is unknown to the honest players.
+
+# THE FULL PROTOCOL
+
+In this section, we provide a detailed description of our protocol
+Minotaur. The protocol is built on an epoch-based PoS longest chain
+protocol (e.g., Ouroboros \[[21](#_bookmark64)\], Ouroboros Praos
+\[[8](#_bookmark62)\], Ouroboros Genesis \[[3](#_bookmark57)\]). Recall
+that in a epoch-based PoS protocol, time is divided into multiple
+epochs, each with a fixed number of slots. In each slot, one or multiple
+stakeholders are selected as block proposers by a PoS 'lottery' process.
+In this process, the probability of being selected is proportional to
+the relative stake a stakeholder has in the system, as reported by the
+blockchain itself.
+
+In contrast to the original Ouroboros protocols, the block-proposer
+schedule accounts for both resources by means of *virtual stake*, which
+is a combination of the *actual stake* (representing stake as in the
+original protocol), and *work stake* representing the share in
+block-production rights attributed to the PoW resource.
+
+Additionally, PoW miners participate by mining *endorser blocks* (along
+the lines of 'endorser inputs' \[[21](#_bookmark64)\] or 'fruits'
+\[[31](#_bookmark74)\]). These endorser blocks are not directly appended
+to the main chain, but are to be referenced by future main-chain blocks
+(i.e., PoS blocks scheduled by means of virtual stake). Each epoch is
+assigned a certain amount of work stake that is assigned to the PoW min-
+ers who succeed in mining PoW blocks; the work stake assigned to the
+respective miners is proportional to their contribution of PoW blocks
+referenced from the main chain during an epoch. PoS block production
+rights per epoch are then assigned by considering the sum of actual
+stake (contributed by tokens) and work stake (contributed by PoW
+blocks).
+
+Note that the purpose of the PoW endorser blocks is to measure work
+fairly, not implying that they also need to carry the ledger
+transactions. Transaction inclusion is orthogonal to this aspect, and
+can still be implemented along the lines of Bitcoin (transaction
+inclusion in the main-chain blocks) or Input-Endorsers/Fruitchains
+(transaction inclusion in the endorser blocks), or variants thereof. We
+now treat the underlying PoS protocol as a black-box and present the
+protocol in detail. The protocol runs in fixed-time
+
+epochs with *R* slots each.
+
+> PoW mining: In slot *sl* of epoch *e*, a miner mines a PoW block if
+>
+> *H* (*pk*, *sl*, *h*, *mr*, *nonce*) \< *Te* ,
+>
+> where *pk* is the public key of the miner, *h* is the hash of the last
+> confirmed PoS block (according to the confirmation rule of the
+> underlying PoS protocol), *mr* is the Merkel root of the payload, *Te*
+> is the mining target in epoch *e*. Like in PoW blockchains, miners try
+> different values of *nonce* to solve this hash puzzle. Following the
+> notation in \[[18](#_bookmark52)\], we define the *difficulty* of this
+> PoW block to be 1 *Te* . Besides possible transactions, also the
+> public key of the miner is included in the payload. A PoW block is
+> called recent in current slot *sl*now if it refers to a confirmed PoS
+> block mined no earlier than slot *sl*now *sl*re, where *sl*re is
+> called the *recency parameter*. PoS mining: in slot *sl* of epoch *e*,
+> one or multiple stakehold- ers are selected to propose PoS blocks
+> extending the best chain (according to the chain selection rule). The
+> selection of PoS block proposers uses the same mechanism as in the
+> underlying PoS protocol. But for each node, the probability of being
+> selected is proportional to it relative "virtual" stake, instead of
+> the relative actual stake. The virtual stake is the sum of actual
+> stake and work stake. At the beginning of each
+>
+> the new chain ′ forks less than *k* blocks relative to the currently
+> held chain . If ′ did fork more than *k* blocks relative to , ′ would
+> still be preferred if it grows more
+>
+> quickly in the *s* slots following the slot associated with the last
+> common block of C and C′.
+
+6.  # SECURITY ANALYSIS
+
+    1.  ## Main theorems
+
+> Under different security models and assumptions, we prove the security
+> (in particular, *persistence* and *liveness* as defined in
+> [§2.2)](#blockchain-security-properties) of Minotaur constructed with
+> three various versions of Ouroboros PoS protocols.
+>
+> []{#_bookmark18 .anchor}Theorem 6.1. *Under Assumption
+> [1,](#_bookmark6) Assumption [2](#_bookmark7) and assump- tions
+> (P1)-(P3), when executed in a lock-step synchronous model (i.e.,*
+> ∆*-synchronous model with* ∆ = 1*),* Minotaur *constructed with
+> Ouroboros generates a transaction ledger that satisfies persistence
+> and liveness with overwhelming probability.*
+>
+> Theorem 6.2. *Under Assumption [1,](#_bookmark6) Assumption
+> [2](#_bookmark7) and assump- tions (P1)-(P3), when executed in a*
+> ∆*-synchronous model,* Minotaur *constructed with Ouroboros Praos
+> generates a transaction ledger that satisfies persistence and liveness
+> with overwhelming probability.*
+>
+> Theorem 6.3. *Under Assumption [1,](#_bookmark6) Assumption
+> [2](#_bookmark7) and assump- tions (P1)-(P2), when executed in a*
+> ∆*-synchronous model,* Minotaur *constructed with Ouroboros Genesis
+> generates a transaction ledger that satisfies persistence and liveness
+> with overwhelming probability.*
+
+## Security with Ouroboros
+
+We first provide a proof sketch for Theorem [6.1.](#_bookmark18) All the
+parameters used in our analysis are listed in Table
+[1.](#table-1-the-parameters-used-in-our-analysis.)
+
+> epoch, we set the total work stake equal to ~1~*ω* times the
+>
+> total actual stake in the system. And the work−*ω*stake distri-
+>
+> bution used in epoch *e* is set to be the distribution of block
+> difficulties from PoW blocks referred by PoS blocks in epoch *e* 2.
+>
+> Adjust the PoW mining target: For epoch *e*, *Te* is adjusted
+> according to *D*total the total difficulty of PoW blocks referred by
+> PoS blocks in slots *e* 2 *R k* + 1, *e* 1 *R k* , i.e., *Te* = *f*
+> (*w* )*R D*total, where *f* (*w* ) is a protocol parameter
+>
+> representing the expected PoW mining rate in number of
+>
+> blocks per slot. (Specially, for *e* = 2, *T*2 = *f* (*w* )(*R*
+> −*k*)/*D*total.)
+>
+> Note that around the boundary of two epochs *e* −
+>
+> 1
+
+1 and
+
+> epoch *e*, the adversary has the option to use targets from both
+> epochs, as PoW blocks don't have accurate timestamps. Chain selection
+> rule: due to a long-range attack (see Appen- dix [C),](#_bookmark86)
+> the longest chain rule would fail. We use the following chain
+> selection rules, which have different security guaran- tees.
+
+-   maxvalid-mc (from Ouroboros Praos \[[8](#_bookmark62)\], needs a
+    > trusted
+
+> third party for bootstrapping, i.e., assumption (P3)): it prefers
+> longer chains, unless the new chain forks more than *k* blocks
+> relative to the currently held chain (in which case the new chain
+> would be discarded).
+
+-   maxvalid-bg (from Ouroboros Genesis \[[3](#_bookmark57)\], supports
+    boot-
+
+strapping from genesis block): it prefers longer chains, if
+
+### Table 1: The parameters used in our analysis.
+
+> Proof sketch. The proof relies on two important building blocks:
+
+1)  **Single-epoch argument.** Given honest majority in the vir- tual
+    > stake (normalized work-stake + normalized actual-stake) used in
+    > one epoch, we prove the security properties (CP and CQ) for this
+    > single epoch. For this, we use the so-called *forkable strings*
+    > technique developed in the Ouroboros pa-
+
+> Proof. Suppose an honest PoW block *Bw* is mined at slot *r*~0~ while
+> the PoS chain C~0~ is adopted, then *Bw* will reference the tip of
+> C0⌈*κ* as the last confirmed PoS block. Further, by the ∃CQ property,
+> the tip of C0⌈*κ* has timestamp *r*1 ≥ *r*0 − 2*κ*. By slot *r*0 + ∆,
+> all honest
+>
+> nodes will receive *Bw* . Let *r*2 = *r*0 + 2*κ* + ∆ and C be any
+> chain held
+>
+> pers [\[3,](#_bookmark57) [8,](#_bookmark62) [21\].](#_bookmark64)
+
+2)  **Fruitchains argument.** Given CP and ∃CQ of the PoS chain
+
+> by an honest node at slot *r*~2~, then again by the ∃CQ property,
+> there
+>
+> exists at least one honest block *Bs* on C whose timestamp *r*~3~ is
+> in
+>
+> in an epoch, we prove *fairness* of PoW blocks in this epoch, i.e., a
+> miner controlling a *ϕ* fraction of the computational resources will
+> contribute a *ϕ* fraction of work. This is similar to the analysis on
+> the variable difficulty Fruitchains [\[38\].](#_bookmark81)
+
+Using these building blocks, we prove the security with maxvalid- mc
+inductively. Under the honest majority assumption in the initial stake
+distribution (Assumption [1.1),](#_bookmark6) we can prove security of
+the PoS chain in epochs 1&2. Then applying the Fruitchains argument, we
+get fairness of PoW blocks in epochs 1&2. Combining with
+
+Assumption [2.1,](#_bookmark7) i.e., *βw* + *βs* \< 1 (for any long
+enough window),
+
+we have honest majority in the virtual stake distribution used in
+
+epoch 3&4. And the proof goes on till the last epoch (Figure
+[3).](#figure-3-proof-sketch-of-6.2.)
+
+□
+
+> the interval \[*r*2 − 2*κ*, *r*2 − *κ*). We check that *Bw* is still
+> recent at slot
+>
+> *r*3
+>
+> *r*3 − *r*1 \< (*r*2 − *κ*) − (*r*0 − 2*κ*) = 3*κ* + ∆ = *sl*re.
+
+As *Bs* is an honest block mined after *r*0 + ∆, *Bs* or an ancestor of
+*Bs* must include *Bw* . And since *Bs* is stabilized in C at slot *r*2,
+we have that *r*wait = *r*2 − *r*0 = 2*κ* + ∆. □
+
+> In a *γ* , *s* -respecting environment, we have the following useful
+> proposition.
+>
+> []{#_bookmark21 .anchor}Proposition 1 (Proposition 2 from
+> \[[18](#_bookmark52)\]). *In a* (*γ* , *s*)*-respecting environment,
+> let U be a set of at most s consecutive slots and S* ⊆ *U .*
+>
+> *Then, for any h* ∈ {*hr* : *r* ∈ *U* } *and any n* ∈ {*nr* : *r* ∈
+> *U* } *we have*
+>
+> *[h]{.underline}* ≤ [*h*(*S*)]{.underline} ≤ *γh*, *[n]{.underline}* ≤
+> [*n*(*S*)]{.underline} ≤ *γn*,
+
+1.  *Single-epoch security.*
+
+> *γ* \|*S* \|
+>
+> *γ* \|*S* \|
+>
+> []{#_bookmark22 .anchor}Theorem 6.4 (Theorem 3 from
+> \[[8](#_bookmark62)\]). *Let κ*, *R*, ∆ ∈ N *and σ* ∈
+>
+> *h*(*U* ) ≤ 1 + [*γ* \|*U* \\]{.underline} [*S* \|]{.underline}
+> *h*(*S*), *n*(*U* ) ≤ 1 + [*γ* \|*U* \\]{.underline} [*S*
+> \|]{.underline} *n*(*S*).
+>
+> (0, 1)*. Let βv be the fraction of adversarial virtual stake
+> satisfying*
+>
+> \|*S* \|
+>
+> \|*S* \|
+>
+> *βv* ≤ 1/2 − *σ*
+>
+> *for some positive constant σ . Then the probability that the
+> adversary violates CP with parameter* ℓcp = *κ and* ∃*CQ with
+> parameter* ℓcq = *κ throughout a period of R slots is no more than
+> Re*−Ω(*κ*)*. The constant*
+>
+> *hidden by the* Ω[]{#_bookmark23 .anchor}(·)*-notation depends on σ .*
+
+2.  *Fruitchains argument.* Recall that *hr* is the number of honest PoW
+    queries in slot *r* and *nr* is the number of total PoW queries in
+    slot *r* . For a set of slots *S*, we define *h S* = *h* and *n S* =
+    *r S nr* . In order to obtain meaningful concentration bounds on the
+    number of PoW blocks in one epoch, there is a lower bound *α*~0~
+
+on the fraction of honest mining power, i.e., *hr α*0*nr* for all *r* .
+
+In the analysis of this subsection, we assume the main chain (PoS chain)
+satisfies properties CP with parameter ℓcp = *κ* and CQ with parameter
+ℓcq = *κ*. By the common prefix property, for a PoS chain
+
+> held by an honest node at slot *r* , the prefix ⌈*κ* are stabilized,
+
+so to mine a PoW block at slot *r* an honest miner will refer the tip of
+⌈*κ* as the last confirmed PoS block. And we set the recency parameter
+*sl*re = 3*κ* + ∆, i.e., a PoW block *Bw* is recent w.r.t. a chain at
+slot *r* if the confirmed PoS block referred by *Bw* is in and has
+timestamp at least *r* 3*κ* ∆. With this selection of the recency
+
+parameter, we can prove the following key property of the protocol: any
+PoW block mined by an honest miner will be incorporated into the
+stabilized chain (and thus never lost). We refer to this as the *Fruit
+Freshness Lemma*---PoW blocks stay "fresh" sufficiently long to be
+incorporated.
+
+> []{#_bookmark24 .anchor}Lemma 6.5 (Fruit Freshness). *Suppose the PoS
+> chain satisfies properties CP with parameter* ℓcp = *κ and CQ with
+> parameter* ℓcq = *κ. Then, if sl*re = 3*κ* + ∆*, an honest PoW block
+> mined at slot r*
+>
+> *will be included into the stabilized chain before slot r* + *r*wait*,
+> where*
+>
+> *r*wait = 2*κ* + ∆*.*
+
+Recall that *Te* is the mining target in epoch *e* determined by the
+stabilized segment of the chain from epoch *e* 1. In order to obtain
+meaningful concentration bounds on the number of PoW blocks, we need
+*Te* to be "reasonable" for each epoch. Similar to \[[16](#_bookmark50),
+[18](#_bookmark52)\], we define a notation of "good" epochs as follows.
+By abuse of notation, we write the expected PoW block rate *f* (*w* )
+simply as *f* in the
+
+> analysis below.
+>
+> Definition 6. *Epoch e is* good *if* (1 − *δ* )*α*0 *f* /*γ* ≤
+> *ph*(*e* )*Te* ≤ 1 + *δ γ f , where p* = 1 2*κ and h*(*e* ) = *h e* 1
+> *R*+1*, i.e., the number of honest queries in the first slot of epoch
+> e. A slot r is good if it is in a*
+>
+> *good epoch.*
+>
+> []{#_bookmark26 .anchor}Proposition 2. *Under a* (*γ* ,
+> 2*R*)*-respecting environment, if slot r is a good slot in epoch e,
+> then* (1 − *δ* )*α*0 *f* /*γ* 2 ≤ *phr Te* ≤ (1 + *δ* )*γ* 2 *f .*
+>
+> Proof. By the definition of a good epoch, we have (1−*δ* )*α*~0~ *f*
+> /*γ* ≤ *ph*(*e* )*Te* ≤ (1 + *δ* )*γ f* . And under a (*γ* ,
+> 2*R*)-respecting environment and the fact that slot *r* is in epoch
+> *e*, we know 1/*γ* ≤ *hr* /*h*(*e* ) ≤ *γ* . Therefore, (1 − *δ* )*α*0
+> *f* /*γ* 2 ≤ *phr Te* ≤ (1 + *δ* )*γ* 2 *f* . □
+>
+> Now, we prove *fairness* of PoW blocks in any large enough win- dow,
+> i.e., a miner controlling a *ϕ* fraction of the computational
+> resources will contribute a *ϕ* fraction of work. We first give a form
+> definition of fairness.
+>
+> Definition 7. *We say that* H *is a ϕ*-fraction honest subset *if
+> miners in* H *(that may change over time) are honest and nr*H \> *ϕnr
+> for any slot r , where nr*H *is number of queries in* []{#_bookmark27
+> .anchor}H *at slot r .*
+>
+> Definition 8 (Fairness). *We say that the protocol has* (approx-
+> imate) (*W*~0~, *σ* )−fairness *if, for any ϕ, α*~0~ ≤ *ϕ* \< 1*, any
+> ϕ*−*fraction honest subset* H *, and any honest miner holding chain* C
+> *at slot r and any interval S*~0~ ⊆ \[0, *r* \] *with at least W*~0~
+> *consecutive slots, it holds that the PoW blocks included in*
+> C(*S*~0~) *mined by* H *have total difficulty*
+>
+> ![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image4.png){width="6.357225503062117in"
+> height="1.5618744531933508in"}
+
+### Figure 3: Proof sketch of [§6.2.](#security-with-ouroboros)
+
+> *at least* (1 − *σ* )*ϕd, where d is the total difficulty of all PoW
+> blocks included in* C(*S*~0~)*.*
+>
+> []{#_bookmark29 .anchor}Lemma 6.6. *For an execution* E *of LR slots,
+> in a* (*γ* , 2*R*)*-respecting environment, the probability of the
+> event "*E *is not typical" is bounded*
+
+Define the random variable *Dr* equal to the sum of the difficulties of
+all PoW blocks computed by honest miners at slot *r* . And for fixed *ϕ*
+and *ϕ*−fraction honest subset H, define the random variable
+
+*Dr*H equal to the sum of the difficulties of all PoW blocks computed
+
+by miners in at slot *r* . For a set of slots *S*, we define *D S* =
+
+> *r S Dr* , *D* H *S* = *r S Dr*H , and *n*H *S* = *r S nr*H . For a
+> set of
+>
+> *J* adversarial queries, define the random variable *A J* , as the sum
+
+of difficulties of all the PoW blocks created during queries in *J* .
+
+Next we define the notion of typical executions, which will be shown to
+occur with overwhelming probability.
+
+> Definition 9 (Typical execution). *An execution E is* typical *if the
+> following hold*
+
+(a) *For any set S of at least* ℓ *consecutive good slots,*
+
+> *D*(*S*) \< (1 + *ϵ*)*ph*(*S*).
+
+(b) *For any set S of at least* ℓ *consecutive good slots, let J be the
+    set of adversarial queries in S. If we further know each query in J
+    made at slot r with target T satisfies* (1 − *δ* )*α*0 *f* /*γ* 2 ≤
+    *pnr T* ≤ (1 + *δ* )*γ* 2 *f* /*α*0*,*
+
+> *D*(*S*) + *A*(*J* ) \< (1 + *ϵ*)*p*(*h*(*S*) + \| *J* \|).
+
+(c) *For any set S of at least* ℓ/*ϕ consecutive good slots,*
+
+> *D* H(*S*) \> (1 − *ϵ*)*pn*H(*S*).
+
+To obtain meaningful concentration, we should be considering a
+sufficiently long slot sequence of at least
+
+> ℓ ≜ [2(1 + *ϵ*/3)]{.underline} *λ*,
+>
+> *ϵ*2*γ* 3(1 − *δ* )*α*0 *f*
+
+where *λ* is called the typicality parameter of the execution.
+
+For our analysis to go through, the protocol parameters should satisfy
+certain conditions which we now discuss. First, we will
+
+require that the number ℓ defined above and the security parameter
+
+*κ* are appropriately small compared to *R*, the duration of an epoch.
+
+*R* − 3*κ* − ∆ ≥ ℓ/*α*0 ≥ *ϵ* (4*κ* + ∆). (C1) Note that (C1) implies
+*R* 4*κ* + ∆ *ϵ*. Second, the slack variables *ϵ* and *δ* should satisfy
+
+> 4*ϵ* ≤ *δ* ≤ 1. (C2)
+
+Next we bound the probability of an atypical execution (Lemma
+[6.6)](#_bookmark29) and show that all epochs are good in a typical
+execution by induc- tion (Lemma [6.7).](#_bookmark30) Therefore, all
+epochs are good with overwhelming probability.
+
+> *by* O(*LR*)*e*−*λ.*
+>
+> []{#_bookmark30 .anchor}Lemma 6.7. *For a typical execution in a γ* ,
+> 2*R -respecting envi- ronment, all epochs are good.*
+>
+> The proofs of Lemma [6.6](#_bookmark29) and Lemma [6.7](#_bookmark30)
+> are in Appendix [D.](#proof-for-6) []{#_bookmark31 .anchor}Theorem 6.8
+> (Fairness). *For a typical execution in a* (*γ* , 2*R*)*-*
+>
+> *respecting environment, the protocol with recency parameter sl*re =
+> 3*κ* + ∆ *satisfies* (*W*0, *σ* )−*fairness, where W*0 = ℓ/*α*0 +
+> 3*κ* + ∆ *and σ* = *ϵ*
+
+Proof. Fix *ϕ*, a *ϕ* fraction honest subset , and an honest node
+holding chain . Let *S*0 = *u* : *r*1 *u r*2 be a window of at least
+*W*~0~ consecutive slots. Let *S*~0~ be the segment of containing PoS
+blocks with timestamps in *S*~0~, let be all PoW blocks included in
+*S*~0~ , and *d* be the total difficulty of all PoW blocks in . Facts
+
+1-3 from the proof of Lemma [6.7](#_bookmark30) will be useful for
+proving the theorem. Let *S*1 = *u* : *r*1 4*κ* + ∆ *u r*2 + *κ* , *S*2
+= *u* : *r*~1~ *u r*~2~ 3*κ* + ∆ , and *J* be the set of adversary
+queries associated with in *S*~1~. Then by Fact 1 and Fact 2, we have
+that all PoW blocks in are mined in *S*~1~; by Fact 3, we have that all
+PoW blocks mined by in *S*~2~ are in . Similar to the arguments in Lemma
+[6.7,](#_bookmark30) for each query in *S*~1~ made by either an honest
+node or the adversary at slot *r* in epoch *e*, the target *T* must
+satisfy
+
+> 1 *δ α*0 *f γ* 2 *pnr T* 1 + *δ γ* 2 *f α*0.
+>
+> Further note that, to prove *σ* -fairness, it suffices to show that
+>
+> *D* H(*S*2) ≥ (1 − *σ* )*ϕ*(*D*(*S*1) + *A*(*J* )).
+>
+> Under a typical execution, we have
+>
+> *D* H(*S*2) \> (1 − *ϵ*)*pn*H(*S*2) ≥ (1 − *ϵ*)*ϕpn*(*S*2),
+>
+> and
+>
+> *D*(*S*1) + *A*(*J* ) \< (1 + *ϵ*)*p*(*h*(*S*1) + \| *J* \|) = (1 +
+> *ϵ*)*pn*(*S*1).
+
+By our choice of *W*0, we have *S*2 ℓ *α*0 ℓ *ϕ*. Furthermore, we may
+assume *S*~2~ 2*R*. This is because we may partition *S*~2~ in parts
+such that each part has size between ℓ *α*~0~ and 2*R*, sum over all
+parts to obtain the desired bound. Then by Proposition
+[1,](#_bookmark21) we
+
+have
+
+> *n*(*S*1) ≤ (1 + [*γ* \|*S*1 \\]{.underline} [*S*2 \|]{.underline}
+> )*n*(*S*2)
+>
+> [*γ* (8*κ* + 2∆)]{.underline}
+
+PoW participation than Bitcoin. In particular, we demonstrate that
+Bitcoin may not enjoy liveness if the number of parties is allowed to
+halve every two weeks---while Minotaur does. The theoretical results of
+this section are accompanied by experiments; see [§7.2](#_bookmark36)
+
+> ≤ (1 +
+>
+> (*C*1)
+>
+> ℓ/*α*0 )*n*(*S*2)
+>
+> and Figure [5.](#_bookmark37)
+>
+> Consider Bitcoin for the case that, initially, there are *n* honest
+> parties and that the target is *T* . Using the model and notation of
+> \[[16](#_bookmark50)\]
+>
+> ≤ (1 + 2*ϵ*)*n*(*S*~2~).
+
+Finally, by setting *σ* = 4*ϵ*, we conclude the proof. □
+
+1.  *Lifting argument from single-epoch to multiple-epoch.* The- orem
+    [6.4](#_bookmark22) gives bounds for CP and CQ for a single-epoch
+    run of the protocol with static stake distribution and perfect
+    randomness. We now conclude our proof of Theorem [6.1](#_bookmark18)
+    by showing that these blockchain properties hold throughout the
+    whole lifetime of the system consisting of many epochs.
+
+> []{#_bookmark32 .anchor}Theorem 6.9 (Restatement of Theorem
+> [6.1).](#_bookmark18) *Fix parameters κ, λ,* ℓ*, γ , σ , ϵ, δ , R and
+> L satisfying conditions (C1) and (C2). Under As- sumption
+> [1,](#_bookmark6) Assumption [2](#_bookmark7) and assumptions
+> (P1)-(P3), when executed*
+>
+> *in a lock-step synchronous model (i.e.,* ∆*-synchronous model with*
+>
+> ∆ = 1*),* Minotaur *constructed with Ouroboros generates a transaction
+> ledger that satisfies persistence and liveness throughout a period of
+> L epochs (each with R slots) with probability* 1 − *RL*(*e*−Ω(*κ*) +
+> *e*−*λ* )*.*
+
+This part of the analysis proceeds similarly as in Section 5 of
+\[[21](#_bookmark64)\] and hence we only sketch it in Appendix
+[D.](#proof-for-6)
+
+## Security with Ouroboros Praos/Genesis
+
+By maxvalid-bg, an honest node prefers longer chains, if the new
+
+with *q* = 1, *m* is the number of blocks in an epoch and *p* = 1 2*κ* .
+Thus, each slot is successful with probability *f* = 1 1 *pT n pTn*. We
+will show that for *s* = *m pTn* , liveness may fail in a 2, *s* -
+respecting environment. In such an environment, the adversary is
+
+allowed to halve the number of parties every *s m f* slots (note that *m
+f* is the expected duration of an epoch, which for Bitcoin is two
+weeks).
+
+The attack proceeds in stages of *s* slots, during which the adver- sary
+does not mine nor delays messages. Thus, in the beginning of each slot
+all parties have a chain of the same length. The adversary
+
+halves the number of parties at the beginning of each stage. Let *Ni*
+denote the number of honest parties in stage *i*, with *N*~0~ = *n* and
+*Ni* = *n* 2*i* for *i* \> 0. The expected number of successful slots in
+stage *i* is
+
+> *s* · \[1 − (1 − *pT* )*Ni* \] \< *spT Ni* = *spTn* ≤ *m* .
+>
+> Consider the stage *j* for which
+>
+> *k* − 1 \< 2*j* ≤ 2(*k* − 1).
+
+The expected number of blocks computed in the first *j* stages is
+
+chain C′ forks less than *k* blocks relative to the currently held chain
+
+> *m m m m*
+
+. If ′ did fork more than *k* blocks relative to , ′ would still be
+preferred if it grows more quickly in the *s* slots following the slot
+associated with the last common block of and ′. In this section,
+
+we analyze the security of the protocol with maxvalid-bg, but drop
+assumption (P3) (i.e., allow bootstrapping from genesis).
+
+Proof sketch. This part is identical to the analysis in Ouroboros
+Genesis (Section 4.3-4.4 of \[[3](#_bookmark57)\]), so we only sketch it
+here. The proof proceeds in two steps:
+
+1)  For an honest node *h*~1~ that is always online, we show that when
+    > replacing maxvalid-mc with maxvalid-bg, the overall execution of
+    > the protocol in *h*~1~'s view remains the same except with
+    > negligible probability. That is to show that with overwhelming
+    > probability, whenever *h*~1~ receives a new chain
+
+> ′ that forks more than *k* blocks from *h*1's local chain , *h*1
+>
+> will always favor , i.e., grows more quickly than ′ in the first *s*
+> slots right after the fork.
+
+2)  For a newly joined node *h*2, we consider a "virtual" node *h*2′
+
+> that holds no stake, but was participating in the protocol
+>
+> since the beginning and was honest all the time. Then we show *h*2
+> will always adopt the same chains as *h*2′ after joining the network.
+
+□
+
+## Comparison to Bitcoin
+
+In this paragraph, we observe that Minotaur (when executed in the pure
+PoW case, *ω* = 1) is more robust against fluctuations in
+
+> 2 + 22 + · · · + 2*j* = *m* − 2*j* \< *m* − *k* + 1
+
+and at most *k* 1 in stage *j* + 1. Recalling that the median of a
+binomial distribution with mean *µ* is at most *µ* , we obtain that with
+probability at least 1 4 at most *m* blocks have been computed
+
+> by the end of stage *j* + 1 and at most *k* 1 of them have been
+> computed in the last stage. Assuming the liveness parameter *u* \<
+> *s*, any transaction provided to all honest parties for the first *u*
+> slots of
+>
+> the final stage, will be in depth less than *k*. It follows that
+> liveness does not hold in the final stage of the attack.
+>
+> Proposition 6.10. *Bitcoin's ledger does not satisfy liveness in a*
+>
+> (2, *s*)*-respecting environment, for any u* \< *s and s* \<
+> *m*/*pTn.*
+
+In contrast, Minotaur does not suffer from such fluctuation. In-
+tuitively, this is because it inherits its security from the underlying
+proof-of-stake protocol. In particular, the epochs are of fixed du-
+ration, implying that target recalculation occurs regularly. This is
+evident from Condition C1, which allows much greater values for *R* and
+*γ* .
+
+#  EXPERIMENTS
+
+We implemented a prototype instantiation of a Minotaur client in Rust
+and the code can be found at \[[25](#_bookmark68)\]. We also implemented
+a Bitcoin client as a benchmark. In this section, we briefly describe
+the architecture of our implementation and present experimental results
+to evaluate the concrete performance of Minotaur under different
+scenarios.
+
+## Architecture
+
+We implemented the Input-Endorsers/Fruitchains variant of Mino- taur,
+where transactions are exclusively included in the PoW blocks. In this
+way, Minotaur can potentially achieve optimal throughput up to the
+capacity of the network as shown by the implementation of Prism
+\[[39](#_bookmark82)\], a pure PoW consensus protocol with similar
+blockchain structure. The system architecture is illustrated in Figure
+[4.](#_bookmark35) Func- tionally it can be divided into the following
+three modules:
+
+(1) *Block Structure Manager*, which maintains the client's view of the
+    > blockchain, and communicates with peers to exchange new blocks.
+
+(2) *Miner*, which assembles new PoW blocks.
+
+(3) *Staker*, which assembles new PoS blocks.
+
+The goal of a Minotaur client is to maintain up-to-date informa- tion of
+the blockchain. They are stored in the following three data structures:
+
+(1) *Block Structure Database*, stores the graph structure of the
+    > blockchain (i.e., a directed acyclic graph (DAG) formed with PoW
+    > and PoS blocks).
+
+(2) *Memory Pool*, stores the set of transactions that have not been
+    > mined into any PoW block.
+
+(3) *PoW Block Pool*, stores the set of PoW blocks that have not been
+    > referenced by any PoS block.
+
+At the core of the **Block Structure Manager** is an *event loop* which
+sends and receives network messages to/from peers, and a *worker thread
+pool* which handles those messages. When a new block arrives, the worker
+thread first checks its proof-of-work/proof- of-stake, and if valid,
+then proceeds to relay the block to peers that have not received it.
+Next, the worker thread checks whether all blocks referenced by the new
+block, e.g. its parent, are already present in the Block Structure
+Database. If not, it buffers the block in an in-memory queue and defers
+further processing until all the referenced blocks have been received.
+Finally, the worker validates the block (e.g., verifying transaction
+signatures), and inserts the block into the Block Structure Database. If
+the block is a PoW block, the Block Structure Manager checks the Memory
+Pool against the transactions in this new block and removes any
+duplicates or con- flicts from the Memory Pool, and also puts the block
+into the PoW Block Pool.
+
+The **Miner** module assembles new PoW blocks. It is implemented as a
+busy-spinning loop. At the start of each round, it polls the Block
+Structure Database and the Memory Pool to update the block it is mining.
+When a new PoW block is mined, it will be inserted into the Block
+Structure Database, then sent to peers by the Block Structure Manager.
+The Memory Pool and PoW Block Pool will also be updated accordingly.
+
+> The **Staker** module works similarly, but assembles new PoS
+
+blocks. At the start of each round, it polls the Block Structure Data-
+base and the PoW Block Pool to update the block it is assembling. When a
+new PoS block is generated, it will be inserted into the Block Structure
+Database, then sent to peers by the Block Structure Manager. The PoW
+Block Pool will also be updated accordingly.
+
+> []{#_bookmark35 .anchor}New Blocks New Transactions
+
+### Figure 4: Architecture of our Minotaur client implementa- tion.
+
+1.  []{#_bookmark36 .anchor}**Performance under variable mining power**
+    In [§6.4,](#comparison-to-bitcoin) we have seen that Minotaur can
+    survive more drastic varia- tions of network hash power. We design
+    the following experiment on our Minotaur/Bitcoin codebase to verify
+    this argument.
+
+Recall that both Bitcoin and Minotaur have epoch-based target adjustment
+rules, varying the difficulty target of block mining based on the median
+inter-block time from the previous epoch. However, the epoch length in
+Minotaur is defined as a fixed number of slots instead of a fixed number
+of blocks (e.g., 2016 blocks in Bitcoin). This definition makes sense in
+Minotaur because the main-chain blocks, which are PoS blocks, always
+have accurate timestamps (even if they are proposed by an adversary). In
+this experiment, we will see that this small change allows Minotaur to
+enjoy better liveness than Bitcoin when the total mining power is
+decreasing.
+
+In our experiment, we set the epoch length in Bitcoin to be 400 blocks
+and the expected duration of an epoch is 2 minutes; while the epoch
+length of Minotaur is 2 minutes and the expected number of blocks in a
+epoch is 400 blocks. Then Bitcoin and Minotaur are experiencing the same
+mining power variation, i.e., starting with an insufficient mining rate
+(100 blocks per minute) and then halving the mining rate every epoch (2
+minutes in the experiments). From Figure [5,](#_bookmark37) we can see
+that the mining target never has a chance to be adjusted in Bitcoin as
+the length of the chain can never reach 400 blocks, which leads to a
+liveness failure; while the mining targets are adjusted every epoch (2
+minutes) in Minotaur to make sure that the number of PoW blocks
+referenced by the main chain grows linearly.
+
+## Performance under attacks
+
+In the following experiments, we evaluate how Minotaur performs in the
+presence of active attacks. Specifically, we consider two types of
+attacks: spamming and selfish mining attacks. Spamming attack aims to
+reduce network throughput, while selfish mining aims to compromise the
+PoW fairness of the protocol (i.e., reducing the work stake of honest
+miners).
+
+> **Spamming attack.** In a spamming attack, attackers flood the net-
+
+work with conflicting transactions. Among a bunch of conflicting
+transactions, at most one of them could be executed successfully. For
+example, in an account model, transactions with identical sender and
+nonce are conflicting transactions. Compared to Bitcoin, the
+Input-Endorsers/Fruitchains variant of Minotaur cannot ensure that no
+conflicting transactions enter the transaction ledger since PoW are
+mined *before* picked by main chain. Therefore, goodput
+
+![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image5.png){width="2.773225065616798in"
+height="2.1427220034995624in"}[[]{#_bookmark38 .anchor}]{#_bookmark37
+.anchor}0.25
+
+0.20
+
+0.15
+
+0.10
+
+0.05
+
+0.00
+
+> 0.0 0.1 0.2 0.3
+>
+> Additional peer-to-peer latency (seconds)
+
+### Figure 5: Behavior of Bitcoin and Minotaur under decreasing mining power. When the total mining power is halved ev- ery two minutes, the Bitcoin chain stops growing as it can never reach its epoch size (400 blocks), while the number of PoW blocks referenced by the main chain grows linearly in Minotaur.
+
+(i.e., throughput of successfully executed transactions) of Minotaur
+transaction ledger will be comprised if conflicting transactions en- ter
+PoW blocks. To mitigate this attack, we propose a spam filter that
+operates as follows: a miner validates transactions with respect to the
+transaction ledger, PoW blocks that haven't been picked by main chain,
+and preceding pending transactions of this miner. In this way, if one of
+the conflicting transactions enters a PoW block and propagated
+throughout the network before other conflicting ones enter a PoW block,
+miners will filter out other conflicting transactions and increase
+goodput.
+
+We implemented the spam filter and did experiments with four nodes in a
+line topology. Our metrics is *normalized spam*, which is the count of
+unsuccessfully executed transactions normalized by the count of
+transactions in ledger. In our experiments, we make transaction
+generators create conflicting transactions on purpose, and send them to
+two nodes sitting at the ends of the line topology. And other nodes
+receive non-conflicting transactions. Hence, with-
+
+out any spam precaution, normalized spam is 0.25. We set the block
+generation rate to be 0.44 block/s for PoS blocks and 1.39 block/s for
+PoW blocks. The results of our experiments with additional
+
+peer-to-peer latency is shown in Figure [6,](#_bookmark38) and we
+observe that al- though normalized spam increases as additional latency
+increases, it is still lower than that without spam filter. The highest
+spam
+
+in our experiments is 0.063, far lower than 0.25. Noticed that in
+
+that experiment we apply an additional peer-to-peer latency of 0.3s,
+which is larger than most peer-to-peer latency in Bitcoin and Ethereum
+\[[22](#_bookmark65)\]. This means that our spam filter can reduce spam
+to
+
+minimal effect.
+
+**Selfish mining attack.** It has been known that Bitcoin is vulnera-
+ble to the selfish mining attack \[[13](#_bookmark47),
+[27](#_bookmark70), [34](#_bookmark77)\], where a selfish miner withhold
+its mined blocks and release them later at an appropriate time to take
+the place of honest blocks in the longest chain. This attack hurts the
+fairness of the protocol, in the sense that the selfish
+
+###  Figure 6: Normalized spam in 4-node experiments with ad- ditional peer-to-peer latency. Spam is reduced mostly under various additional latencies.
+
+miner with *βw* fraction of mining power can have more than *βw* fac-
+tion of blocks in the main chain so that it will reap higher revenue.
+The Fruitchains protocol \[[30](#_bookmark73)\]was proposed as a
+solution to selfish mining. We observe that the selfish mining attack
+won't work on Minotaur Since it has similar blockchain structure as
+Fruitchains. To verify this observation, we implemented the following
+selfish mining attacks on our Bitcoin/Minotaur code base:
+
+> **On** Bitcoin**:** The selfish miner always mines on the block at the
+> tip of the longest chain, whether the chain is private or public. Upon
+> successful mining, the adversary maintains the block in private to
+> release it at an appropriate time. In par- ticular, when an honest
+> miner publishes a block, the selfish miner will release a previously
+> mined block at the same level (if it has one).
+>
+> **On** Minotaur**:** The selfish miner plays the same withholding-
+>
+> and-releasing strategy on its PoS blocks as above, while its PoS
+> blocks contain PoW blocks mined by itself exclusively.
+>
+> We assume honest nodes will choose the attacker's block with
+> probability *p* whenever there is a tie. In our experiments, we set
+
+*p* \> 0.5 to simulate the case that the attacker has better network
+
+connection than honest nodes so its blocks are usually transmitted
+
+faster. Table [2](#_bookmark40) presents fractions of PoW blocks in the
+main chain of Bitcoin/Minotaur under various adversarial power
+(combinations of *βw* and *p*). On Minotaur, the attacker controls 1 3
+of the virtual stake, i.e., *ωβw* + 1 *ω βs* = 1 3, where *βs* is the
+fraction of the actual stake controlled by the attacker. From Table
+[2,](#_bookmark40) we can see that Bitcoin is indeed vulnerable to
+selfish mining, meaning that the attacker has more fraction of PoW
+blocks in the main chain
+
+(which means more block rewards in the context of Bitcoin) than its
+fraction of mining power, particularly when *βw* 0.5. Meanwhile, in
+Minotaur, the attacker can only have *βw* faction of PoW blocks in the
+main chain, no matter how much mining power it has, and
+
+> how the network favors it. This property is crucial to the security of
+> Minotaur as we have seen in [§6.2.2.](#_bookmark23)
+
+# DISCUSSION
+
+**Variable weighing parameter.** In our security analysis, we as- sume a
+fixed weighing parameter *ω* through the whole execution of the
+protocol. However, we point out that *ω* can change over time as
+
++-------------+------------+-------+-------+-------+-------+-------+
+| > []{#      |            | > Fra |       |       |       |       |
+| _bookmark40 |            | ction |       |       |       |       |
+| > .anchor   |            | > of  |       |       |       |       |
+| }Attacker's |            | > PoW |       |       |       |       |
+| > power     |            | > b   |       |       |       |       |
+|             |            | locks |       |       |       |       |
++=============+============+=======+=======+=======+=======+=======+
+| > *βw*      |            | 0.75  | 0.67  | 0.50  | 0.33  | >     |
+|             |            |       |       |       |       |  0.25 |
++-------------+------------+-------+-------+-------+-------+-------+
+| > *p* = 1   | > Bitcoin  | 0     | 0     | 0.007 | 0.513 | >     |
+|             |            |       |       |       |       | 0.669 |
++-------------+------------+-------+-------+-------+-------+-------+
+|             | > Minotaur | 0.248 | 0.332 | 0.498 | 0.665 | >     |
+|             |            |       |       |       |       | 0.746 |
++-------------+------------+-------+-------+-------+-------+-------+
+| > *p* = 0.7 | > Bitcoin  | 0     | 0.001 | 0.098 | 0.618 | >     |
+|             |            |       |       |       |       |  0.72 |
++-------------+------------+-------+-------+-------+-------+-------+
+|             | > Minotaur | 0.248 | 0.333 | 0.499 | 0.666 | >     |
+|             |            |       |       |       |       | 0.750 |
++-------------+------------+-------+-------+-------+-------+-------+
+
+### Table 2: Fractions of honest PoW blocks in the main chain under selfish mining attacks in Bitcoin/Minotaur. In these experiments, the attacker controls *βw* fraction of mining power and the tie breaking rule favors the attacker's block with probability *p*.
+
+![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image6.png){width="2.4386450131233595in"
+height="1.6784372265966754in"}
+
+> []{#_bookmark41 .anchor}**Figure 7: An example of variable weighing
+> parameter** *ω* **in** Minotaur**. Suppose the value of** *ω*
+> **changes from** 1 2 **to** 2 5 **at the onset of epoch** *e*~0~ +
+> 1**. Then the adversarial stake/mining**
+>
+> We point out that such flexible weighing between work and stake is
+> very useful in practice. For example, in general, PoS blockchains are
+> easy to launch with existing techniques, such as proof- of burn
+> \[[20](#_bookmark54)\], initial coin offering \[[24](#_bookmark67)\]
+> and airdrop \[[1](#references)\]. Therefore, Mino- taur can be
+> launched as a pure PoS blockchain and later transit into a hybrid
+> PoW/PoS one or a pure PoW blockchain. In addition, the security of
+> Minotaur can be enhanced by assigning higher weight to the more
+> decentralized resource.
+>
+> **Removing the initial constraint.** As discussed in
+> [§2,](#preliminaries) we required
+>
+> an honest majority of stake for the two initial epochs (as there is no
+> initial work-stake distribution). We note that we can remove this
+> initial constraint by implementing the first two epochs using the
+> smooth-interpolation approach [(§4,](#baseline-approaches) Idea 2)
+> where work blocks are mined based on 2-for-1 PoW
+> \[[18](#_bookmark52)\] producing both, main-chain blocks (at a rate
+> defined by *ω*) and endorser blocks (at a sufficient rate to guarantee
+> fairness). This allows to start the protocol with any initial weighing
+> by means of *ω*. We defer a formal analysis to future work.
+>
+> **Generalization to multiple resources.** Following the idea in
+> \[[37](#_bookmark80)\],
+>
+> Minotaur can be extended to more than two resources. Note that, in
+> contrast to their construction, this is achievable without funda-
+> mentally changing the structure of the protocol.
+
+Assume *M* 1 different resources, and for each such resource, an
+independent lottery mechanism among the contributors to assign
+'successes' proportionally to a party's ratio of the total contributed
+resource.
+
+> Defining a fixed amount of virtual stake *V* and weights *ωi* \> 0,
+
+### power needs to be restricted below the red line in epochs
+
+> *M*
+>
+> *i*=1
+
+*ωi* = 1, we have resource *i* control *ωi* · *V* of the virtual stake.
+
+### *e e*0 1 and below the blue line in epochs *e e*0 1. In particular, the adversary is restricted by both lines in epoch *e*~0~ 1. When *ω* changes smoothly over time, it is reasonable to assume exactly this.
+
+long as we put proper assumptions on the adversarial stake/mining power.
+Suppose *ω e* is the weighing parameter of epoch *e*, i.e., the ratio of
+work stake and actual stake in epoch *e* is set to be *ω e* 1 *ω e* .
+Note that the function *ω e* may be decided by the protocol designers
+and hard-coded in the genesis block, but the players can also reach an
+agreement (off-chain) to update it by doing a soft fork.
+
+We give a brief security sketch, deferring the full analysis to future
+work. Recall that, in our protocol, the virtual stake of a player in
+epoch *e* composes of two parts: the actual stake drawn from the last
+PoS block in epoch *e* 2; and the work stake that is proportional to the
+amount of work it produced during epoch *e* 2. Thus, to guarantee the
+security in epoch *e*, we need the
+
+adversary to be 1 2 2*σ*, 2*R*, *ω e* -bounded (see Definition
+[2)](#_bookmark5) in
+
+epoch *e* 2 and epoch *e* 1. And similarly, the adversary needs to be 1
+2 2*σ*, 2*R*, *ω e* + 1 -bounded in epoch *e* 1 and epoch *e*.
+Therefore, the adversarial stake/mining power must be restricted
+
+by both above bounds for epoch *e* 1. As long as *ω e* + 1 does not
+differ too much from *ω e* , this restriction on the adversary is
+reasonable to assume, and the weighing parameter can transit smoothly
+from *ω e* to *ω e* + 1 . Figure [7](#_bookmark41) gives an example of
+how the assumptions shift when *ω e* is updated at the onset of epoch
+*e*0 + 1.
+
+During each epoch *e*, the different lotteries are run concurrently,
+wherein each success allows for the release of a respective block (to be
+eventually picked up by a block of the main chain), tied to the
+respective resource.
+
+> Main-chain block leadership for epoch *e* + 2 is assigned to re-
+>
+> source *i* based on relative virtual stake *ωi* , and further split
+> among the contributors of that resource based on their production of
+> re- spective 'resource blocks' during epoch *e*.
+>
+> Naturally, this protocol tolerates
+>
+> []{#_bookmark42 .anchor}*M*
+>
+> *i*=1 2
+
+where *βi* 0, 1 is the fraction of resource *i* held by the adversary. A
+pictorial example for *M* = 3 is given in Fig. [8.](#_bookmark43)
+
+Although the underlying blockchain protocol is PoS-based, stake (in the
+classical, non-virtual sense) is not required to be one of the *M*
+resources, i.e., the protocol can be run solely on virtual stake. Also,
+full adversarial control of some of the resources can be tolerated as
+long as Eq. [(1)](#_bookmark42) is satisfied.
+
+> Finally, note that the resources can also be of the same type, e.g.,
+> Minotaur can combine work emanating from different hash functions such
+> as SHA256, scrypt, and ethash---answering an open question raised in
+> [§1.](#introduction)
+>
+> **Fairness with respect to the combined resources.** Fairness with
+>
+> respect to PoW blocks (Definition [8)](#_bookmark27) is a crucial
+> property of Mino- taur to guarantee fair assignment of work stake to
+> the miners. However, this is not sufficient for aspects like fair
+> reward shar- ing \[[31](#_bookmark74)\], since, for this purpose,
+> fairness needs to be achieved for
+
+[]{#_bookmark43 .anchor}1
+
+> *β*3 \[*ω*3 = [5]{.underline} \]
+>
+> *β*2 \[*ω*2 = 1 \]
+>
+> *β*1 \[*ω*1
+>
+> = 1 \]
+
+10. []{#_bookmark44 .anchor}Duong, T., Chepurnoy, A., Fan, L., and Zhou,
+    > H.-S. Twinscoin: A cryptocur- rency via proof-of-work and
+    > proof-of-stake. In *Proceedings of the 2nd ACM* []{#_bookmark45
+    > .anchor}*Workshop on Blockchains, Cryptocurrencies, and Contracts*
+    > (2018), pp. 1--13.
+
+11. Duong, T., Fan, L., Katz, J., Thai, P., and Zhou, H.-S. 2-hop
+    > blockchain: Com- bining proof-of-work and proof-of-stake securely.
+    > In *European Symposium on* []{#_bookmark46 .anchor}*Research in
+    > Computer Security* (2020), Springer, pp. 697--712.
+
+12. Ethereum. Ethash. https://web.archive.org/web/20220105100244/
+    > []{#_bookmark47
+    > .anchor}https://eth.wiki/en/concepts/ethash/ethash, 2022.
+
+13. Eyal, I., and Sirer, E. G. Majority is not enough: Bitcoin mining is
+    > vulnerable. In *International conference on financial cryptography
+    > and data security* (2014), []{#_bookmark48 .anchor}Springer, pp.
+    > 436--454.
+
+14. Feller, W. *An Introduction to Probability Theory and Its
+    > Applications, Volume 2*. []{#_bookmark49 .anchor}An Introduction
+    > to Probability Theory and Its Applications. Wiley, 1967.
+
+15. Garay, J., and Kiayias, A. Sok: A consensus taxonomy in the
+    > blockchain era. In
+
+> []{#_bookmark50 .anchor}*Cryptographers' Track at the RSA Conference*
+> (2020), Springer, pp. 284--318.
+
+16. Garay, J., Kiayias, A., and Leonardos, N. The bitcoin backbone
+    > protocol with chains of variable difficulty. In *Annual
+    > International Cryptology Conference* (2017), []{#_bookmark51
+    > .anchor}Springer, pp. 291--323.
+
+17. Garay, J. A., Kiayias, A., and Leonardos, N. The bitcoin backbone
+    > protocol: Analysis and applications. In *Advances in Cryptology -
+    > EUROCRYPT 2015 - 34th Annual International Conference on the
+    > Theory and Applications of Cryptographic Techniques, Sofia,
+    > Bulgaria, April 26-30, 2015, Proceedings, Part II* (2015), E.
+    > Oswald
+
+1 1 [5]{.underline}
+
+> and M. Fischlin, Eds., vol. 9057 of *Lecture Notes in Computer
+> Science*, Springer,
+>
+> **Figure 8: Tolerable resource corruption for** *ω* = 4 , 3 , 12 **.**
+
+### The volume enclosed by the gray surfaces is tolerated by the
+
+> []{#_bookmark52 .anchor}pp. 281--310.
+
+18. Garay, J. A., Kiayias, A., and Leonardos, N. Full analysis of
+    > nakamoto consensus
+
+### protocol:
+
+> L.3
+>
+> *ωi βi* ! 1 **.**
+>
+> []{#_bookmark53 .anchor}in bounded-delay networks. *IACR Cryptol.
+> ePrint Arch. 2020* (2020), 277.
+
+19. Karakostas, D., and Kiayias, A. Securing proof-of-work ledgers via
+    > check-
+
+> *i*=1 2
+>
+> pointing. In *2021 IEEE International Conference on Blockchain and
+> Cryptocurrency* []{#_bookmark54 .anchor}*(ICBC)* (2021), IEEE, pp.
+> 1--5.
+
+20. Karantias, K., Kiayias, A., and Zindros, D. Proof-of-burn. In
+    > *International Conference on Financial Cryptography and Data
+    > Security* (2020), Springer, pp. 523--
+
+overall block production with respect to the *combined* resources.
+
+We note that fairness with respect to the combined resources can be
+achieved by scheduling endorser blocks for every involved re- source,
+*including stake*. A given epoch reward can now be shared by assigning
+an *ωi* fraction of the reward to the contributors of the *i*-th
+resource, and distributing each such fraction proportionally to the
+parties' contributions of endorser blocks for that resource.
+
+# ACKNOWLEDGES
+
+This research is supported in part by the US National Science Foun-
+dation under grants CCF-1705007 and CNS-1718270 and the US Army Research
+Office under grant W911NF1810332.
+
+# REFERENCES
+
+1.  []{#_bookmark56 .anchor}Airdrop.
+    > https://en.bitcoinwiki.org/wiki/Airdrop.
+
+2.  []{#_bookmark57 .anchor}Back, A. Hashcash---a denial of service
+    > counter-measure.
+
+3.  Badertscher, C., Gaži, P., Kiayias, A., Russell, A., and Zikas, V.
+    > Ouroboros genesis: Composable proof-of-stake blockchains with
+    > dynamic availability. In *Proceedings of the 2018 ACM SIGSAC
+    > Conference on Computer and Communications* []{#_bookmark58
+    > .anchor}*Security* (2018), pp. 913--930.
+
+4.  Bentov, I., Lee, C., Mizrahi, A., and Rosenfeld, M. Proof of
+    > activity: Extending bitcoin's proof of work via proof of stake
+    > \[extended abstract\] y. *ACM SIGMETRICS* []{#_bookmark59
+    > .anchor}*Performance Evaluation Review 42*, 3 (2014), 34--37.
+
+5.  Blum, E., Kiayias, A., Moore, C., Quader, S., and Russell, A. The
+    > combinatorics of the longest-chain rule: Linear consistency for
+    > proof-of-stake blockchains. In *Proceedings of the 2020 ACM-SIAM
+    > Symposium on Discrete Algorithms, SODA 2020, Salt Lake City, UT,
+    > USA, January 5-8, 2020* (2020), S. Chawla, Ed., SIAM,
+
+> []{#_bookmark60 .anchor}pp. 1135--1154.
+
+6.  Buterin, V., and Griffith, V. Casper the friendly finality gadget.
+    > *arXiv preprint* []{#_bookmark61 .anchor}*arXiv:1710.09437*
+    > (2017).
+
+7.  Chen, L., Xu, L., Gao, Z., Lu, Y., and Shi, W. Protecting early
+    > stage proof-of-work based public blockchain. In *2018 48th Annual
+    > IEEE/IFIP International Conference on* []{#_bookmark62
+    > .anchor}*Dependable Systems and Networks Workshops (DSN-W)*
+    > (2018), IEEE, pp. 122--127.
+
+8.  David, B., Gaži, P., Kiayias, A., and Russell, A. Ouroboros praos:
+    > An adaptively- secure, semi-synchronous proof-of-stake blockchain.
+    > In *Annual International Conference on the Theory and Applications
+    > of Cryptographic Techniques* (2018), []{#_bookmark63
+    > .anchor}Springer, pp. 66--98.
+
+9.  Dembo, A., Kannan, S., Tas, E. N., Tse, D., Viswanath, P., Wang, X.,
+    > and Zeitouni, O. Everything is a race and nakamoto always wins. In
+    > *Proceedings of the 2020 ACM SIGSAC Conference on Computer and
+    > Communications Security* (2020), pp. 859--878.
+
+> []{#_bookmark64 .anchor}540.
+
+21. Kiayias, A., Russell, A., David, B., and Oliynykov, R. Ouroboros: A
+    provably secure proof-of-stake blockchain protocol. In *Annual
+    International Cryptology* []{#_bookmark65 .anchor}*Conference*
+    (2017), Springer, pp. 357--388.
+
+22. Kim, S. K., Ma, Z., Murali, S., Mason, J., Miller, A., and
+    Bailey, M. Measuring ethereum network peers. In *Proceedings of the
+    Internet Measurement Conference* []{#_bookmark66 .anchor}*2018*
+    (2018), pp. 91--104.
+
+23. King, S., and Nadal, S. Ppcoin: Peer-to-peer crypto-currency with
+    proof-of-stake.
+
+> []{#_bookmark67 .anchor}*self-published paper, August 19*, 1 (2012).
+
+24. Li, J., and Mann, W. Initial coin offering and platform building.
+    *SSRN Electronic* []{#_bookmark68 .anchor}*Journal* (2018), 1--56.
+
+25. Minotaur. Rust implementation of the minotaur consensus protocol.
+    []{#_bookmark69
+    .anchor}https://anonymous.4open.science/r/Minotaur-D037.
+
+26. Nakamoto, S. Bitcoin: A peer-to-peer electronic cash system.
+    *Decentralized* []{#_bookmark70 .anchor}*Business Review* (2008),
+    21260.
+
+27. Nayak, K., Kumar, S., Miller, A., and Shi, E. Stubborn mining:
+    Generalizing selfish mining and combining with an eclipse attack. In
+    *2016 IEEE European* []{#_bookmark71 .anchor}*Symposium on Security
+    and Privacy (EuroS&P)* (2016), IEEE, pp. 305--320.
+
+28. Neu, J., Tas, E. N., and Tse, D. Ebb-and-flow protocols: A
+    resolution of the availability-finality dilemma. In *2021 IEEE
+    Symposium on Security and Privacy* []{#_bookmark72 .anchor}*(SP)*
+    (2021), IEEE, pp. 446--465.
+
+29. []{#_bookmark73 .anchor}NIST. Fips 180-2.
+    [http://csrc.nist.gov/encryption/tkhash.html,](http://csrc.nist.gov/encryption/tkhash.html)
+    2002.
+
+30. Pass, R., Seeman, L., and Shelat, A. Analysis of the blockchain
+    protocol in asynchronous networks. In *Annual International
+    Conference on the Theory and* []{#_bookmark74 .anchor}*Applications
+    of Cryptographic Techniques* (2017), Springer, pp. 643--673.
+
+31. Pass, R., and Shi, E. Fruitchains: A fair blockchain. In
+    *Proceedings of the ACM* []{#_bookmark75 .anchor}*Symposium on
+    Principles of Distributed Computing* (2017), pp. 315--324.
+
+32. Percival, C., and Josefsson, S. The scrypt password-based key
+    derivation function. *IETF Draft URL: [http://tools.](http://tools/)
+    ietf. org/html/josefsson-scrypt-kdf-00. txt* []{#_bookmark76
+    .anchor}*(accessed: 30.11. 2012)* (2016).
+
+33. Sankagiri, S., Wang, X., Kannan, S., and Viswanath, P. Blockchain
+    cap theo- rem allows user-dependent adaptivity and finality. *arXiv
+    preprint arXiv:2010.13711* []{#_bookmark77 .anchor}(2020).
+
+34. Sapirshtein, A., Sompolinsky, Y., and Zohar, A. Optimal selfish
+    mining strategies in bitcoin. In *International Conference on
+    Financial Cryptography and* []{#_bookmark78 .anchor}*Data Security*
+    (2016), Springer, pp. 515--532.
+
+35. Shevtsova, I. G. Moment-type estimates with an improved structure
+    for the accuracy of the normal approximation to distributions of
+    sums of independent symmetric random variables. *Theory of
+    Probability & Its Applications 57*, 3 (2013), []{#_bookmark79
+    .anchor}468--496.
+
+36. Stewart, A., and Kokoris-Kogia, E. Grandpa: a byzantine finality
+    gadget. *arXiv* []{#_bookmark80 .anchor}*preprint arXiv:2007.01560*
+    (2020).
+
+37. Thai, P., Njilla, L., Duong, T., Fan, L., and Zhou, H.-S. A generic
+    paradigm for blockchain design. In *Proceedings of the 15th EAI
+    International Conference on Mobile and Ubiquitous Systems:
+    Computing, Networking and Services* (2018),
+
+> pp. 460--469.
+
+38. []{#_bookmark81 .anchor}Wang, X., Muppirala, V. V., Yang, L.,
+    > Kannan, S., and Viswanath, P. Se- curing parallel-chain protocols
+    > under variable mining power. *arXiv preprint* []{#_bookmark82
+    > .anchor}*arXiv:2105.02927* (2021).
+
+39. Yang, L., Bagaria, V., Wang, G., Alizadeh, M., Tse, D., Fanti, G.,
+    > and Viswanath, P. Prism: Scaling bitcoin by 10,000 x. *arXiv
+    > preprint arXiv:1909.11261* (2019).
+
+# APPENDIX
+
+A.  **SECURITY REGIONS OF HYBRID PROTOCOLS IN FIGURE 1B**
+
+We give details of the security regions plotted in Figure
+[1b.](#_bookmark1) Recall that *βw* is the proportion of adversarial
+hash power and *βs* is the proportion of the adversarial stake (or the
+proportion of Byzantine nodes if a permissioned BFT protocol is
+adopted).
+
+**2-hop blockchain.** We derived the security region from the as-
+sumptions in Theorem 2&3 of \[[11](#_bookmark45)\]. When ∆ = 0 (which
+gives the largest security region), the security proof of
+\[[11](#_bookmark45)\] assumes
+
+> (1 − *βw* )(1 − *βs* ) \> *βs* , i.e., *βs* \< [1−*βw*]{.underline}
+> implying *βs* \< 1/2.
+
+epoch *e*. Now, the adversary starts to grow a private chain ~1~, while
+honest nodes grow a public chain 2. Suppose 1 and 2 include the same set
+of transactions. Then at the beginning of epoch *e* + 2, the adversary
+will control 0.8 fraction of actual stake and all the work stake (after
+normalization) on its chain ~1~ because ~1~ only refers adversarial PoW
+blocks in epoch *e*. So the growth rate of ~1~
+
+after epoch *e* + 2 will be 0.8*f* + *f* = 1.8*f* . Similarly, at the
+beginning
+
+of epoch *e* + 2, honest nodes will control 0.2 fraction of actual stake
+
+and all the work stake (after normalization) on the chain ~2~ and the
+growth rate of ~2~ after epoch *e* + 2 will be 0.2*f* + *f* = 1.2*f* .
+Therefore, ~1~ will catch up with ~2~ eventually if the longest chain
+
+rule is adopted. See Figure
+[9.](#figure-9-a-long-range-attack-on-the-longest-chain-rule.)
+
+This long range attack is similar to the stake grinding attack on
+Ouroboros and it can be prevented by the new chain selection rules
+maxvalid-mc and maxvalid-bg. For maxvalid-mc, honest nodes won't accept
+~1~ because it forks too long from ~2~; for maxvalid-bg, honest nodes
+won't accept ~1~ because it grows slower than ~2~ in epoch *e* (right
+after the fork).
+
+### Checkpointed ledger.
+
+2.  *β*
+
+\[[19](#_bookmark53)\] uses a synchronous BFT protocol (with
+
+1 2 fault tolerance) to regularly issuing *checkpoints* on a PoW longest
+chain. The protocol is proven to be safe and live when
+
+> *βs* \< 1 2.
+>
+> **Finality gadgets.** \[[6](#_bookmark60), [28](#_bookmark71),
+> [33](#_bookmark76), [36](#_bookmark79)\] use an asynchronous/partial
+> syn-
+
+chronous BFT protocol (with 1 3 fault tolerance) to build a finality
+gadget/layer on the top of a PoW longest chain to achieve impor- tant
+properties such as finality (a.k.a deterministic safety under
+asynchrony) and accountability. These protocols are proven to be
+
+safe and live when *βs* \< 1/3 and *βw* \< 1/2.
+
+# MATHEMATICAL FACTS
+
+> Theorem B.1 (from \[[18](#_bookmark52)\]). *Let X*~1~, *X*~2~, . . .
+> *be a martingale with respective the sequence Y* , *Y* , . . . *, if
+> an event G implies X X*
+>
+> *b and V* = L.*k var* \[*Xk* − *Xk* −1 \|*Y*1, . . . , *Yk* −1\] ≤ *v,
+> then for non-*
+
+#  PROOF FOR §6
+
+Proof of Lemma [6.6.](#_bookmark29) The proof for (a) is the same as
+part (a) of Theorem 1 in \[[18](#_bookmark52)\]. For (b), by the
+condition, for each query in *S* made by either an honest node or the
+adversary at slot *r* in epoch *e*, the target *T* must satisfy 1 *δ α*0
+*f γ* 2 *pnr T* 1 + *δ γ* 2 *f α*0 Therefore, the proof is also similar
+to part (a) of Theorem 1 in \[[18](#_bookmark52)\].
+
+For (c), let the execution be partitioned into parts such that each part
+has at least ℓ *ϕ* and at most *s* = 2*R* slots. We prove that the
+statement fails with a probability less than *e*−*λ* for each part. Let
+*J*
+
+denote the queries made by in slots *S*. We have *J* = *n*H *S* = *ϕn S*
+. For *k J* , let *Zi* be the difficulty of any block obtained from
+query *j J* and we write *j* 1 for the execution just before this query.
+Then
+
+> *X*0 = 0
+>
+> *negative n and t*
+>
+> *P* (*Xn* − *X*~0~ ≥ *t*, *G*) ≤ *e*
+>
+> *t* 2 2*v* + [2*bt*]{.underline}
+>
+> *Xk* =
+>
+> r
+>
+> *i* ∈\[*k* \]
+
+*Zi* −
+
+> r
+
+*i* ∈\[*k* \]
+
+E\[*Zi* \|E*i*−1\]
+
+The following is known as the Berry-Esseen Theorem. See
+\[[14](#_bookmark48)\] as a standard reference and
+\[[35](#_bookmark78)\] for improvements with respect to
+
+is a martingale with respect to E~0~, . . . , E*k* . We have
+
+> *Xk* − *Xk* −1 = *Xk* − E\[*Xk* \|E*k* −1\] = *Zk* − E\[*Zk* \|E*k*
+> −1\]
+
+the constant 1/2.
+
+> Theorem B.2. *Let the Xi be independent variables with common*
+>
+> ≤ *Tk* = *phkTk* ≤ *γ ph*(*S*)/(1 − *δ* )*α*0 *f* \|*S* \|
+>
+> 3
+>
+> *distribution such that* E\[*Xi* \] = *µ,* V\[*Xi* \] = *σ* 2 \> 0*,*
+> E\[\|√*X[i ]{.underline}*[−]{.underline} *µ* \|3\] =
+>
+> ≤ *γ pn*(*S*)/(1 − *δ* )*α*~0~ *f* \|*S* \| := *b*.
+>
+> *ρ* \< *. If Fn is the distribution of X*1 + + *Xn µn*
+>
+> *the standard normal, then*
+>
+> *ρ*
+>
+> *nσ* 2 *and* Φ
+
+Similarly
+
+> *V* = r*var* \[*Xk* − *Xk* −1 \|E*k* −1\] ≤ r E\[*Z* 2 \|E*k* −1\]
+>
+> \|*Fn* (*x*) − Φ(*x*)\| ≤
+>
+> 2*σ* 3√*n*
+
+, *for all x and n.*
+
+> *k*
+>
+> = []{#_bookmark86 .anchor}r *pT*
+>
+> *k*
+>
+> ≤ *γ p* \| *J* \|*h*(*S*)/(1 − *δ* )*α*~0~ *f* \|*S* \|
+
+## A LONG RANGE ATTACK *k k*
+
+> 3 2
+
+We point out that Minotaur is insecure with the longest chain rule
+
+due to a long range attack. Let the weighing parameter *ω* = 0.5
+
+> ≤ *γ p* \| *J* \|*n*(*S*)/(1 − *δ* )*α*~0~ *f* \|*S* \| := *v*.
+>
+> Let the deviation *t* = *ϵp* \| *J* \| = *ϵϕpn*(*S*), then we have *b*
+> = *γ* 3*t*
+
+and define *f* to be PoS block production rate by a stakeholder who
+controls all actual stake in the system. Suppose the adversary con-
+trols 0.8 fraction of stake and 0.1 fraction of mining power at some
+
+> and *v* = *γ* 3*t* 2
+>
+> (1−*δ* )*α*~0~*ϵ* 2*ϕf* \|*S* \|
+
+(1−*δ* )*α*~0~*ϵϕf* \|*S* \|
+
+. Using the minimum value of \|*S* \| is ℓ/*ϕ* and
+
+slot (not at the beginning of the execution), then after behaving
+honestly for some time, the adversary will control 0.8 fraction of
+actual stake and 0.1 fraction of work stake at the beginning of some
+
+> applying Theorem [B.1](#mathematical-facts) to −*X* \| *J* \| , we
+> have
+>
+> *P* \[*D*(*S*) \< (1 − *ϵ*)*pn*H(*S*)\] ≤ exp(− *[ϵt]{.underline}* ) ≤
+> exp(−*λ*).
+>
+> ![](vertopal_c9909dec3b684a568ba81a036b0d68b5/media/image7.png){width="4.90830271216098in"
+> height="1.5873950131233596in"}
+
+### Figure 9: A long range attack on the longest chain rule.
+
+This concludes the proof.
+
+and
+
+> □
+>
+> *D*(*S*1) + *A*(*J* ) \< (1 + *ϵ*)*p*(*h*(*S*1) + \| *J* \|)
+
+Proof of Lemma [6.7.](#_bookmark30) We prove the lemma by induction. For
+epoch *e* = 1, it is trivial to just set *T*1 = *f ph*˜1 by Assumption
+[1.2.](#_bookmark6) Now we assume all epochs are good until epoch *e* 1
+(*e* 2), we will show epoch *e* is good.
+
+> Let *S*0 = {*u* : *r*1 ≤ *u* ≤ *r*2 } be the window that will be used
+>
+> = (1 + *ϵ*)*pn*(*S*1) ≤ (1 + *ϵ*)*ph*(*S*1)/*α*0 .
+
+Therefore, by Proposition [1,](#_bookmark21) we have
+
+> (1 − *ϵ*)*ph*(*e* ) \|*S*2 \|/*γ* \< *D*total \< (1 + *ϵ*)*γph*(*e* )
+> \|*S*1 \|/*α*0 .
+>
+> By the difficulty adjustment rule, we have *Te* = *f* \|*S*0
+> \|/*D*total.
+>
+> to determine *Te* , i.e., *r*1 = max (0, (*e* − 2)*R* − *κ*) + 1 and
+> *r*2 = (*e* −
+
+Then *Te* can be bounded as follows:
+
+> *e* −1
+
+1)  *R* − *κ*. Let C(*S*~0~) be the segment of C containing PoS blocks
+    > with
+
+    -   ###  Lower bound:
+
+timestamps in *S*~0~, let B be all PoW blocks included in C(*S*~0~), and
+
+> *ph*(*e* )*T*
+>
+> ≥ [\|*S*0 \| *α*0 *f*]{.underline}
+>
+> ≥ [(1 −]{.underline} [*ϵ*)\|*S*0 \| *α*0 *f*]{.underline}
+
+*d* be the total difficulty of all PoW blocks in . Then we have the
+following facts:
+
+> *e* (1 + *ϵ*)\|*S*~1~ \| *γ*
+>
+> \|*S*~0~ \| + 5*κ* + ∆ *γ*
+>
+> **Fact 1.** For any PoW block , is mined after 4 .
+>
+> ≥ [(1 −]{.underline} [*ϵ*)(*R* −]{.underline} [*κ*) *α*~0~
+> *f*]{.underline}
+>
+> (*C*1 ) [(1 −]{.underline} [*ϵ*)(*R* −]{.underline} [*ϵR*) *α*0
+> *f*]{.underline}
+
+-   *B* ∈ B *B*
+
+> *r*1 − *κ* −∆
+>
+> *R* + 4*κ* + ∆ *γ* ≥
+>
+> *R* + *ϵR γ*
+>
+> Indeed by recency condition, *B* must refer to a confirmed PoS
+>
+> block *Bs* with timestamp at least *r*1 − *sl*re. By ∃CQ, the last
+
+3.  [*α*0 *f*]{.underline}
+
+> ≥ ( −
+
+[*α*0 *f*]{.underline}
+
+≥ ( − *ϵ*)
+
+> (*C*2 )
+>
+> 1 − *δ* ) [*α*0 *f*]{.underline} .
+>
+> honest ancestor block of *Bs* has timestamp at least *r*1 −*sl*re
+> −*κ*. So *B* must be mined after *r*~1~ − 4*κ* − ∆.
+
+) *γ*
+
+-   ### Upper bound:
+
+> *γ* ≥ ( *γ*
+
+-   **Fact 2.** For any PoW block *B* ∈ B, *B* is mined before *r*~2~ +
+
+> *ph*(*e* )*T*
+>
+> ≤ [\|*S*0 \|]{.underline} *γ f* = [\|*S*0 \|]{.underline} *γ f*
+>
+> *κ*. Indeed the PoS block (denoted as *Bs* ) including *B* has
+>
+> *e* (1 − *ϵ*)\|*S*2 \| (1 − *ϵ*)(\|*S*0 \| − 3*κ* − ∆)
+>
+> timestamp at most *r*~2~, and again by ∃CQ, the first honest
+>
+> [*R* −]{.underline} *[κ]{.underline}*
+>
+> (*C*1 ) *[R]{.underline}*
+>
+> descendant block of *Bs* has timestamp at most *r*~2~ + *κ*. So *B*
+> must be mined before *r*~2~ + *κ*.
+>
+> ≤ (1 − *ϵ*)(*R* − 4*κ* − ∆)*γ f* ( − *ϵ*)(*R* − *ϵR*)*γ f*
+
+-   **Fact 3.** If a PoW block *B* is mined by an honest miner after
+    > *r*~1~
+
+> = [1]{.underline} *γ f* ≤ [1]{.underline} *γ f* ≤ (1 + 4*ϵ*)*γ f*
+> (*C*2 )
+>
+> 1 + *δ* )*γ f* .
+>
+> and before *r*~2~ − 3*κ* − ∆, then *B* ∈ B. Indeed, by ∃CQ, the last
+>
+> (1 − *ϵ*)2 1 − 2*ϵ* ≤ (
+>
+> honest block in *S*~0~ has timestamp at least *r*~2~ *κ*. Hence by
+> Lemma [6.5,](#_bookmark24) all honest PoW blocks mined after *r*~1~
+> and before *r*2 − *κ* − *r*wait will be included into a PoS block in
+> C(*S*0).
+>
+> Let *S*1 = *u* : *r*1 4*κ* + ∆ *u r*2 + *κ* , *S*2 = *u* : *r*1 *u*
+
+*r*~2~ 3*κ* + ∆ , and *J* be the set of adversary queries associated
+with in *S*~1~. Then by Fact 1 and Fact 2, we have all PoW blocks in are
+mined in *S*~1~; by Fact 3, we have all PoW blocks mined by honest
+
+nodes in *S*2 are in . Hence, *D S*2 *De* 1 *D S*1 + *A J* . By
+Proposition [2,](#_bookmark26) for each query in *S*~1~ made by an
+honest node at slot
+
+This concludes the proof. □
+
+Proof sketch of Theorem [6.9.](#_bookmark32) When moving from the
+single- epoch setting to the multiple-epoch setting, two new aspects
+need to be considered.
+
+> **Virtual stake distribution updates.** For epochs *e* = 1, 2, the
+> virtual stake has the same distribution as the initial stake.
+>
+> Since we assume the initial stake has honest majority (As- sumption
+> [1.1),](#_bookmark6) by Theorem [6.4,](#_bookmark22) CP and ∃CQ are
+> guaran-
+>
+> teed in epochs 1&2. For epoch *e* ≥ 3, the virtual stake of a
+>
+> *r* in epoch *e*, the target *T* must be *Te* , so we have (1 − *δ*
+> )*α*0 *f* /*γ* 2 ≤
+>
+> *phr T* ≤ (1 + *δ* )*γ* ^2^ *f* . For each query in *J* made by the
+> adversary at
+
+node *h* composes of two parts, the actual stake recorded on
+
+> slot *r* in epoch *e*, the target *T* may be either *Te* 1 or *Te* ,
+> still we have 1 *δ α*0 *f γ* 2 *phr T* 1 + *δ γ* 2 *f* in both cases
+> (under a *γ* , 2*R* -respecting environment). By the fact that *α*0*nr
+> hr nr* , we have 1 *δ α*0 *f γ* 2 *pnr T* 1 + *δ γ* 2 *f α*0.
+>
+> Under a typical execution, we have
+>
+> *D*(*S*~2~) \> (1 − *ϵ*)*ph*(*S*~2~),
+
+the blockchain up to the last block of the epoch *e* 2 (by Ouroboros
+\[[21](#_bookmark64)\]) and the work stake decided by the amount of work
+*h* has contributed in epoch *e* 2. Let *Ss* and *Sw* be the total
+actual stake and total work stake in epoch *e*. Recall that we set *ωSs*
+= 1 *ω Sw* in Minotaur, i.e., the total virtual stake is *Sv* = *Ss* 1
+*ω* . Denote that the ad- versary controls *βs Ss* actual stake and let
+*βw* be maximum
+
+> fraction of adversarial mining power in epoch *e* 2, i.e., *βw* = 1
+> min*r e* 3 *R*+1, *e* 2 *R hr nr* . By Assumption [2.1,](#_bookmark7)
+> we have *ωβw* + 1 *ω βs* 1 2 2*σ* . And by Theorem
+> [6.8,](#_bookmark31) honest nodes control at least 1 *σ* 1 *βw Sw*
+> work stake for epoch *e*. Therefore, the virtual stake controlled by
+> the adversary is at most
+>
+> *βs Ss* + (1 − (1 − *σ* )(1 − *βw* ))*Sw*
+>
+> = ((1 − *ω*)*βs* + *ω*(*βw* + *σ* (1 − *βw* ))))*Sv*
+>
+> ≤ (1/2 − *σ* )*Sv* .
+>
+> Therefore, by an induction argument, we can guarantee an honest
+> majority in the virtual stake for all epochs. The anal- ysis
+> critically relies on the fact that the CP property is im- mutable:
+> specifically, when all honest parties agree on a
+>
+> common prefix (*t* ) at some slot *t* and, as maxvalid-mc can only
+> revise the last *k* blocks of a currently adopted chain,
+>
+> (*t* ) will be a prefix of all future chains held by the honest
+> parties. Check the proof of Theorem 5.3 in [\[21\]](#_bookmark64) for
+> details. **Randomness updates.** Every epoch needs new public ran-
+> domness to be used for sampling slot leaders from the above virtual
+> stake distribution. In Ouroboros \[[21](#_bookmark64)\], elected slot
+> lead- ers (one per slot) from epoch *e* 1 runs a publicly verifiable
+> secret sharing (PVSS) protocol to generate the randomness for epoch
+> *e*. The core idea is the following: given that we have guaranteed
+> that an honest majority among elected lead- ers in epoch *e* will hold
+> with very high probability, we have that the PVSS protocol suitably
+> simulates a beacon with the relaxation that the output may become
+> known to the adver- sary before it is known to the honest parties.
+> However, as long as the distribution of virtual stake is determined
+> prior to this leakage, the sampling of leaders in epoch *e* will still
+> be unbiased.
+
+At last, it is not hard to see that, the CP property is equivalent to
+the persistence of the ledger, while CP together with CQ implies
+liveness. □
+
+# DETAILS ON THE OUROBOROS PROTOCOL FAMILY
+
+We give a summary of the different PoS protocols we explicitly base our
+generic hybridization construction on in the main part of the paper,
+Ouroboros Classic \[[21](#_bookmark64)\], Praos \[[8](#_bookmark62)\],
+and Genesis \[[3](#_bookmark57)\]. In order of this sequence, each
+version of the protocol gives stronger security guarantees.
+
+We first give quick summaries of the respective protocol guaran- tees
+and their underlying assumptions. Finally, in Appendix
+[E.1,](#ouroboros-praos) we
+
+> Offline tolerance. The protocol participants only go offline for short
+> periods of time.
+>
+> *Ouroboros Praos assumptions:* Praos is secure against a minority of
+> adversarially controlled stake under the following assumptions:
+>
+> Network. The communication network is semi-synchronous, i.e., that the
+> network delay is bounded bu some delay ∆ not known to the
+> participants.
+>
+> Corruption. The adversary is fully adaptive. Stake shift. As in
+> Classic.
+
+*Ouroboros Genesis assumptions:* Classic is secure against a mi- nority
+of adversarially controlled stake among all participants who are active
+in the system---under the following assumptions:
+
+> Network. As in Praos. Corruption. As in Praos.
+>
+> Offline tolerance. The protocol participants can join later during any
+> stage of the protocol, or go offline for extended periods of time
+> during participation.
+
+## Ouroboros Praos
+
+The protocol proceeds in epochs of *R* slots, each slot representing a
+given 'unit of time', say, 1 second of the protocol run-time. For ease
+of exposition, let the genesis block represent epoch 0 of the protocol.
+We now describe how the protocol operates per epoch
+
+> *e* \> 0.
+
+*Slot-leader election.* During each slot sl*j* , a slot-leader election
+is held among the stakeholders, and a winning stakeholder is allowed to
+publish a new block associated with this slot.
+
+The slot-leader election during epoch *e* is based on the stake
+distribution at the end of epoch max 0, *e* 2 , i.e., the stake distri-
+bution that results after the processing of the last block of epoch
+
+*e* 2 (or the stake distribution from the genesis block).
+
+Let *αi* be the relative stake held by stake holder P*i* (holding *αi S*
+of the total stake *S*) at the end of epoch max *e* 2, 0 . Per slot, the
+probability *pi* for stakeholder P*i* to be a block leader is defined as
+
+> *pi* = *ϕf* (*αi* ) =△ 1 − (1 − *f* )*αi* (2) for some appropriate
+> *active-slots coefficient f* (the probability that,
+
+among the total stake, at least one slot leader is elected during any
+given slot).
+
+Slot leadership is pseudo-randomly assigned based on the *epoch nonce
+η*, a seed calculated in epoch *e* 1 (as described further below).
+
+To become a slot leader for slot sl*m* , the stakeholder P*i* evaluates
+a verifiable random function (VRF) (bound to a public key registered
+
+by P*i* ) (*y*, *π* ) = VRF*i* (*η*, sl*m* ). Slot leadership is
+satisfied iff
+
+give a more detailed description of Ouroboros Praos as the reference
+
+> *y* ! △
+>
+> ℓVRF
+
+protocol; and sketch how the other variants differ from it.
+
+*Ouroboros Classic.* Classic is secure against a minority of adver-
+sarially controlled stake under the following assumptions:
+
+> Network. The communication network is synchronous.
+>
+> Corruption. The adversary is 'moderately' adaptive (participant
+> corruption only takes effect after a certain delay).
+>
+> Stake shift. There is an upper bound on the stake shift, i.e., the
+> stake distribution among the stake holders does not change too fast.
+>
+> \< *T* = 2 · *ϕf* (*αi* ),
+
+where VRF*i* produces outputs of ℓVRF bits, and *T* is a threshold to
+enforce the desired probabilities.
+
+> *Block production.* Besides a hash of its predecessor and the pay-
+> load, a block contains
+>
+> the slot number *m*;
+>
+> the above proof of leadership *y*, *π* (such that *y* \< *T* );
+>
+> an additional, independent, VRF output *yρ* , *πρ* contributing
+>
+> to the epoch-nonce generation; and
+>
+> a signature on *m*, *y*, *π* , *yρ* , *πρ* by P*i* of a key-evolving
+> signature scheme (KES).4
+>
+> Note that the adversary will create a fork of length *k*, if
+> *X*~1~ + + *Xk* 0. We will use the Berry-Esseen bound to lower bound
+> the probability he succeeds. To that end we compute
+
+*Block settlement.* A block is considered settled if it sits at least
+*k*
+
+blocks deep in a node's main chain where *k* is the *prefix parameter*
+
+> *µ* = E\[*Xi* \] = (*q* − *p*)/*f* = \[(1 − *f* )
+
+1/2+*δ*
+
+> − (1 − *f* )
+
+1/2−*δ*
+
+\]/*f*
+
+of the protocol.
+
+= \[(1 − *f*
+
+> )1+*δ*
+>
+> − (1 − *f*
+>
+> )1−*δ*
+
+\]/\[
+
+*f* (1 − *f* 1 2\]
+
+*Chain selection rule:* maxvalid-mc*.* Upon the arrival of a new block,
+each node chooses, as their main chain, the longest chain
+
+> \> \[(1 − *f*
+>
+> 2 2
+>
+> )1+*δ* − (
+
+2
+
+1 − *f*
+
+> )1−*δ*
+
+\]/*f* \> −2*δ*,
+
+> 2 2
+
+that does not fork from the previous main chain by more than *k* blocks
+where *k* is the prefix parameter.
+
+> *σ* = E\[*Xi* \] − *µ*
+>
+> *ρ* = E\[\|*Xi* − *µ* ^3^
+>
+> = 1 − *pq*/*f* − *µ*
+>
+> \< (1 + 2*δ* )3 .
+>
+> \> 1 − *f* − 4*δ* ,
+>
+> *Epoch-nonce generation.* The epoch nonce *η* for epoch *e* \> 1 is
+>
+> \| \]
+>
+> Observe that for *δ* ≤ 1/3 and *f* √≤ 1/9.
+
+computed as a hash of all VRF outputs *yρ* included in the blocks
+
+> Let *Fk* = (*X*1 +· · ·+*Xk*√−*µk*)/ *kσ* 2. By the Berry-Essen
+> Theorem
+
+of the main chain up to 2/3 of epoch *e* − 1. The epoch nonce for
+
+we have that, for *δ* ≤ 1/ *k*,
+
+epoch *e* = 1 is included in the genesis block.
+
+## Differences in Classic and Genesis
+
+> Pr *Fk*
+>
+> ≥ −*µk*/✓*kσ* 2 ≥ Φ*c* 3) − *O* *k*−1/2 .
+
+□
+
+*Classic.* The main difference to Praos is that the epoch random- ness
+is obtained from a coin-flip protocol based on a publicly verifi- able
+secret sharing protocol---with the disadvantage that the leader schedule
+is public and thus allows for adaptive corruption.
+
+*Genesis.* Genesis differs from Praos by applying a different chain
+selection rule to allow protocol participants to be offline for ex-
+tended periods of time. The modified chain-selection rule maxvalid- bg
+works as follows: A longer chain is adopted if
+
+> it forks from the current main chain by at most *k* blocks; or if
+> forks by more than *k* blocks but contains more blocks in the *s*
+> slots following the last common block of the main chain and the longer
+> chain.
+
+# ANALYSIS TIGHTNESS
+
+The analysis of our main security theorem, Theorem [6.1,](#_bookmark18)
+draws from \[[21](#_bookmark64)\]. A more careful and improved analysis
+appears in \[[5](#_bookmark59)\], from which we may obtain the refined
+bound 1 *RL e*−Ω(*δ* 3*κ*) + *e*−*λ* for the statement of Theorem
+[6.1.](#_bookmark18) In this section we analyze a private chain attack
+and show a corresponding lower bound. It reveals that *δ* ^2^*κ* needs
+to be bounded below by a constant and, consequently, the dependency on
+*δ* ^3^ cannot be improved much further.
+
+> Proposition 3. *Common prefix does [not]{.underline} hold against a*
+> (1/2 − *δ*, *m*, *ω*)*-bounded adversary, for δ* ≤ / ℓcp *and
+> sufficiently large* ℓcp*.*
+
+Proof. The adversary follows the protocol using his mining power to
+produce PoW blocks. The attack begins when the virtual stake of the
+adversary is *ωβw* + 1 *ω βs* 1 *δ* .
+
+> Define the random variable *Xi* taking values in 1, 0, 1 accord-
+
+ing to who produced blocks of height *i*. If it was the adversary only,
+
+then *Xi* = 1; if both the adversary and honest parties, then *Xi* = 0;
+if honest parties only, then *Xi* = −1. Let *p* = 1 − (1 − *f* )1/2+*δ*
+and *q* = 1 − (1 − *f* )1/2−*δ* . We have
+
+> Pr\[*Xi* = −1\] = *p*(1 − *q*)/*f* , Pr\[*Xi* = 1\] = *q*(1 − *p*)/*f*
+> , and Pr\[*Xi* = 0\] = *pq*/*f* .
+>
+> 4 The stakeholders update the private keys of their KES instance after
+> every slot.
+
+Although it might be possible to strengthen the above attack and
+analysis to obtain slight improvements, it remains an open question
+whether the exponential drop in the probability of security failure is
+in the order of *δ* 3*κ* or *δ* 2*κ*.

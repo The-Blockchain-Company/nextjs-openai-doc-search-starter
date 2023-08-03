@@ -269,10 +269,10 @@ export function SearchDialog() {
                   rounded border border-slate-200 dark:border-slate-600
                   transition-colors"
                   onClick={(_) =>
-                    setSearch('How does PCI compliance affect my mobile payments business')
+                    setSearch('What is PCI DSS')
                   }
                 >
-                  How does PCI compliance affect my mobile payments business
+                  What is PCI DSS
                 </button>
               </div>
             </div>

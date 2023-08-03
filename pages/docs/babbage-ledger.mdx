@@ -1,0 +1,990 @@
+---
+title: Formal Specification of the Cardano Ledger for the Babbage era
+---
+
+> Andre Knispel <andre.knispel@iohk.io> Jared Corduan
+> <jared.corduan@iohk.io>
+
+**Abstract**
+
+> This document presents the modifications to the Alonzo ledger
+> specification (see [Formal](#_bookmark23) [Methods Team,
+> IOHK](#_bookmark23) ([2021](#_bookmark23))) for the Babbage era. The
+> Babbage era introduces two main groups of changes.
+>
+> The first group involves new ways of providing data to Plutus scripts.
+> In particular, there is now support for [reference
+> inputs](https://cips.cardano.org/cips/cip31/), [inline
+> datums](https://cips.cardano.org/cips/cip32/), and [reference
+> scripts](https://cips.cardano.org/cips/cip33/). Additionally, the
+> Babbage era supports [collateral
+> outputs](https://github.com/cardano-foundation/CIPs/pull/216), which
+> supports collateral outputs and asserting the exact collateral. The
+> former helps with managing collateral for all wallets and the latter
+> helps reduces the risk of using collateral inputs in hardware wallets.
+>
+> The second group of changes involves the handling of block headers. We
+> introduce a performance optimization, namely using a single VRF value
+> for both the leader check and the epoch nonce contribution. We also
+> remove the features introduced in the Shelley era which existed in
+> order to smoothly transition from a federated environment into a
+> decentralized environment (with respect to block production). In
+> particular, there is no longer an overlay schedule or a mechanism for
+> adding extra entropy to the epoch nonce.
+
+# List of Contributors
+
+> Alex Byaly, Nicholas Clarke, Duncan Coutts, Sebastien Guillemot,
+> Philipp Kant, Jan Mazak, Michal Peyton Jones, Tim Sheard, Polina
+> Vinogradova, Jamie Harper
+
+# Contents
+
++---+----------------------------------------------+--------------------+
+| > | > [**Introduction**](#_bookmark0)            | **3**              |
+|   |                                              |                    |
+| [ |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| 1 |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| _ |                                              |                    |
+| b |                                              |                    |
+| o |                                              |                    |
+| o |                                              |                    |
+| k |                                              |                    |
+| m |                                              |                    |
+| a |                                              |                    |
+| r |                                              |                    |
+| k |                                              |                    |
+| 0 |                                              |                    |
+| ) |                                              |                    |
++===+==============================================+====================+
+| > | > [**Notation**](#notation)                  | **4**              |
+|   |                                              |                    |
+| [ |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| 2 |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| n |                                              |                    |
+| o |                                              |                    |
+| t |                                              |                    |
+| a |                                              |                    |
+| t |                                              |                    |
+| i |                                              |                    |
+| o |                                              |                    |
+| n |                                              |                    |
+| ) |                                              |                    |
++---+----------------------------------------------+--------------------+
+| > | > [**Transactions**](#transactions)          | **5**              |
+|   |                                              |                    |
+| [ |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| 3 |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| t |                                              |                    |
+| r |                                              |                    |
+| a |                                              |                    |
+| n |                                              |                    |
+| s |                                              |                    |
+| a |                                              |                    |
+| c |                                              |                    |
+| t |                                              |                    |
+| i |                                              |                    |
+| o |                                              |                    |
+| n |                                              |                    |
+| s |                                              |                    |
+| ) |                                              |                    |
++---+----------------------------------------------+--------------------+
+| > | > [**UTxO**](#utxo)                          | **6**              |
+|   |                                              |                    |
+| [ |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| 4 |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| u |                                              |                    |
+| t |                                              |                    |
+| x |                                              |                    |
+| o |                                              |                    |
+| ) |                                              |                    |
++---+----------------------------------------------+--------------------+
+| > | > [**Removal of the Overlay                  | **11**             |
+|   | > S                                          |                    |
+| [ | chedule**](#removal-of-the-overlay-schedule) |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| 5 |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| r |                                              |                    |
+| e |                                              |                    |
+| m |                                              |                    |
+| o |                                              |                    |
+| v |                                              |                    |
+| a |                                              |                    |
+| l |                                              |                    |
+| - |                                              |                    |
+| o |                                              |                    |
+| f |                                              |                    |
+| - |                                              |                    |
+| t |                                              |                    |
+| h |                                              |                    |
+| e |                                              |                    |
+| - |                                              |                    |
+| o |                                              |                    |
+| v |                                              |                    |
+| e |                                              |                    |
+| r |                                              |                    |
+| l |                                              |                    |
+| a |                                              |                    |
+| y |                                              |                    |
+| - |                                              |                    |
+| s |                                              |                    |
+| c |                                              |                    |
+| h |                                              |                    |
+| e |                                              |                    |
+| d |                                              |                    |
+| u |                                              |                    |
+| l |                                              |                    |
+| e |                                              |                    |
+| ) |                                              |                    |
++---+----------------------------------------------+--------------------+
+| > | > [**Forgo Reward Calculation                | **14**             |
+|   | > Prefi                                      |                    |
+| [ | lter**](#forgo-reward-calculation-prefilter) |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| 6 |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| f |                                              |                    |
+| o |                                              |                    |
+| r |                                              |                    |
+| g |                                              |                    |
+| o |                                              |                    |
+| - |                                              |                    |
+| r |                                              |                    |
+| e |                                              |                    |
+| w |                                              |                    |
+| a |                                              |                    |
+| r |                                              |                    |
+| d |                                              |                    |
+| - |                                              |                    |
+| c |                                              |                    |
+| a |                                              |                    |
+| l |                                              |                    |
+| c |                                              |                    |
+| u |                                              |                    |
+| l |                                              |                    |
+| a |                                              |                    |
+| t |                                              |                    |
+| i |                                              |                    |
+| o |                                              |                    |
+| n |                                              |                    |
+| - |                                              |                    |
+| p |                                              |                    |
+| r |                                              |                    |
+| e |                                              |                    |
+| f |                                              |                    |
+| i |                                              |                    |
+| l |                                              |                    |
+| t |                                              |                    |
+| e |                                              |                    |
+| r |                                              |                    |
+| ) |                                              |                    |
++---+----------------------------------------------+--------------------+
+| > | > [**TxInfo                                  | **15**             |
+|   | > Construction**](#a-txinfo-construction)    |                    |
+| [ |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| A |                                              |                    |
+| * |                                              |                    |
+| * |                                              |                    |
+| ] |                                              |                    |
+| ( |                                              |                    |
+| # |                                              |                    |
+| a |                                              |                    |
+| - |                                              |                    |
+| t |                                              |                    |
+| x |                                              |                    |
+| i |                                              |                    |
+| n |                                              |                    |
+| f |                                              |                    |
+| o |                                              |                    |
+| - |                                              |                    |
+| c |                                              |                    |
+| o |                                              |                    |
+| n |                                              |                    |
+| s |                                              |                    |
+| t |                                              |                    |
+| r |                                              |                    |
+| u |                                              |                    |
+| c |                                              |                    |
+| t |                                              |                    |
+| i |                                              |                    |
+| o |                                              |                    |
+| n |                                              |                    |
+| ) |                                              |                    |
++---+----------------------------------------------+--------------------+
+
+[**References**](#_bookmark20) **17**
+
+# List of Figures
+
+1.  [Definitions for transactions](#_bookmark3) 5
+
+2.  [Functions related to fees and collateral](#_bookmark5) 6
+
+3.  [Functions related to scripts](#_bookmark6) 7
+
+4.  [State update rules](#_bookmark7) 8
+
+5.  [UTxO inference rules](#_bookmark8) 9
+
+6.  [UTxO with witnesses inference rules for Tx](#_bookmark9) 10
+
+7.  [Function used in the Reward Calculation](#_bookmark11) 11
+
+8.  [Reward Update Creation](#_bookmark12) 11
+
+9.  [Block Definitions](#_bookmark13) 12
+
+10. [Protocol transition-system types](#_bookmark14) 13
+
+11. [Protocol rules](#_bookmark15) 13
+
+12. [Reward Calculation Helper Function](#_bookmark17) 14
+
+13. [TxInfo Constituent Type Translation Functions](#_bookmark19) 15
+
+14. [Transaction Summarization Functions](#_bookmark20) 16
+
+> []{#_bookmark0 .anchor}**1 Introduction**
+>
+> This specification describes the incremental changes from the Alonzo
+> era of Cardano to the Babbage era. The main objective of this era is
+> to make small adjustments in many places, usually to simplify the
+> ledger or to include features that didn't make it into past eras. As
+> part of this effort, we also make some changes to the notation used in
+> these specifications, which should make them easier to understand and
+> maintain.
+>
+> Concretely, this specification makes the following changes:
+
+-   Add reference inputs to transactions
+
+-   Add inline datums in the UTxO
+
+-   Add reference scripts
+
+-   Add transaction fields for specifying and returning collateral
+
+-   Remove the protocol parameters *d* and *extraEntropy*
+
+-   Remove the overlay schedule
+
+-   Block headers to only include a single VRF value and proof
+
+-   Remove the pre-filtering of unregistered stake credentials in the
+    reward calculation
+
+# 2 Notation
+
+> This specification features some changes to the notation used in
+> previous specifications.
+>
+> **Maps and partial functions** We use the notation *f* : *A* →~∗~ *B*
+> to denote a finitely supported partial function. If *B* is a monoid,
+> *f* is a function such that *f a* = 0 for all but finitely many
+>
+> *a*. Otherwise it is a function *f* : *A* → *B*? such that *f a* = *◊*
+> for all but finitely many *a*.
+>
+> **Map operations** We use standard notation for restriction and
+> corestriction of functions to oper- ate on partial functions as well.
+
+# 3 Transactions
+
+> **Figure 1:** Definitions for transactions
+>
+> We add a field refInputs to the transaction that specifies *reference
+> inputs*. A reference input is not spent and does not require any
+> witnessing to be included in a valid transaction. The only requirement
+> is that is has to be present in the ledger state UTxO. There are no
+> restrictions on which outputs can be used as a reference input.
+> Reference inputs only affect the information that is passed to scripts
+> by them being included in TxInfo. For consistency, we've renamed the
+> regular and collateral inputs to spendInputs and collInputs
+> respectively.
+>
+> We add two fields to the transaction dealing with collateral. collRet
+> specifies outputs that get created in case a transaction script fails.
+> txcoll asserts the total amount of collateral that would get collected
+> as fees. Specifying this field does not change how collateral is
+> computed, but transactions whose collateral is different than the
+> amount in txcoll will be invalid. This lets users write transactions
+> whose collateral is evident by just looking at the transaction body
+> instead of requiring information contained in the UTXO, which hardware
+> wallets for example might not have access to.
+>
+> We also add support for supplying a Datum and a Script directly in a
+> TxOut instead of just its hash. The *inline* Datum has two main
+> purposes:
+
+-   In case of a sufficiently small Datum, this is more efficient
+
+-   Used together with reference inputs, this allows for many
+    transactions to use a Datum
+
+> without repeating it every time, thus reducing fees and block size
+>
+> The *inline* script is visible to Plutus scripts and the scripts can
+> be used together with reference inputs to not have to provide scripts
+> in the transaction itself.
+>
+> This change requires the size calculation of outputs to be adjusted,
+> to properly scale with the new additions. For simplicity and
+> future-proofing, we now use the serialized size.
+
+# 4 UTxO
+
+> Some of the functions related to scripts, datums and collateral need
+> to be adjusted for the new features. Most of these adjustments are
+> self-explanatory. Note that the new collOuts function generates a
+> single output with an index \|txouts *txb*\|. This is to avoid
+> potential confusion for transactions spending that output. Note that
+> TxId can only hold integers up to 216 − 1. In case of an overflow, we
+> let this number be 216 − 1.
+>
+> []{#_bookmark5 .anchor}**Figure 2:** Functions related to fees and
+> collateral
+>
+> In the UTXO rule, we switch from a manual estimation of the size
+> consumed by UTxO entries to an estimation using the serialization.
+> However, since the TxIn used as a key in the UTxO map is not part of
+> the serialization, we need to account for it manually. By itself it is
+> 40 bytes, but we add another 120 bytes of overhead for the in-memory
+> representation of Haskell data.
+>
+> To the UTXOW rule, in addition to the changes required by the new
+> features, we add a check that all scripts and datums involved in the
+> transaction are well-formed. We forbid trans- actions that try to
+> execute PlutusV1 scripts and use the new features which can't be
+> translated to PlutusV1's TxInfo (reference inputs, inline datums and
+> reference scripts). We also forbid transactions that involve Byron
+> addresses.
+>
+> []{#_bookmark6 .anchor}**Figure 3:** Functions related to scripts
+
++------+---------------------------------------------------------------+
+| > *  |                                                               |
+| txb* |                                                               |
+| > := |                                                               |
+| > tx |                                                               |
+| body |                                                               |
+| >    |                                                               |
+|  *tx |                                                               |
+| > s  |                                                               |
+| Lst* |                                                               |
+| > := |                                                               |
+| >    |                                                               |
+|  col |                                                               |
+| lect |                                                               |
+| TwoP |                                                               |
+| hase |                                                               |
+| Scri |                                                               |
+| ptIn |                                                               |
+| puts |                                                               |
+| >    |                                                               |
+|  *pp |                                                               |
+| > tx |                                                               |
+| > u  |                                                               |
+| txo* |                                                               |
+| >    |                                                               |
+| > *s |                                                               |
+| lot* |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+| *pp* |                                                               |
+| > ⊢  |                                                               |
+| > *  |                                                               |
+| pup* |                                                               |
+| >    |                                                               |
+| txup |                                                               |
+| >    |                                                               |
+| *tx* |                                                               |
+| > ′  |                                                               |
+| >    |                                                               |
+| > −→ |                                                               |
+| > *  |                                                               |
+| pup* |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+|  *ge |                                                               |
+| nDel |                                                               |
+| egs* |                                                               |
+| >    |                                                               |
+| PPUP |                                                               |
+| >    |                                                               |
+| > *r |                                                               |
+| efun |                                                               |
+| ded* |                                                               |
+| > := |                                                               |
+| > ke |                                                               |
+| yRef |                                                               |
+| unds |                                                               |
+| >    |                                                               |
+|  *pp |                                                               |
+| >    |                                                               |
+| txb* |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+|  *de |                                                               |
+| posi |                                                               |
+| tCha |                                                               |
+| nge* |                                                               |
+| > := |                                                               |
+| > t  |                                                               |
+| otal |                                                               |
+| Depo |                                                               |
+| sits |                                                               |
+| >    |                                                               |
+|  *pp |                                                               |
+| >    |                                                               |
+|  poo |                                                               |
+| lPar |                                                               |
+| ams* |                                                               |
+| >    |                                                               |
+| (txc |                                                               |
+| erts |                                                               |
+| > *t |                                                               |
+| xb*) |                                                               |
+| > −  |                                                               |
+| > *r |                                                               |
+| efun |                                                               |
+| ded* |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+| [isV |                                                               |
+| alid |                                                               |
+| >    |                                                               |
+| *tx* |                                                               |
+| > =  |                                                               |
+| >    |                                                               |
+|  eva |                                                               |
+| lScr |                                                               |
+| ipts |                                                               |
+| >    |                                                               |
+|  *tx |                                                               |
+| > s  |                                                               |
+| Lst* |                                                               |
+| > =  |                                                               |
+| > T  |                                                               |
+| rue] |                                                               |
+| {.un |                                                               |
+| derl |                                                               |
+| ine} |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+|  Scr |                                                               |
+| ipts |                                                               |
+| -Yes |                                                               |
+| >    |                                                               |
+| > *s |                                                               |
+| lot* |                                                               |
+| >   |                                                               |
+| > *u |                                                               |
+| txo* |                                                               |
+| >   |                                                               |
+| >   |                                                               |
+| > ** |                                                               |
+| (spe |                                                               |
+| ndIn |                                                               |
+| puts |                                                               |
+| >    |                                                               |
+| *txb |                                                               |
+| > \  |                                                               |
+| <J*/ |                                                               |
+| >    |                                                               |
+|  *ut |                                                               |
+| xo*) |                                                               |
+| >    |                                                               |
+|  *∪* |                                                               |
+| >    |                                                               |
+| outs |                                                               |
+| >    |                                                               |
+| *txb |                                                               |
+| >    |                                                               |
+| *** |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+| *pp* |                                                               |
+| > ⊢  |                                                               |
+| >   |                                                               |
+| > *d |                                                               |
+| epos |                                                               |
+| its* |                                                               |
+| >   |                                                               |
+| >    |                                                               |
+| *tx* |                                                               |
+| >   |                                                               |
+| > ** |                                                               |
+| *dep |                                                               |
+| osit |                                                               |
+| s* + |                                                               |
+| > *d |                                                               |
+| epos |                                                               |
+| itCh |                                                               |
+| ange |                                                               |
+| >    |                                                               |
+| *** |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+| *poo |                                                               |
+| lPar |                                                               |
+| ams* |                                                               |
+| >   |                                                               |
+| > *f |                                                               |
+| ees* |                                                               |
+| >   |                                                               |
+| > U  |                                                               |
+| > −→ |                                                               |
+| >   |                                                               |
+| > ** |                                                               |
+| *fee |                                                               |
+| s* + |                                                               |
+| > t  |                                                               |
+| xfee |                                                               |
+| >    |                                                               |
+| *txb |                                                               |
+| >    |                                                               |
+| *** |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+| TXOS |                                                               |
+| >    |                                                               |
+| > *g |                                                               |
+| enDe |                                                               |
+| legs |                                                               |
+| >    |                                                               |
+|  pup |                                                               |
+| > *  |                                                               |
+| *pup |                                                               |
+| ′*** |                                                               |
+| >    |                                                               |
+| > \  |                                                               |
+| (1\) |                                                               |
+| >    |                                                               |
+| > *  |                                                               |
+| txb* |                                                               |
+| > := |                                                               |
+| > tx |                                                               |
+| body |                                                               |
+| >    |                                                               |
+|  *tx |                                                               |
+| > s  |                                                               |
+| Lst* |                                                               |
+| > := |                                                               |
+| >    |                                                               |
+|  col |                                                               |
+| lect |                                                               |
+| TwoP |                                                               |
+| hase |                                                               |
+| Scri |                                                               |
+| ptIn |                                                               |
+| puts |                                                               |
+| >    |                                                               |
+|  *pp |                                                               |
+| > tx |                                                               |
+| > u  |                                                               |
+| txo* |                                                               |
+| >    |                                                               |
+| >    |                                                               |
+| *col |                                                               |
+| late |                                                               |
+| ralF |                                                               |
+| ees* |                                                               |
+| > := |                                                               |
+| >    |                                                               |
+|  val |                                                               |
+| ueTo |                                                               |
+| Coin |                                                               |
+| >    |                                                               |
+| (col |                                                               |
+| lBal |                                                               |
+| ance |                                                               |
+| >    |                                                               |
+| *txb |                                                               |
+| > ut |                                                               |
+| xo*) |                                                               |
+| >    |                                                               |
+| > Sc |                                                               |
+| ript |                                                               |
+| s-No |                                                               |
+| >    |                                                               |
+|  isV |                                                               |
+| alid |                                                               |
+| >    |                                                               |
+| *tx* |                                                               |
+| > =  |                                                               |
+| >    |                                                               |
+|  eva |                                                               |
+| lScr |                                                               |
+| ipts |                                                               |
+| >    |                                                               |
+|  *tx |                                                               |
+| > s  |                                                               |
+| Lst* |                                                               |
+| > =  |                                                               |
+| > F  |                                                               |
+| alse |                                                               |
++======+===============================================================+
+|      | > *slot*  *utxo*   **(collInputs *txb \<J*/ *utxo*) *∪ *** |
+|      | > **collOuts *txb ***                                        |
+|      | >                                                             |
+|      | > *pp* ⊢ []{#_bookmark7 .anchor} *deposits*  *tx*         |
+|      | > *deposits*                                                 |
+|      | >                                                             |
+|      | > *poolParams fees*  U −→  ***fees* +**                     |
+|      | > ***collateralFees***                                       |
+|      | >                                                             |
+|      | > TXOS                                                        |
+|      | >                                                             |
+|      | > *genDelegs pup pup*                                         |
+|      | >                                                             |
+|      | > \(2\)                                                       |
++------+---------------------------------------------------------------+
+
+> **Figure 4:** State update rules
+
++---------+-----------------------+-------+-----+-------------+-----+
+| >       | *txb* := txbody *tx*  |       |     |             |     |
+| UTxO-in | ininterval *slot*     |       |     |             |     |
+| ductive | (txvldt *txb*) ( ,    |       |     |             |     |
+|         | *i~f~* ) := txvldt    |       |     |             |     |
+|         | *tx*                  |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | -   ∈/ {txrdmrs *tx*, |       |     |             |     |
+|         |     > *i ~f~* } ⇒     |       |     |             |     |
+|         |     > e               |       |     |             |     |
+|         | pochInfoSlotToUTCTime |       |     |             |     |
+|         |     > EI SysSt *i     |       |     |             |     |
+|         |     > ~f~* ̸= *◊*      |       |     |             |     |
+|         |     > spendInputs     |       |     |             |     |
+|         |     > *txb* ̸= ∅       |       |     |             |     |
+|         |     > feesOK *pp tx   |       |     |             |     |
+|         |     > utxo*           |       |     |             |     |
+|         |     > spendInputs     |       |     |             |     |
+|         |     > *txb* ∪         |       |     |             |     |
+|         |     > collInputs      |       |     |             |     |
+|         |     > *txb* ∪         |       |     |             |     |
+|         |     > refInputs *tx*  |       |     |             |     |
+|         |     > ⊆ dom *utxo*    |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | consumed *pp utxo     |       |     |             |     |
+|         | txb* =produced *pp    |       |     |             |     |
+|         | poolParams txb*       |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | adaID ∈/ supp mint    |       |     |             |     |
+|         | *tx*                  |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | ∀*txout* ∈ allOuts    |       |     |             |     |
+|         | *txb* ,               |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | getValue *txout* ≥    |       |     |             |     |
+|         | inject ( (serSize     |       |     |             |     |
+|         | *txout* + 160) ∗      |       |     |             |     |
+|         | coinsPerUTxOByte *pp* |       |     |             |     |
+|         | )                     |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | ∀*txout* ∈ allOuts    |       |     |             |     |
+|         | *txb* ,               |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | serSize (getValue     |       |     |             |     |
+|         | *txout*) ≤ maxValSize |       |     |             |     |
+|         | *pp*                  |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | ∀( 1→ (*a*, , , )) ∈  |       |     |             |     |
+|         | allOuts *txb* , *a* ∈ |       |     |             |     |
+|         | Addr~bootstrap~ ⇒     |       |     |             |     |
+|         | bootstrapAttrsSize    |       |     |             |     |
+|         | *a* ≤ 64              |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | ∀( 1→ (*a*, , , )) ∈  |       |     |             |     |
+|         | allOuts *txb* , netId |       |     |             |     |
+|         | *a* = NetworkId       |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | ∀(*a* 1→ ) ∈ txwdrls  |       |     |             |     |
+|         | *txb*, netId *a* =    |       |     |             |     |
+|         | NetworkId             |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | (txnetworkid *txb* =  |       |     |             |     |
+|         | NetworkId) ∨          |       |     |             |     |
+|         | (txnetworkid *txb* =  |       |     |             |     |
+|         | *◊*)                  |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | txsize *tx* ≤         |       |     |             |     |
+|         | maxTxSize *pp*        |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | > totExunits *tx* ≤   |       |     |             |     |
+|         | > maxTxExUnits *pp*   |       |     |             |     |
+|         | > ∥collInputs *tx*∥ ≤ |       |     |             |     |
+|         | > maxCollateralInputs |       |     |             |     |
+|         | > *pp slot*  *utxo*  |       |     |             |     |
+|         | >   *utxo*′        |       |     |             |     |
+|         | >                     |       |     |             |     |
+|         | > *pp deposits tx     |       |     |             |     |
+|         | > deposits*^′^        |       |     |             |     |
+|         | > *poolParams* ⊢    |       |     |             |     |
+|         | > *fees*  U −→    |       |     |             |     |
+|         | > *fees*′           |       |     |             |     |
+|         | >                     |       |     |             |     |
+|         | > TXOS                |       |     |             |     |
+|         |                       |       |     |             |     |
+|         | *genDelegs pup pup*′  |       |     |             |     |
++=========+=======================+=======+=====+=============+=====+
+|         | > *slot*             | > *   | >   | >           |     |
+|         | >                     | utxo* |  −→ | ***utxo′*** |     |
+|         | > *pp*                | >    | >   | >          |     |
+|         | >                     | >     |   | >           |     |
+|         | > *poolParams* ⊢      | >     | >   | > ***d      |     |
+|         | > []{#_bookmark8     | *depo | > * | eposits′*** |     |
+|         | > .anchor}           | sits* | tx* | >           |     |
+|         | >                     | >     | >   | >           |     |
+|         | > *genDelegs*         | > *   | > U | ***fees′*** |     |
+|         |                       | fees* | TXO | >         |     |
+|         |                       | >   | >  | >           |     |
+|         |                       | >     |     | >           |     |
+|         |                       | >     |     |  ***pup′*** |     |
+|         |                       | *pup* |     |             |     |
++---------+-----------------------+-------+-----+-------------+-----+
+|         |                       |       |     |             | \(  |
+|         |                       |       |     |             | 3\) |
++---------+-----------------------+-------+-----+-------------+-----+
+
+> **Figure 5:** UTxO inference rules
+>
+> *txb* := txbody *tx txw* := txwits *tx*
+>
+> (*utxo*, , , ) := *utxoSt*
+>
+> *witsKeyHashes* := {hashKey *vk*\|*vk* ∈ dom(txwitsVKey *txw*)}
+>
+> *inputHashes* : *h* (*a*, , *h*, ) ∈ range(*utxo*\|~spendInputs~
+> *~tx~*)
+>
+> isTwoPhaseScriptAddress *tx* *utxo a*
+>
+> 1 − Datum
+>
+> *neededHashes* := {*h* \| ( , *h*) ∈ scriptsNeeded *utxo txb*}
+>
+> ∀*s* ∈ (txscripts *txw* *utxo neededHashes* ) ∩ Script^ph1^,
+> validateScript *s tx*
+>
+> *neededHashes* − dom(refScripts *tx utxo*) = dom(txwitscripts *txw*)
+>
+> *inputHashes* ⊆
+
+{*h*\|( [,]{.underline} ,*h*, )∈allOuts *tx*∪ *utxo* (refInputs *tx*) }
+
+> dom(txdats *txw*)
+>
+> dom(txrdmrs *tx*) = �rdptr *txb sp* (*sp*, *h*) ∈ scriptsNeeded *utxo
+> txb* 1
+>
+> *txbodyHash* := hash (txbody *tx*)
+>
+> ∀*vk* 1→ *σ* ∈ txwitsVKey *tx*, V*~vk~*\[*txbodyHash*\]*σ*
+>
+> witsVKeyNeeded *utxo tx genDelegs* ⊆ *witsKeyHashes*
+>
+> *genSig* := {hashKey *gkey*\|*gkey* ∈ dom *genDelegs*} ∩
+> *witsKeyHashes*
+>
+> {*c* ∈ txcerts *txb* ∩ DCert~mir~} ̸= ∅ =⇒ \|*genSig*\| ≥ Quorum
+>
+> *adh* := txADhash *txb ad* := auxiliaryData *tx*
+>
+> (*adh* = *◊* ∧ *ad* = *◊*) ∨ (*adh* = hashAD *ad*)
+>
+> ∀*x* ∈ range(txdats *txw*) ∪ range(txwitscripts *txw*)
+>
+> ∪ ( , ,*d*,*s*)∈ allOuts *txb* {*s*, *d*} ∪ scripts (auxiliaryData
+> *tx*),
+>
+> *x* ∈ Script ∪ Datum ⇒ isWellFormed *x*
+>
+> languages *tx* *utxo* ⊆ dom(costmdls *pp*) ∩ allowedLanguages *tx
+> utxo*
+>
+> scriptIntegrityHash *txb* = hashScriptIntegrity *pp* (languages *txw*
+> *utxo* ) (txrdmrs *txw*) (txdats *txw*)
+
+*slot*
+
+> UTxO-witG
+>
+> *pp poolParams genDelegs*
+>
+> *slot*
+>
+> ⊢ *utxoSt ^tx^*
+
+UTXO
+
+> *utxoSt*′
+>
+> *pp poolParams genDelegs*
+>
+> ⊢ *utxoSt ^tx^ **utxoSt′***
+>
+> UTXOW
+>
+> []{#_bookmark9 .anchor}(4)
+>
+> **Figure 6:** UTxO with witnesses inference rules for Tx
+
+# 5 Removal of the Overlay Schedule
+
+> The overlay schedule was only used during the early days of the
+> Shelley ledger, and can be safely removed. First, the protocol
+> parameter *d* is removed, and any functions that use it are reduced to
+> the case *d* = 0. The function mkApparentPerformance is reduced to one
+> of its branches, and its first argument is dropped. It is only used in
+> the definition of rewardOnePool, which needs to be adjusted
+> accordingly.
+>
+> Additionally, the block header body now contains a single VRF value to
+> be used for both the leader check and the block nonce.
+>
+> []{#_bookmark11 .anchor}**Figure 7:** Function used in the Reward
+> Calculation
+>
+> The function createRUpd is adjusted by simplifying *η*.
+>
+> []{#_bookmark12 .anchor}**Figure 8:** Reward Update Creation
+>
+> incrBlocks gets the same treatment as mkApparentPerformance. Its
+> invocation in BBODY
+>
+> needs to be adjusted as well.
+>
+> Finally, the PRTCL STS needs to be adjusted. To retire the OVERLAY
+> STS, we inline the definition of its 'decentralized' case and drop all
+> the unnecessary variables from its environment. It is invoked in
+> CHAIN, which needs to be adjusted accordingly.
+>
+> As there is now only a single VRF check, slight modifications are
+> needed for the definition of the block header body BHBody type and the
+> function vrfChecks. The Shelley era accessor functions bleader and
+> bnonce are replaced with new functions which make use of the VRF range
+> extension as described in [Badertscher et al.](#_bookmark21)
+> ([2022](#_bookmark21))\[4.1\], to re-use the single VRF value.
+
++---------+---+----------------+---------------------------------------+
+| *prev*  | ∈ | >              | hash of previous block header         |
+|         |   |  HashHeader^?^ |                                       |
++=========+===+================+=======================================+
+| *vk*    | ∈ | > VKey         | block issuer                          |
++---------+---+----------------+---------------------------------------+
+| *vrfVk* | ∈ | > VKey         | VRF verification key                  |
++---------+---+----------------+---------------------------------------+
+| *b      | ∈ | > BlockNo      | block number                          |
+| lockno* |   |                |                                       |
++---------+---+----------------+---------------------------------------+
+| *slot*  | ∈ | > Slot         | block slot                            |
++---------+---+----------------+---------------------------------------+
+| *       | ∈ | > Seed         | VRF result value                      |
+| vrfRes* |   |                |                                       |
++---------+---+----------------+---------------------------------------+
+| *prf*   | ∈ | > Proof        | vrf proof                             |
++---------+---+----------------+---------------------------------------+
+| *bsize* | ∈ | > N            | size of the block body                |
++---------+---+----------------+---------------------------------------+
+| *bhash* | ∈ | > HashBBody    | block body hash                       |
++---------+---+----------------+---------------------------------------+
+| *oc*    | ∈ | > OCert        | operational certificate               |
++---------+---+----------------+---------------------------------------+
+| *pv*    | ∈ | > ProtVer      | protocol version                      |
++---------+---+----------------+---------------------------------------+
+
+> []{#_bookmark13 .anchor}**Figure 9:** Block Definitions
+>
+> **Figure 10:** Protocol transition-system types
+
+[]{#_bookmark15 .anchor}**Figure 11:** Protocol rules
+
+# 6 Forgo Reward Calculation Prefilter
+
+> The reward calculation no longer filters out the unregistered stake
+> credentials when creating a reward update. As in the Shelley era,
+> though, they are still filtered on the epoch boundary when the reward
+> update is applied. This addresses errata 17.2 in the Shelley ledger
+> specification [Formal Methods Team, IOHK](#_bookmark22)
+> ([2019](#_bookmark22))\[17.2\]. The change consists of removing the
+> line
+>
+> *addrs~rew~ \<J potentialRewards*
+>
+> from the last line of the rewardOnePool function.
+>
+> []{#_bookmark17 .anchor}**Figure 12:** Reward Calculation Helper
+> Function
+
+# A TxInfo Construction
+
+> The context of PlutusV2 needs to be adjusted to contain the new
+> features. Additionally, the redeemers are provided to the context, but
+> without the execution units budget.
+>
+> []{#_bookmark19 .anchor}**Figure 13:** TxInfo Constituent Type
+> Translation Functions
+>
+> []{#_bookmark20 .anchor}**Figure 14:** Transaction Summarization
+> Functions
+
+# References
+
+> []{#_bookmark21 .anchor}Christian Badertscher, Peter Gazˇi, In˜igo
+> Querejeta-Azurmendi, and Alexan- der Russell. On uc-secure range
+> extension and batch verification for ecvrf, 2022. URL
+> [https://iohk.io/en/research/library/papers/](https://iohk.io/en/research/library/papers/on-uc-secure-range-extension-and-batch-verification-for-ecvrf)
+> [on-uc-secure-range-extension-and-batch-verification-for-ecvrf](https://iohk.io/en/research/library/papers/on-uc-secure-range-extension-and-batch-verification-for-ecvrf).
+>
+> []{#_bookmark22 .anchor}Formal Methods Team, IOHK. A Formal
+> Specification of the Cardano Ledger, 2019. URL
+> [https://github.com/input-output-hk/cardano-ledger/releases/latest/](https://github.com/input-output-hk/cardano-ledger/releases/latest/download/shelley-ledger.pdf)
+> [download/shelley-ledger.pdf](https://github.com/input-output-hk/cardano-ledger/releases/latest/download/shelley-ledger.pdf).
+>
+> []{#_bookmark23 .anchor}Formal Methods Team, IOHK. A Formal
+> Specification of the Cardano Ledger with Plutus Integra- tion, 2021.
+> URL
+> [https://github.com/input-output-hk/cardano-ledger/tree/master/](https://github.com/input-output-hk/cardano-ledger/tree/master/eras/alonzo/formal-spec/alonzo-ledger.tex)
+> [eras/alonzo/formal-spec/alonzo-ledger.tex](https://github.com/input-output-hk/cardano-ledger/tree/master/eras/alonzo/formal-spec/alonzo-ledger.tex).

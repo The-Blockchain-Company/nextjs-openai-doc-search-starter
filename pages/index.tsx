@@ -11,10 +11,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Hearti.ai Embedding Starter</title>
+        <title>Hearti AI</title>
         <meta
           name="description"
-          content="Heart.ai Vectorized Embedding Starter App"
+          content="Heart.ai Vectorized Embeddings"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

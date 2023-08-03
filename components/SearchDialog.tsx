@@ -269,7 +269,7 @@ export function SearchDialog() {
                   rounded border border-slate-200 dark:border-slate-600
                   transition-colors"
                   onClick={(_) =>
-                    setSearch('Create a table called profiles with fields id, name, email')
+                    setSearch('How does PCI compliance affect my mobile payments business')
                   }
                 >
                   How does PCI compliance affect my mobile payments business

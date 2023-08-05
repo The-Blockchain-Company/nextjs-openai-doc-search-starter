@@ -1,0 +1,186 @@
+> ![Final-PCI-SSC-Mark-R.PNG](vertopal_8862460d3e524b9a98ff5c51e185dc2f/media/image1.png){width="2.6060706474190725in"
+> height="0.7864577865266842in"}
+>
+> **Payment Card Industry (PCI)**
+
+Point-to-Point Encryption
+
+Security Requirements and Testing Procedures
+
+> **Summary of Significant Changes from v3.0 to v3.1**
+>
+> September 2021
+>
+> **PCI P2PE v3.1 Summary of Significant Changes**
+>
+> This document provides an overall summary of significant changes from
+> P2PE v3.0 to P2PE v3.1 of the Security Requirements and Testing
+> Procedures (i.e., the P2PE Standard).
+>
+> **Table 1: Change Types**
+
++-------------------+--------------------------------------------------+
+| > **Change Type** | > **Definition**                                 |
++===================+==================================================+
+| **Clarification** | Clarifies intent of requirement or testing       |
+|                   | procedure. Ensures that concise wording in the   |
+|                   | standard portrays the desired intent of          |
+|                   | requirements.                                    |
++-------------------+--------------------------------------------------+
+| **Additional      | Explanation, definition, and/or instruction to   |
+| guidance**        | increase understanding or provide further        |
+|                   | information or guidance on a particular topic.   |
++-------------------+--------------------------------------------------+
+| **Evolving /      | Changes to ensure that the standard is up to     |
+| New**             | date with emerging threats and changes in the    |
+|                   | market. May consist of a new or modified         |
+|                   | requirement, test procedure, or context.         |
++-------------------+--------------------------------------------------+
+| **Removal**       | Deleted a requirement or context due to          |
+|                   | redundancy or to better reflect the intent of    |
+|                   | the standard.                                    |
++-------------------+--------------------------------------------------+
+| **Restructure**   | Changes to eliminate redundant requirements or   |
+|                   | better align content with other                  |
+|                   | requirements/standards.                          |
++-------------------+--------------------------------------------------+
+
+> **Table 2: Summary of Changes**
+
++---------+--------+--------------------------------------+-----------+
+| >       | >      | **DESCRIPTION**                      | >         |
+|  **P2PE | **P2PE |                                      |  **CHANGE |
+| >       | >      |                                      | > TYPE**  |
+|  v3.0** | v3.1** |                                      |           |
++=========+========+======================================+===========+
+| > Te    |        | Updated ANSI and NIST (FIPS)         | >         |
+| chnical |        | references                           |  Evolving |
+| > Ref   |        |                                      |           |
+| erences |        |                                      |           |
++---------+--------+--------------------------------------+-----------+
+| > 3     |        | Removed erroneous context of 3A-4.1  | > Clar    |
+| A-3.2.1 |        | (which does not exist as of v3.0)    | ification |
+|         |        | from both the 3A-3.2.1 requirement   |           |
+|         |        | and test procedure.                  |           |
++---------+--------+--------------------------------------+-----------+
+| >       |        | 2^nd^ paragraph. Added missing       | > A       |
+|  Domain |        | context that the term Solution       | dditional |
+| > 4     |        | Provider is relative to the entity   | >         |
+|         |        | undergoing the P2PE assessment (as   |  Guidance |
+|         |        | is mentioned in other applicable     |           |
+|         |        | Domains).                            |           |
++---------+--------+--------------------------------------+-----------+
+| >       |        | **Remote Key-Distribution Using      | > A       |
+|  Domain |        | Asymmetric Techniques Operations**   | dditional |
+| > 5     |        |                                      | >         |
+|         |        | Added two bullet points to further   |  Guidance |
+|         |        | clarify the term 'remotely'.         |           |
++---------+--------+--------------------------------------+-----------+
+| > 1-3   |        | Added note to clarify PCI-approved   | > A       |
+|         |        | HSMs may be contingent on being      | dditional |
+|         |        | deployed in controlled environments  | >         |
+|         |        | or more robust (e.g., secure)        |  Guidance |
+|         |        | environments as defined in ISO       |           |
+|         |        | 13491-2 and in the HSM's Security    |           |
+|         |        | Policy.                              |           |
++---------+--------+--------------------------------------+-----------+
+| > 6-3   |        | Minor rewording/restructuring to     | > Clar    |
+|         |        | requirement and test procedures.     | ification |
+|         |        |                                      |           |
+|         |        | Added Note to clarify printed key    |           |
+|         |        | components includes manual capture.  |           |
++---------+--------+--------------------------------------+-----------+
+| > N/A   | >      | Added new requirements with          | >         |
+|         |  6-3.1 | pre-existing context to capture a    |  Evolving |
+|         | >      | PIN Technical FAQ and most of 32-9   |           |
+|         | > to   | criteria for the use of a secure     |           |
+|         | >      | room for printing key components     |           |
+|         | >      | instead of referencing requirement   |           |
+|         |  6-3.9 | 32-9 directly.                       |           |
++---------+--------+--------------------------------------+-----------+
+| > 9-2   |        | Clarified the confirmation of        | > Clar    |
+|         |        | compromise to test procedures.       | ification |
++---------+--------+--------------------------------------+-----------+
+| > 12-5  |        | Clarified context of existing        | > Clar    |
+|         |        | implementations. Removed erroneous   | ification |
+|         |        | reference to double-length TDEA.     |           |
++---------+--------+--------------------------------------+-----------+
+| > 1     |        | Removed 1^st^ three duplicate        | Removal   |
+| 3-9.3.b |        | bullets that are in 13-9.3.a.        |           |
++---------+--------+--------------------------------------+-----------+
+| > 1     |        | Clarified context of 'reads'         | > Clar    |
+| 3-9.4.9 |        | regarding clear-text key components. | ification |
++---------+--------+--------------------------------------+-----------+
+| > 14-2  |        | Removed erroneous bullet points from | Removal   |
+|         |        | requirement.                         |           |
++---------+--------+--------------------------------------+-----------+
+| > 15-1  |        | Clarified key-check value wording in | > Clar    |
+|         |        | Note.                                | ification |
++---------+--------+--------------------------------------+-----------+
+
++---------+---+-------+--------------------------------------+-----------+
+| >       | > |       | **DESCRIPTION**                      | >         |
+|  **P2PE |   |       |                                      |  **CHANGE |
+| >       | * |       |                                      | > TYPE**  |
+|  v3.0** | * |       |                                      |           |
+|         | P |       |                                      |           |
+|         | 2 |       |                                      |           |
+|         | P |       |                                      |           |
+|         | E |       |                                      |           |
+|         | > |       |                                      |           |
+|         |   |       |                                      |           |
+|         | v |       |                                      |           |
+|         | 3 |       |                                      |           |
+|         | . |       |                                      |           |
+|         | 1 |       |                                      |           |
+|         | * |       |                                      |           |
+|         | * |       |                                      |           |
++=========+===+=======+======================================+===========+
+| > 18-3  |   |       | Updated effective dates for phase 2  | >         |
+|         |   |       | and phase 3 of key block             |  Evolving |
+|         |   |       | implementations.                     |           |
++---------+---+-------+--------------------------------------+-----------+
+| > 21-4  |   |       | Added context for FIPS 140-2/3 and   | > Clar    |
+|         |   |       | Annex C.                             | ification |
++---------+---+-------+--------------------------------------+-----------+
+| >       |   |       | Clarified retention context of       | > Clar    |
+|  24-2.2 |   |       | affidavit.                           | ification |
++---------+---+-------+--------------------------------------+-----------+
+| > 26-1  |   |       | Added clarity regarding secure       | > Clar    |
+|         |   |       | storage of logs.                     | ification |
+|         |   |       |                                      |           |
+|         |   |       | Added missing context to new test    |           |
+|         |   |       | procedure 26-1.a regarding           |           |
+|         |   |       | interviews and documentation review. |           |
+|         |   |       |                                      |           |
+|         |   |       | Renumbered existing test procedures. |           |
++---------+---+-------+--------------------------------------+-----------+
+| > 29-1  |   |       | Added note providing guidance for    | > A       |
+|         |   |       | SCDs used for key injection and code | dditional |
+|         |   |       | signing (including display prompts). | >         |
+|         |   |       |                                      |  Guidance |
++---------+---+-------+--------------------------------------+-----------+
+| > 2     |   | > 29- | Resolved misnumbering issue.         | > Clar    |
+| 9-1.1.3 |   | 1.1.2 |                                      | ification |
++---------+---+-------+--------------------------------------+-----------+
+| > 29-3  |   |       | New bullet point for context of      | > Clar    |
+|         |   |       | tamper.                              | ification |
++---------+---+-------+--------------------------------------+-----------+
+| >       |   |       | Additional clarification in Note for | > Clar    |
+|  32-1.1 |   |       | character length.                    | ification |
++---------+---+-------+--------------------------------------+-----------+
+| > 32-9  |   |       | Aligned encrypted key loading dates  | >         |
+|         |   |       | and POI versions with previously     |  Evolving |
+|         |   |       | issued PCI Bulletin (and PIN v3.1).  |           |
++---------+---+-------+--------------------------------------+-----------+
+| >       |   |       | Added missing context of recording   | > Clar    |
+|  32-9.7 |   |       | from requirement to test procedure.  | ification |
++---------+---+-------+--------------------------------------+-----------+
+| > Annex |   |       | Updated wording throughout Annex C   | > Clar    |
+| > C     |   |       | to add clarity to existing context.  | ification |
+|         |   |       |                                      | > &       |
+|         |   |       |                                      | > A       |
+|         |   |       |                                      | dditional |
+|         |   |       |                                      | >         |
+|         |   |       |                                      |  Guidance |
++---------+---+-------+--------------------------------------+-----------+

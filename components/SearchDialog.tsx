@@ -197,7 +197,7 @@ export function SearchDialog() {
           <DialogHeader>
             <DialogTitle>Hearti AI</DialogTitle>
             <DialogDescription>
-              Ask about PCI Compliance, Cardano, or Quantum One to test our Supabase and OpenAI powered vectorized embeddings.
+              Ask about PCI DSS Compliance, Cardano and the Plutus Apps SDK, or Medicare to test our Supabase and OpenAI driven embedding.
             </DialogDescription>
             <hr />
             <button className="absolute top-0 right-2 p-2" onClick={() => setOpen(false)}>

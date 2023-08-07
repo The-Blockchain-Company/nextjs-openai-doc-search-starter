@@ -1,0 +1,1511 @@
+---
+title: "[]{#_bookmark0 .anchor}Medicare Claims Processing Manual"
+---
+
+> **Chapter 22 - Remittance Advice**
+
+## Table of Contents
+
+### *(Rev. 11427, 05-20-22)*
+
+> [**[Transmittals for Chapter
+> 22]{.underline}**](#transmittals-issued-for-this-chapter)
+>
+> [10 - Background](#background)
+>
+> [20 - General Remittance Completion
+> Requirements](#general-remittance-completion-requirements) [30 -
+> Remittance Balancing](#remittance-balancing)
+
+40. [- Electronic Remittance Advice - ERA or ASC X12
+    835](#electronic-remittance-advice---era-or-asc-x12-835)
+
+    1.  [- ASC X12
+        835](#electronic-remittance-advice---era-or-asc-x12-835)
+
+    2.  [- Generating an ERA if Required Data is Missing or
+        Invalid](#asc-x12-835)
+
+    3.  [- Electronic Remittance Advice Data Sent to
+        Banks](#electronic-remittance-advice-data-sent-to-banks)
+
+    4.  [- Medicare Standard Electronic PC-Print Software for
+        Institutional
+        Providers](#medicare-standard-electronic-pc-print-software-for-institutional-providers)
+
+    5.  [- Medicare Remit Easy Print Software for Professional Providers
+        > and
+        > Suppliers](#medicare-remit-easy-print-software-for-professional-providers-and-suppliers)
+
+    6.  [- ASC X12 835 Implementation Guide (IG) or Technical Report 3
+        (TR3)](#asc-x12-835-implementation-guide-ig-or-technical-report-3-tr3)
+        [50 - Standard Paper Remittance
+        Advice](#rev.-10236-issued-07-31-2020-effective-08-31-2020-implementation-08-31-2020-1)
+
+    ```{=html}
+    <!-- -->
+    ```
+    1.  [- The Do Not Forward (DNF)
+        Initiative](#the-do-not-forward-dnf-initiative) [60 - Remittance
+        Advice Codes](#remittance-advice-codes)
+
+    ```{=html}
+    <!-- -->
+    ```
+    1.  [- Group Codes](#group-codes)
+
+    2.  [- Claim Adjustment Reason
+        Codes](#claim-adjustment-reason-codes)
+
+    3.  [- Remittance Advice Remark
+        Codes](#remittance-advice-remark-codes)
+
+    4.  [- Requests for Additional
+        Codes](#requests-for-additional-codes)
+
+```{=html}
+<!-- -->
+```
+80. [- The Council for Affordable Quality Healthcare (CAQH) Committee on
+    Operating](#the-council-for-affordable-quality-healthcare-caqh-committee-on-operating-rules-for-information-exchange-core)
+    [Rules for Information Exchange (CORE) Mandated Operating
+    Rules](#the-council-for-affordable-quality-healthcare-caqh-committee-on-operating-rules-for-information-exchange-core)
+
+    1.  [- Health Care Claim Payment/Advice (835) Infrastructure
+        > Rule](#health-care-claim-paymentadvice-835-infrastructure-rule)
+
+        1.  [- Version X12/5010X221 Companion
+            > Guide](#version-x125010x221-companion-guide)
+
+    2.  [- Uniform Use of CARCs and RARCs
+        > Rule](#uniform-use-of-carcs-and-rarcs-rule)
+
+    3.  [- EFT Enrollment Data Rule](#eft-enrollment-data-rule)
+
+    4.  [- ERA Enrollment Form](#era-enrollment-form)
+
+# 10 - Background
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The A/B Medicare Administrative Contractors (A/B MACs), and Durable
+> Medical Equipment Medicare Administrative Contractors (DME MACs) send
+> to providers, physicians, and suppliers, as a companion to claim
+> payments, a notice of payment, referred to as the Remittance Advice
+> (RA). RAs explain the payment and any adjustment(s) made during claim
+> adjudication. For each claim or line item payment, and/or adjustment,
+> there is an associated remittance advice item. Adjustment is defined
+> as:
+
+-   denied
+
+-   zero payment
+
+-   partial payment
+
+-   reduced payment
+
+-   penalty applied
+
+-   additional payment
+
+-   supplemental payment
+
+> Payments and/or adjustments for multiple claims can be reported on one
+> transmission of the remittance advice. RA notices can be produced and
+> transferred in either paper or electronic format.
+>
+> The A/B MACs and DME MACs also send informational RAs to
+> nonparticipating physicians, suppliers, and non-physician
+> practitioners billing non-assigned claims (billing and receiving
+> payments from beneficiaries instead of accepting direct Medicare
+> payments), unless the beneficiary or the provider requests that the
+> remittance advice be suppressed. An informational RA is identical to
+> other RAs, but must carry a standard message to notify providers that
+> they do not have appeal rights beyond those afforded when limitation
+> on liability (rules regulating the amount of liability that an entity
+> can accrue because of medical services which are not covered by
+> Medicare (see Pub. 100-04, chapter 30) applies.
+>
+> The MACs are allowed to charge up to a maximum of \$25 for generating
+> and mailing, if applicable, duplicate remittance advice (both
+> electronic and paper) to recoup costs when generated at the request of
+> a provider or any entity working on behalf of the provider.
+>
+> Under the Health Insurance Portability and Accountability Act of 1996
+> (HIPAA) administrative provisions, the Secretary of Health and Human
+> Services has adopted ASC X12 Health Care Claim Payment/Advice (835)
+> version 5010A1 to be the standard effective from January 1, 2012.
+>
+> The CMS has implemented the new HIPAA standard following the ASC X12
+> Technical Report 3 (TR3) for transaction 835 version 5010A1, and
+> requires the use of this format exclusively for Electronic Remittance
+> Advices (ERAs) on or after full implementation. CMS has also
+> established a policy that the paper formats shall mirror the ERAs as
+> much as possible, and all MACs shall use the paper formats -- Standard
+> Paper Remit or SPR - established by CMS.
+>
+> Provider Identification:
+>
+> Medicare requires claims to contain National Provider Identifiers
+> (NPIs) to be accepted for adjudication. NPIs received on the claims
+> are cross walked to Medicare assigned legacy numbers for adjudication.
+> Adjudication is based on each unique combination of NPI/legacy number
+> if there is no one-to-one relationship between the two. Any ERA or SPR
+> sent after version 5010A1 has been implemented will have one of the
+> three provider identifications: (1)Federal Taxpayer's Identification
+> Number; (2) Centers for Medicare and Medicaid Services PlanID; or (3)
+> Centers for Medicare & Medicaid Services National Provider Identifier
+> (NPI) as the provider ID instead of any Medicare assigned provider
+> number at the provider level. NPIs will be sent as the provider
+> identification at the claim level. As the Rendering Provider
+> Identifier at the service line level, any one of the following
+> identifiers: (1) Centers for Medicare & Medicaid Services National
+> Provider Identifier; (2) Social Security Number; (3) Federal Tax
+> Payer's Identification Number; or (4) Medicare Provider Number; --
+> will be sent.
+
+# 20 - General Remittance Completion Requirements
+
+## (Rev. 2843, Issued: 12-27-13, Effective: 01-28-14, Implementation: 01-28-14)
+
+> The following general field completion and calculation rules apply to
+> both paper and electronic versions of the remittance advice, except as
+> otherwise noted. See the current implementation guide for specific
+> requirements: Any adjustment applied to the submitted charge and/or
+> units must be reported in the claim and/or service adjustment segments
+> with the appropriate group, reason, and remark codes explaining the
+> adjustments. Every provider level adjustment must likewise be reported
+> in the provider level adjustment section of the remittance advice.
+> Inpatient RAs do not report service line adjustment data; only summary
+> claim level adjustment information is reported.
+
+-   The computed field "Net" reported in the Standard Paper Remittance
+    (SPR) notice must include "ProvPd" (Calculated Payment to Provider,
+    CLP04 in the ASC X12 835) and interest, late filing charges and
+    previously paid amounts.
+
+-   MACs report only one crossover payer name on both the ERA and SPR,
+    even if coordination of benefits (COB) information is sent to more
+    than one payer. The current HIPAA compliant version of the ASC X12
+    835 does not have the capacity to report more than one crossover
+    carrier, and the SPR mirrors the ASC X12 835.
+
+-   The check amount is the sum of all claim-level payments, including
+    claims and service-level adjustments, less any provider level
+    adjustments.
+
+-   Positive adjustment amounts reduce the amount of the payment and
+    negative adjustment amounts increase it.
+
+-   The MAC does not issue an RA for a voided or cancelled claim. It
+    issues an RA for the adjusted claim with "Previously Paid" (CLP04 in
+    the ASC X12 835) showing the amount paid for the voided claim.
+
+-   The shared system maintainers and contractors must make sure that
+    the HIPAA transactions 835 and 837 COB balance after a system change
+    resulting from a policy change that may or may not be directly
+    related to Electronic Data
+
+> Interchange (EDI).
+
+# 30 - Remittance Balancing
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> For Medicare the principles of remittance balancing are the same for
+> both paper and electronic remittance formats. Balancing requires that
+> the total paid amount is equal to the total submitted charges plus or
+> minus payment adjustments for a single ASC X12 835 remittance in
+> accordance with the rules of the standard ASC X12 835 format. Refer to
+> Front Matter Section 1.10.2.1 for Balancing in the ASC X12 835 version
+> 5010 TR3.
+>
+> Every HIPAA compliant ASC X12 835 transaction issued by a MAC must
+> comply with the ASC X12 835 version 5010 TR3 requirements, i.e., these
+> remittances must balance at the service, claim, and provider levels.
+> The flat files generated by the shared systems must be balanced at the
+> line, claim, and provider level. As a failsafe measure claim
+> adjustment reason code121 and PLB reason code 90 may be used at the
+> line, claim, and provider level respectively to make sure that the ASC
+> X12 835 is balanced. Shared System generated reports must track the
+> usage of these codes, and A/B MACs and DME MACs must work closely with
+> the shared system maintainers and CMS to resolve the issues resulting
+> in out of balance situations.
+
+# - Electronic Remittance Advice - ERA or ASC X12 835
+
+## (Rev. 10236, Issued: 07-31-2020, Effective: 08-31-2020, Implementation: 08-31-2020)
+
+> Electronic Remittance Advice (ERA) transactions must be produced in
+> the current HIPAA compliant ASC X12 835 version /5010. Directions for
+> version updates are posted when necessary in CMS Change Request (CR)
+> instructions issued by CMS. Refer to the official Washington
+> Publishing Company website for implementation guides, record formats,
+> and data dictionaries for the ASC X12 835
+>
+> Shared systems maintainers must provide appropriate provider file
+> structures and switching mechanisms so that MACs can select and
+> generate the ASC X12 835 and/or the automated clearing house (ACH)
+> format when electronic funds transfer (EFT) applies. See the
+> implementation guides for further information on the abbreviated ASC
+> X12 835 and use of the ASC X12 835 for EFT.
+>
+> Changes to content and format of ERAs may not be made by individual
+> MACs. Changes will be made only by shared system maintainers, and
+> then, only as directed by CMS.
+
+# - ASC X12 835
+
+## (Rev.: 4388; Issued: 09-06-19; Effective: 10-07-19; Implementation: 10-07-19)
+
+> The ASC X12 835 is a variable-length record designed for wire
+> transmission and is not suitable for use in application programs.
+> Therefore, shared systems generate a flat file version of the ASC X12
+> 835. MACs must translate that flat file into the variable length ASC
+> X12 835 record for transmission to providers or their billing services
+> or clearinghouse. See Chapter 24 for technical information about
+> transmission of the ASC X12 835. The updated flat files are posted at:
+>
+> [[https://www.cms.gov/Medicare/Billing/ElectronicBillingEDITrans/Remittance.html]{.underline}](https://www.cms.gov/Medicare/Billing/ElectronicBillingEDITrans/Remittance.html)
+>
+> Go to "Downloads", and click on the file you want. The MAC
+> requirements are:
+
+-   Send the remittance data directly to providers or their designated
+    > billing services or clearinghouses;
+
+-   Provide sufficient security to protect beneficiaries' privacy. The
+    MAC does not allow any party to view beneficiary information, unless
+    authorized by specific instructions from CMS
+
+-   Issue the remittance advice specifications and technical interface
+    > specifications to all requesting providers within three weeks of
+    > their request. Interface specifications must contain sufficient
+    > detail to enable a reasonably knowledgeable provider to interpret
+    > the RA, without the need to pay the MAC or an associated business
+    > under the same corporate umbrella for supplemental services or
+    > software;
+
+-   A/B MACs (A) allow Part A providers to receive a Standard Paper
+    Remittance Advice (SPR) in addition to the ASC X12 835 during the
+    first 31 days of receiving ERAs and during other testing. After that
+    time, A/B MACs (A) do not send a hard copy version of the ASC X12
+    835, in addition to the electronic transmission, in production mode.
+    They should contact CMS if this requirement causes undue hardship
+    for a particular provider, and a waiver is needed;
+
+-   A/B MACs and DME MACs must suppress the distribution of SPRs to
+    those Part B providers//suppliers (or a billing agent,
+    clearinghouse, or other entity receiving ERAs on behalf of those
+    providers/suppliers) after 45 days of receiving both SPR and ERA
+    formats. In rare situations (e.g., natural or man-made disasters)
+    exceptions to this policy may be allowed at the discretion of CMS.
+    A/B MACs and DME MACs should contact CMS if a waiver is needed;
+
+-   MACs may release an ERA prior to the payment date, but never later
+    than the payment date;
+
+-   Ensure that their provider file accommodates the data necessary to
+    affect EFT, either through use of the ACH or the ASC X12 835 format;
+
+-   Pay the costs of transmitting EFT through their bank to the ACH.
+    Payees are responsible for the telecommunications costs of EFT from
+    the ACH to their bank, as well as the costs of receiving ASC X12 835
+    data once in production mode; and
+
+-   Provide for sufficient back-up to allow for retransmission of
+    > garbled or misdirected transmissions.
+
+> Every ASC X12 835 transaction issued by A/B MACs and DME MACs must
+> comply with the implementation guide (IG) requirements; i.e., each
+> required segment, and each situational segment when the situation
+> applies, must be reported. Required or applicable
+>
+> situational data element in a required or situational segment must be
+> reported, and the data in a data element must meet the minimum length
+> and data attribute (AN, ID, R, etc.) specifications in the
+> implementation guide.
+>
+> Back end validation must be performed to ensure that these conditions
+> are met. A/B MACs and DME MACs are not required to validate codes
+> maintained by their shared systems, such as Healthcare Common
+> Procedure Coding System (HCPCS), that are issued in their shared
+> system's flat file for use in the body of an ASC X12 835, but they are
+> required to validate data in the ASC X12 835 envelope as well as the
+> codes that they maintain, such as claim adjustment reason codes and
+> remittance advice remark codes, that are reported in the ASC X12 835.
+> MACs do not need to re-edit codes or other data validated during the
+> claim adjudication process during this back end validation. Valid
+> codes are to be used in the flat file, unless:
+
+-   A service is being denied or rejected using an ASC X12 835 for
+    > submission of an invalid code, in which case the invalid code must
+    > be reported on the ASC X12 835;
+
+-   A code was valid when received, but was discontinued by the time the
+    > ASC X12 835 is issued, in which case, the received code must be
+    > reported on the ASC X12 835; or
+
+-   A code is received on a paper claim, and does not meet the required
+    > data attribute(s) for the HIPAA compliant ASC X12 835, in which
+    > case, "gap filling" would be needed if it were to be inserted in a
+    > compliant ASC X12 835.
+
+> Additionally A/B MACs and Common Electronic Data Interchange (CEDI)
+> for DME MACs must follow the CMS instructions for Receipt, Control and
+> Balancing.
+
+# - Generating an ERA if Required Data is Missing or Invalid
+
+## (Rev. 2843, Issued: 12-27-13, Effective: 01-28-14, Implementation: 01-28-14)
+
+> The ASC X12 835 IG contains specific data requirements, which must be
+> met to build a HIPAA compliant ERA. A claim could be received on paper
+> that lacks data or has data that does not meet the data attributes or
+> length requirements for preparation of a HIPAA- compliant ERA. If not
+> rejected as a result of standard or IG level editing, a MAC must
+> either send an SPR advice or a "gap filled" ERA to avoid noncompliance
+> with HIPAA. For example, if a procedure code is sent with only four
+> characters and the code set specified in the IG includes five
+> character codes in the data element, and the code is not rejected by
+> the front end edits, the claim would be denied due to the invalid
+> procedure code. Preparation of an ERA with too few characters though
+> would not comply with the IG requirements. The noncompliant ERA could
+> be rejected by the receiver.
+>
+> The shared system maintainers, working in conjunction with their MACs,
+> must decide whether to generate an SPR, which is not covered by HIPAA,
+> or to "gap fill" in this situation, depending on system capability and
+> cost. Except in some very rare situations, "gap filling" would be
+> expected to be the preferred solution. Shared System Maintainers must
+> follow CMS gap-filling instruction. The MAC must notify the trading
+> partners, if and when their files are affected, as to when and why
+> gap-filling characters will appear in
+>
+> an ASC X12 835.
+
+# - Electronic Remittance Advice Data Sent to Banks
+
+## (Rev. 2843, Issued: 12-27-13, Effective: 01-28-14, Implementation: 01-28-14)
+
+> Under the HIPAA Privacy requirements, U. S. health care payers are
+> prohibited from sending table two ASC X12 835 data (portion of ASC X12
+> 835 containing protected patient health care information) (or
+> protected patient health care information in any other paper or
+> electronic format) to a bank, unless:
+
+-   That bank also functions as a health care data clearinghouse;
+
+-   The provider has authorized the bank as a health care data
+    > clearinghouse to receive that data; and
+
+-   The bank has signed an agreement to safeguard the privacy and
+    > security of the data.
+
+> The definition of a financial clearinghouse, as used by banks for
+> transfer of funds, differs from the definition of health care data
+> clearinghouse as used by HIPAA. The HIPAA definition must be met if a
+> bank is to be authorized for receipt of table two or equivalent
+> patient health care data.
+>
+> Table two contains protected patient information that is not approved
+> for release to a bank that is not an authorized health care data
+> clearinghouse. A non-health data clearinghouse bank cannot receive ASC
+> X12 835 data, except as provided in table one.
+
+# - Medicare Standard Electronic PC-Print Software for Institutional Providers
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The PC Print software enables institutional providers to print
+> remittance data transmitted by Medicare. A/B MACs (A) are required to
+> make PC Print software available to providers for downloading at no
+> charge. A/B MACs (A) may charge up to \$25 per mailing to recoup costs
+> if the software is sent to providers on a CD/DVD or any other means at
+> the provider's request when the software is available for downloading.
+> This software must include self-explanatory loading and use
+> information for providers. It should not be necessary to furnish
+> provider training for use of PC Print software. A/B MACs (A) must
+> supply providers with PC-Print software within 3 weeks of request. The
+> A/B MAC (A) Shared System (FISS) maintainer will supply PC Print
+> software and a user's guide for all A/B MACs (A). The FISS maintainer
+> must assure that the PC Print software is modified as needed to
+> correspond to updates in the ERA and SPR formats per CMS instruction.
+>
+> Providers are responsible for any telecommunication costs associated
+> with receipt of the ASC X12 835, but the software itself can be
+> downloaded at no cost.
+>
+> The PC Print software enables providers to:
+
+-   Allow the translation of the ASC X12 835 electronic remittance
+    > advice to user friendly report that can be reprinted;
+
+-   View and print remittance information on all claims included in the
+    > ASC X12 835;
+
+-   View and print remittance information for a single claim;
+
+-   View and print a summary of claims billed for each Type of Bill
+    > (TOB) processed on this ERA; and
+
+-   View and print a summary of provider payments.
+
+> The receiving PC always writes an ASC X12 835 file in ASCII. The
+> providers may choose one or more print options, e.g., the entire
+> transmission, a single claim, a summary by bill type, or a provider
+> payment summary. If software malfunctions are detected, they are to be
+> corrected through the FISS maintainer. Individual A/B MACs (A) or data
+> centers may not modify the PC Print software.
+>
+> The software will also print the CAQH CORE defined business scenarios
+> along with the texts for Claim Adjustment Reason and Remittance Advice
+> Remark Codes reported on the 835 to explain any adjustment.
+
+# - Medicare Remit Easy Print Software for Professional Providers and Suppliers
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The CMS has developed software that gives professional
+> providers/suppliers a tool to view and print an ERA in a human
+> readable format. This software is called Medicare Remit Easy Print
+> (MREP). It has been developed in response to comments that CMS has
+> received from the provider/supplier community demonstrating a need for
+> paper documents to reconcile accounts, and facilitate claim submission
+> to secondary/tertiary payers. This software became available on
+> October 11, 2005 to the providers through their respective A/B MACs
+> and CEDI. The software is scheduled to be updated three times a year
+> to accommodate the Claim Adjustment Reason Code (CARC) and Remittance
+> Advice Remark Code (RARC) tri-annual updates, and any applicable
+> enhancements. In addition to these three regular updates, there is
+> also an annual enhancement update, if needed.
+>
+> The MREP software enables providers to:
+
+-   View and print remittance information on all claims included in the
+    ASC X12 835;
+
+-   View and print remittance information for a single claim;
+
+-   View and print a summary page; and
+
+-   View, print, and export special reports.
+
+> This software can be downloaded free of cost, but A/B MACs and CEDI
+> may charge up to \$25 per mailing to recoup costs if the software is
+> sent to providers on a CD/DVD or
+>
+> any other means at the provider's request when the software is
+> available for downloading. MREP software has been updated to
+> accommodate ASC X12 835 version 5010.
+>
+> The software will also print the CAQH CORE defined business scenarios
+> along with the texts for Claim Adjustment Reason and Remittance Advice
+> Remark Codes reported on the 835 to explain any adjustment.
+
+# -- ASC X12 835 Implementation Guide (IG) or Technical Report 3 (TR3)
+
+## (Rev. 10236, Issued: 07-31-2020, Effective: 08-31-2020, Implementation: 08-31-2020)
+
+> The Health Insurance Portability and Accountability Act (HIPAA) of
+> 1996 requires that Medicare, and all other health insurance payers
+> covered under HIPAA comply with the electronic data interchange
+> standards for health care as established by the Secretary of Health
+> and Human Services. The 5010A1 version of the ASC X12 835 Technical
+> Report 3 TR3 has been established as the standard for compliance for
+> the 5010A1 version of the ASC X12 835remittance advice transaction\...
+> The formal name of this TR3 is ASC X12 Standards for Electronic Data
+> Interchange Technical Report Type 3---Health Care Claim Payment/Advice
+> (835), and its current HIPAA compliant version is available
+> electronically at the official Washington Publishing Company website.
+>
+> Although that TR3 or implementation guide contains requirements for
+> use of specific segments and data elements within the segments, it was
+> written for use by all health plans and not specifically for Medicare.
+> However, a Companion Document has been prepared by CMS to clarify when
+> conditional data elements and segments must be used for Medicare
+> reporting when reviewing the Companion Document, keep in mind the
+> following information about loop usage (e.g., required, not used, and
+> situational definitions). For additional information on this subject
+> see the Implementation Guide:
+
+-   Loop usage within ASC X12 transactions and their implementation
+    > guides can be confusing. Care must be used to read the loop
+    > requirements in terms of the context or location within the
+    > transaction.
+
+-   The usage designator of a loop's beginning segment indicates the
+    > usage of the loop. Segments within a loop cannot be sent without
+    > the beginning segment of that loop.
+
+-   If the first segment is required, the loop must occur at least once
+    > unless it is nested in a loop that is not being used. A note on
+    > the required first segment of a nested loop will indicate
+    > dependency on the higher-level loop.
+
+-   If the first segment is Situational, there will be a Segment Note
+    > addressing use of the loop. Any required segments in loops
+    > beginning with a Situational segment occur only when the loop is
+    > used. Similarly, nested loops occur only when the higher-level
+    > loop is used.
+
+> Companion Documents for both Part A and Part B are available at:
+> [[http://www.cms.gov/ElectronicBillingEDITrans/30_CompanionGuides.asp#TopOfPage]{.underline}](http://www.cms.gov/ElectronicBillingEDITrans/30_CompanionGuides.asp#TopOfPage)
+
+# - Standard Paper Remittance Advice
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The Standard Paper Remittance (SPR) is the hard copy version of an
+> ERA. All A/B MACs and DME MACs must be capable of producing SPRs for
+> providers who are unable or choose not to receive an ERA. A/B MACs and
+> DME MACs suppress distribution of SPRs if a provider is also receiving
+> ERAs for more than 31 days (institutional providers) or 45 days
+> (professional providers/suppliers) respectively.
+
+# - The Do Not Forward (DNF) Initiative
+
+## (Rev.: 4388; Issued: 09-06-19; Effective: 10-07-19; Implementation: 10-07-19)
+
+> As part of the Medicare DNF Initiative, A/B MACs and DME MACs must use
+> "return service requested" envelopes for mailing all hardcopy
+> remittance advices. When the post office returns a remittance advice
+> due to an incorrect address, follow the same procedures followed for
+> returned checks; that is:
+
+-   Flag the provider "DNF"; A/B MAC staff must notify the provider
+    enrollment area, and DME MACs must notify the National Supplier
+    Clearing House (NSC);
+
+-   Cease generating any further payments or remittance advice to that
+    provider or supplier until they furnish a new address that is
+    verified; and
+
+-   When the provider returns a new address, MACs remove the DNF flag
+    after the address has been verified, and pay the provider any funds
+    still being held due to a DNF flag. MACs must also reissue any
+    remittance that has been held as well.
+
+> **NOTE:** Previously, CMS required corrections only to the "pay to"
+> address. However, with the implementation of this new initiative, CMS
+> requires corrections to all addresses before the MAC can remove the
+> DNF flag and begin paying the provider or supplier again. Therefore,
+> do not release any payments to DNF providers until the provider
+> enrollment area or the National Supplier Clearinghouse (NSC) has
+> verified and updated all addresses for that provider's location. MACs
+> must initially publish the requirement that providers must notify the
+> A/B MAC or NSC of any changes of address, both on their Web sites and
+> in their next regularly scheduled bulletins. MACs must continue to
+> remind suppliers and providers of this requirement in their bulletins
+> at least yearly thereafter.
+>
+> See Chapter 1 for additional information pertaining to the DNF
+> initiative.
+
+# - Remittance Advice Codes
+
+### *(Rev. 11427; Issued: 05-20-22; Effective: 01-01-23; Implementation: 01-03-23)*
+
+> ***NOTE:** CMS seeks to reduce burden and modernize processes to
+> ensure a reduction in improper payments and an increase in customer
+> satisfaction. The Certificate of Medical Necessity (CMN) form and DME
+> Information Form (DIF) were originally required to help document the
+> medical necessity and other coverage criteria for selected Durable
+> Medical Equipment, Prosthetics, Orthotics, and Supplies (DMEPOS)
+> items. In the past, a supplier received a signed CMN from the treating
+> physician or created and signed a DIF to submit with the claim. Due to
+> improvements in claims processing and medical records*
+>
+> *management, the information found on CMNs or DIFs is available either
+> on the claim or in the medical record and is redundant. Therefore, to
+> reduce burden and increase customer satisfaction, providers and
+> suppliers no longer need to submit these forms for services rendered
+> after January 1, 2023.*
+
+-   ***[For claims with dates of service on or after January 1,
+    > 2023]{.underline}** -- providers and suppliers no longer need to
+    > submit CMNs or DIFs with claims. Due to electronic filing
+    > requirements, claims received with these forms attached will be
+    > rejected and returned to the provider or supplier.*
+
+-   ***[For claims with dates of service prior to January 1,
+    > 2023]{.underline}** -- processes will not change and if the CMN or
+    > DIF is required, it will still need to be submitted with the
+    > claim, or be on file with a previous claim.*
+
+> *This statement applies throughout the Program Integrity Manual
+> wherever CMNs and DIFs are mentioned.*
+>
+> The remittance advice provides explanation of any adjustment(s) made
+> to the payment. The difference between the submitted charge and the
+> actual payment must be accounted for in order for the ASC X12 835 to
+> balance. The term "adjustment" may mean any of the following:
+
+-   denied
+
+-   zero payment
+
+-   partial payment
+
+-   reduced payment
+
+-   penalty applied
+
+-   additional payment
+
+-   supplemental payment
+
+> Group Codes, Claim Adjustment Reason Codes and Remittance Advice
+> Remark Codes are used to explain adjustments at the claim or service
+> line level. Provider Level Adjustment or PLB Reason Codes are used to
+> explain any adjustment at the provider level.
+
+# -- Group Codes
+
+## (Rev. 2843, Issued: 12-27-13, Effective: 01-28-14, Implementation: 01-28-14)
+
+> A group code is a code identifying the general category of payment
+> adjustment. A group code must always be used in conjunction with a
+> claim adjustment reason code to show liability for amounts not covered
+> by Medicare for a claim or service. MACs do not have discretion to
+> omit appropriate codes and messages. MACs must use appropriate group,
+> claim adjustment reason, and remittance advice remark codes to
+> communicate clearly why an amount is not covered by Medicare and who
+> is financially responsible for that amount. Valid Group Codes for use
+> on Medicare remittance advice:
+
+-   CO - Contractual Obligations. This group code shall be used when a
+    contractual agreement between the payer and payee, or a regulatory
+    requirement, resulted in an adjustment. Generally, these adjustments
+    are considered a write off for the provider and are not billed to
+    the patient.
+
+-   OA - Other Adjustments. This group code shall be used when no other
+    group code applies to the adjustment.
+
+-   PR - Patient Responsibility. This group code shall be used when the
+    adjustment represent an amount that may be billed to the patient or
+    insured. This group would typically be used for deductible and copay
+    adjustments.
+
+# -- Claim Adjustment Reason Codes
+
+## (Rev. 10236, Issued: 07-31-2020, Effective: 08-31-2020, Implementation: 08-31-2020)
+
+> Claim Adjustment Reason Codes (CARCs) are used on the Medicare
+> electronic and paper remittance advice, and Coordination of Benefit
+> (COB) claim transaction. The Claim Adjustment Status and Reason Code
+> Maintenance Committee maintains this code set. A new code may not be
+> added, and the indicated wording may not be modified without the
+> approval of this committee. These codes were developed for use by all
+> U.S. health payers. As a result, they are generic, and there are a
+> number of codes that do not apply to Medicare. This code set is
+> updated three times a year. MACs shall use only most current valid
+> codes in ERA, SPR, and COB claim transactions.
+>
+> Any reference to procedures or services mentioned in the reason codes
+> apply equally to products, drugs, supplies or equipment. References to
+> prescriptions also include certificates of medical necessity (CMNs).
+>
+> These reason codes explain the reasons for any financial adjustments,
+> such as denials, reductions or increases in payment. These codes may
+> be used at the service or claim level, as appropriate. Current ASC X12
+> 835 structures only allow one reason code to explain any one specific
+> adjustment amount.
+>
+> There are basic criteria that the Claim Adjustment Status and Reason
+> Code Maintenance Committee considers when evaluating requests for new
+> claim adjustment reason codes:
+
+-   Can the information be conveyed by the use or modification of an
+    > existing reason
+
+> code?
+
+-   Is the information available elsewhere in the ASC X12 835?
+
+-   Will the addition of the new reason code make any significant
+    > difference in the action taken by the provider who receives the
+    > message?
+
+> The list of Claim Adjustment Reason Codes can be found at the official
+> Washington Publishing Company website.
+>
+> The updated list is published three times a year after the committee
+> meets before the ASC X12 trimester meeting in the months of
+> January/February, May/June, and September/October. MACs must make sure
+> that they are using the latest approved claim adjustment reason codes
+> in ERA, SPR and COB transaction by implementing necessary code changes
+> as instructed in the Recurring Code Update Change Requests (CRs) or
+> any other CMS instruction and/or downloading the list from the WPC
+> website after each update. The Shared System Maintainers shall make
+> sure that a deactivated code (either reason or remark) is not allowed
+> to be used in any original business message, but is allowed and
+> processed when reported in derivative business messages. Code
+> deactivation may be implemented prior to the stop date posted at the
+> WPC web site to follow Medicare release schedule. SSMs shall implement
+> deactivation on the earlier date if the implementation date in the
+> recurring code update CR is different than the stop date posted at the
+> WPC Web site.
+>
+> The MACs are responsible for entering claim adjustment reason code
+> updates to their shared system and entry of parameters for shared
+> system use to determine how and when particular codes are to be
+> reported in remittance advice and coordination of benefits
+> transactions. In most cases, reason and remark codes reported in
+> remittance advice transactions are mapped to alternate codes used by a
+> shared system. These shared system codes may exceed the number of the
+> reason and remark codes approved for reporting in a remittance advice
+> transaction. A particular ASC X12 835 reason or remark code might be
+> mapped to one or more shared system codes, or vice versa, making it
+> difficult for a MAC to determine each of the internal codes that may
+> be impacted by remark or reason code modification, retirement, or
+> addition.
+>
+> Shared systems must provide a crosswalk between the reason and remark
+> codes to the shared system internal codes so that a MAC can easily
+> locate and update each internal code that may be impacted by a
+> remittance advice reason/remark code change to eliminate the need for
+> lengthy and error prone manual MAC searches to identify each affected
+> internal code. Shared systems must also make sure that 5-position
+> remark codes can be accommodated at both the claim and service level
+> for ASC X12 835 version 4010 onwards.
+>
+> The effective date of programming for use of new or modified
+> reason/remark codes applicable to Medicare is the earlier of the date
+> specified in the CMS manual transmittal or CMS Recurring Code Update
+> change request or the Medicare Claims Processing Manual transmittal
+> that implemented a policy change that led to the issuance of the new
+> or modified code. MACs must notify providers of the new and/or
+> modified codes and their meanings in a provider bulletin or other
+> instructional release prior to issuance of
+>
+> remittance advice transactions that include these changes. Some CARCs
+> are so generic that the reason for adjustment cannot be communicated
+> clearly without at least one remark code. These CARCs have a note
+> added to the text for identification. A/B MACs and DME MACs must use
+> at least one appropriate remark code when using one of these CARCs.
+
+# -- Remittance Advice Remark Codes
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> Remittance Advice Remark Codes (RARCs) are used in a remittance advice
+> to further explain an adjustment or relay informational messages that
+> cannot be expressed with a claim adjustment reason code. Remark codes
+> are maintained by CMS, but may be used by any health plan when they
+> apply. MACs must report appropriate remark code(s) that apply. There
+> is another type of remark codes that does not add supplemental
+> explanation for a specific adjustment but provides general
+> adjudication information. These "Informational" remark codes start
+> with the word "Alert" and can be reported without Group and Claim
+> Adjustment Reason Code. An example of an "Informational" RARC would
+> be:
+>
+> MA01: Alert: If you do not agree with what we approved for these
+> services, you may appeal our decision. To make sure that we are fair
+> to you, we require another individual that did not process your
+> initial claim to conduct the appeal. However, in order to be eligible
+> for an appeal, you must write to us within 120 days of the date you
+> received this notice, unless you have a good reason for being late.
+>
+> Remark codes at the service line level must be reported in the ASC X12
+> 835 LQ segment. Remark codes that apply to an entire claim must be
+> reported in either an ASC X12 835 MIA (inpatient) or MOA
+> (non-inpatient) segment, as applicable. Although the IG allows up to 5
+> remark codes to be reported in the MOA/MIA segment and up to 99 remark
+> codes in the LQ segment, system limitation may restrict how many codes
+> MACs can actually report.
+>
+> The remark code list is updated three times a year, and the list is
+> posted at the WPC website and gets updated at the same time when the
+> reason code list is updated. Both code lists are updated on or around
+> March 1, July 1, and November 1. MACs must use the latest approved
+> remark codes as included in the Recurring Code Update CR or any other
+> CMS instruction or downloading the list from the WPC Website after
+> each update. MAC and shared system changes must be made, as necessary,
+> as part of a routine release to reflect changes such as retirement of
+> previously used codes or newly created codes that may impact Medicare.
+
+# - Requests for Additional Codes
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The CMS has a national responsibility for maintenance of the
+> remittance advice remark codes and the Claim Adjustment Status Code
+> Maintenance Committee maintains the claim adjustment reason codes.
+> Requests for new or modification or deactivation of RARCs and CARCs
+> should be sent to a mail box set up by CMS:
+>
+> Remittance_Advice.CMS.HHS.GOV.
+>
+> The MACs should send their requests to this mail box for any change in
+> CARC, RARC or any code combination. Requests for codes must include
+> the suggested wording for the new or revised message, and an
+> explanation of how the message will be used and why it
+>
+> is needed or a justification for the request.
+>
+> To provide a summary of changes introduced in the previous 4 months, a
+> code update instruction in the form of a CR is issued. These CRs will
+> establish the deadline for Medicare shared system and MAC changes to
+> complete the reason and/or remark code updates that had not already
+> been implemented as part of a previous Medicare policy change
+> instruction.
+
+# -- The Council for Affordable Quality Healthcare (CAQH) Committee on Operating Rules for Information Exchange (CORE)
+
+> **Mandated Operating Rules**
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> Section 1104 of the Patient Protection and Affordable Care Act (ACA)
+> establishes the development and implementations of "requirements for
+> administrative transactions that will improve the utility of the
+> existing HIPAA transactions and reduce administrative costs." A/B
+> MACs/ CEDI/ and DME MACs are required to conform to the following CAQH
+> Core Operating Rules impacting the transmittals of X12 835
+> transactions.
+>
+> A complete list of ACA mandated operating rules are available at
+> [[http://www.caqh.org/ORMandate_index.php]{.underline}.](http://www.caqh.org/ORMandate_index.php)
+
+# - Health Care Claim Payment/Advice (835) Infrastructure Rule
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> Section 1104 of the Patient Protection and Affordable Care Act (ACA)
+> establishes the development and implementations of "requirements for
+> administrative transactions that will improve the utility of the
+> existing HIPAA transactions and reduce administrative costs." A/B
+> MACs/ CEDI/ and DME MACs are required to conform to the following CAQH
+> Core Operating Rules impacting the transmittals of X12 835
+> transactions.
+>
+> A complete list of ACA mandated operating rules are available at
+> [[http://www.caqh.org/ORMandate_index.php]{.underline}.](http://www.caqh.org/ORMandate_index.php)
+
+# - Version X12/5010X221 Companion Guide
+
+## (Rev. 2843, Issued: 12-27-13, Effective: 01-28-14, Implementation: 01-28-14)
+
+> CAQH CORE mandated operating rules require the usage of a companion
+> guide for the ASC X12 835 standard transaction. This companion guide
+> is to correspond with the already existing V5010 ASC X12
+> Implementation Guide.
+>
+> A companion guide template is available at:
+> [[http://www.caqh.org/pdf/CLEAN5010/MasterCompGuidTemp-v5010.pdf]{.underline}](http://www.caqh.org/pdf/CLEAN5010/MasterCompGuidTemp-v5010.pdf)
+
+# - Uniform Use of CARCs and RARCs Rule
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The CAQH CORE mandated operating rules require the usage of a
+> standardized CARC
+>
+> and RARC combinations when used on the ASC X12 835 transactions. These
+> combinations are maintained in a list updated three times a year by
+> CAQH CORE.
+>
+> The complete CARC/RARC code combination list is available at:
+> [[http://www.caqh.org/CORECodeCombinations.php]{.underline}](http://www.caqh.org/CORECodeCombinations.php)
+>
+> The MACs may submit to CMS a request for modification to an existing
+> code combination or a request to create a new code combination to the
+> CAQH CORE Code Combination List. MACs may also request modifications,
+> additions, or deletions of individual CARC and RARC codes to CMS.
+> Requests are to be submitted to:
+> [[Remittance_Advice@CMS.HHS.GOV]{.underline}.](mailto:Remittance_Advice@CMS.HHS.GOV)
+>
+> All requests must include business justifications and contain, when
+> available, reference to CMS instruction for the requested action.
+
+# - EFT Enrollment Data Rule
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The CAQH CORE mandated operating rules establish standards for the
+> enrollment of providers to electronic funds transfer (EFT) programs.
+> The rule mandates the required data elements and the order in which
+> they appear on the EFT enrollment forms. The rule also mandates
+> acceptable EFT enrollment submission formats.
+>
+> A complete list of required data elements and submission formats are
+> available at
+> [[http://www.caqh.org/Host/CORE/EFT-ERA/EFT_Enrollment_Data_Rule.pdf]{.underline}](http://www.caqh.org/Host/CORE/EFT-ERA/EFT_Enrollment_Data_Rule.pdf)
+
+# - ERA Enrollment Form
+
+## (Rev. 3288, Issued: 07-02-15, Effective: 08-03-15, Implementation: 08-03-15)
+
+> The CAQH CORE mandated operating rules establish standards for the
+> enrollment of providers to ERA programs. The rule mandates the
+> required data elements and the order in which they appear on the ERA
+> enrollment forms. The rule also mandates acceptable EFT enrollment
+> submission formats.
+>
+> A complete list of required data elements and submission formats are
+> available at
+> [[http://www.caqh.org/Host/CORE/EFT-ERA/ERA_Enrollment_Data_Rule.pdf]{.underline}](http://www.caqh.org/Host/CORE/EFT-ERA/ERA_Enrollment_Data_Rule.pdf)
+
+# Transmittals Issued for this Chapter
+
++--------+--------+-----------------------------------+--------+----+
+| **Rev  | *      | **Subject**                       | **Impl | >  |
+| \#**   | *Issue |                                   | Date** |  * |
+|        | Date** |                                   |        | *C |
+|        |        |                                   |        | R# |
+|        |        |                                   |        | ** |
++========+========+===================================+========+====+
+| [[R1   | 05/2   | Claims Processing Manual Update - | 01/0   | >  |
+| 1427CP | 0/2022 | Pub.                              | 3/2023 |  1 |
+| ]{.und |        |                                   |        | 27 |
+| erline |        | 100.04 for Elimination of         |        | 34 |
+| }](htt |        | Certificates of Medical Necessity |        |    |
+| ps://g |        | (CMNs) and Durable Medical        |        |    |
+| cc02.s |        | Equipment Forms (DIFs)            |        |    |
+| afelin |        |                                   |        |    |
+| ks.pro |        |                                   |        |    |
+| tectio |        |                                   |        |    |
+| n.outl |        |                                   |        |    |
+| ook.co |        |                                   |        |    |
+| m/?url |        |                                   |        |    |
+| =https |        |                                   |        |    |
+| %3A%2F |        |                                   |        |    |
+| %2Fwww |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov%2Ff |        |                                   |        |    |
+| iles%2 |        |                                   |        |    |
+| Fdocum |        |                                   |        |    |
+| ent%2F |        |                                   |        |    |
+| r11427 |        |                                   |        |    |
+| CP.pdf |        |                                   |        |    |
+| &data= |        |                                   |        |    |
+| 05%7C0 |        |                                   |        |    |
+| 1%7CJa |        |                                   |        |    |
+| nice.P |        |                                   |        |    |
+| inn%40 |        |                                   |        |    |
+| cms.hh |        |                                   |        |    |
+| s.gov% |        |                                   |        |    |
+| 7C36c8 |        |                                   |        |    |
+| ac73f2 |        |                                   |        |    |
+| c942f6 |        |                                   |        |    |
+| cb6c08 |        |                                   |        |    |
+| da3a6b |        |                                   |        |    |
+| d057%7 |        |                                   |        |    |
+| Cd58ad |        |                                   |        |    |
+| dea505 |        |                                   |        |    |
+| 34a808 |        |                                   |        |    |
+| 499ba4 |        |                                   |        |    |
+| d94491 |        |                                   |        |    |
+| 0df%7C |        |                                   |        |    |
+| 0%7C0% |        |                                   |        |    |
+| 7C6378 |        |                                   |        |    |
+| 865319 |        |                                   |        |    |
+| 795650 |        |                                   |        |    |
+| 90%7CU |        |                                   |        |    |
+| nknown |        |                                   |        |    |
+| %7CTWF |        |                                   |        |    |
+| pbGZsb |        |                                   |        |    |
+| 3d8eyJ |        |                                   |        |    |
+| WIjoiM |        |                                   |        |    |
+| C4wLjA |        |                                   |        |    |
+| wMDAiL |        |                                   |        |    |
+| CJQIjo |        |                                   |        |    |
+| iV2luM |        |                                   |        |    |
+| zIiLCJ |        |                                   |        |    |
+| BTiI6I |        |                                   |        |    |
+| k1haWw |        |                                   |        |    |
+| iLCJXV |        |                                   |        |    |
+| CI6Mn0 |        |                                   |        |    |
+| %3D%7C |        |                                   |        |    |
+| 3000%7 |        |                                   |        |    |
+| C%7C%7 |        |                                   |        |    |
+| C&sdat |        |                                   |        |    |
+| a=YnhY |        |                                   |        |    |
+| w4bfC4 |        |                                   |        |    |
+| hZZd5L |        |                                   |        |    |
+| XH7EiP |        |                                   |        |    |
+| QHVUS3 |        |                                   |        |    |
+| 0Enf2i |        |                                   |        |    |
+| XL9Vmq |        |                                   |        |    |
+| 4lY%3D |        |                                   |        |    |
+| &reser |        |                                   |        |    |
+| ved=0) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 05/1   | Claims Processing Manual Update - | 06/1   | >  |
+| 1414CP | 2/2022 | Pub.                              | 3/2022 |  1 |
+| ]{.und |        |                                   |        | 27 |
+| erline |        | 100.04 for Elimination of         |        | 34 |
+| }](htt |        | Certificates of Medical Necessity |        |    |
+| ps://g |        | (CMNs) and Durable Medical        |        |    |
+| cc02.s |        | Equipment Forms (DIFs) -          |        |    |
+| afelin |        | Rescinded and replaced by         |        |    |
+| ks.pro |        | Transmittal 11427                 |        |    |
+| tectio |        |                                   |        |    |
+| n.outl |        |                                   |        |    |
+| ook.co |        |                                   |        |    |
+| m/?url |        |                                   |        |    |
+| =https |        |                                   |        |    |
+| %3A%2F |        |                                   |        |    |
+| %2Fwww |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov%2Ff |        |                                   |        |    |
+| iles%2 |        |                                   |        |    |
+| Fdocum |        |                                   |        |    |
+| ent%2F |        |                                   |        |    |
+| r11414 |        |                                   |        |    |
+| CP.pdf |        |                                   |        |    |
+| &data= |        |                                   |        |    |
+| 05%7C0 |        |                                   |        |    |
+| 1%7CJa |        |                                   |        |    |
+| nice.P |        |                                   |        |    |
+| inn%40 |        |                                   |        |    |
+| cms.hh |        |                                   |        |    |
+| s.gov% |        |                                   |        |    |
+| 7Cb7ca |        |                                   |        |    |
+| 4304e0 |        |                                   |        |    |
+| e04c53 |        |                                   |        |    |
+| fc2608 |        |                                   |        |    |
+| da3440 |        |                                   |        |    |
+| 91d8%7 |        |                                   |        |    |
+| Cd58ad |        |                                   |        |    |
+| dea505 |        |                                   |        |    |
+| 34a808 |        |                                   |        |    |
+| 499ba4 |        |                                   |        |    |
+| d94491 |        |                                   |        |    |
+| 0df%7C |        |                                   |        |    |
+| 0%7C0% |        |                                   |        |    |
+| 7C6378 |        |                                   |        |    |
+| 797491 |        |                                   |        |    |
+| 789784 |        |                                   |        |    |
+| 75%7CU |        |                                   |        |    |
+| nknown |        |                                   |        |    |
+| %7CTWF |        |                                   |        |    |
+| pbGZsb |        |                                   |        |    |
+| 3d8eyJ |        |                                   |        |    |
+| WIjoiM |        |                                   |        |    |
+| C4wLjA |        |                                   |        |    |
+| wMDAiL |        |                                   |        |    |
+| CJQIjo |        |                                   |        |    |
+| iV2luM |        |                                   |        |    |
+| zIiLCJ |        |                                   |        |    |
+| BTiI6I |        |                                   |        |    |
+| k1haWw |        |                                   |        |    |
+| iLCJXV |        |                                   |        |    |
+| CI6Mn0 |        |                                   |        |    |
+| %3D%7C |        |                                   |        |    |
+| 3000%7 |        |                                   |        |    |
+| C%7C%7 |        |                                   |        |    |
+| C&sdat |        |                                   |        |    |
+| a=g%2F |        |                                   |        |    |
+| gu9ICZ |        |                                   |        |    |
+| POj5PZ |        |                                   |        |    |
+| 8K6HaX |        |                                   |        |    |
+| Qf6Hve |        |                                   |        |    |
+| JYZ6J% |        |                                   |        |    |
+| 2B16so |        |                                   |        |    |
+| ruNui% |        |                                   |        |    |
+| 2Bw%3D |        |                                   |        |    |
+| &reser |        |                                   |        |    |
+| ved=0) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [      | 07/3   | Update to the IOM Publication     | 08/3   | >  |
+| [R1023 | 1/2020 | (Pub) 100- 04, Medicare Claims    | 1/2020 |  1 |
+| 6CP]{. |        | Processing Manual, Chapters 1, 6, |        | 18 |
+| underl |        | 8, 17, 20, 22, 24, and 31         |        | 57 |
+| ine}]( |        | Referencing the Active Universal  |        |    |
+| https: |        | Resource Locators (URLs) for the  |        |    |
+| //www. |        | Washington Publishing Company     |        |    |
+| cms.go |        | (WPC) and the ASC X12             |        |    |
+| v/file |        | Organizations, and Updates to the |        |    |
+| s/docu |        | HIPAA Eligibility Transaction     |        |    |
+| ment/r |        | System (HETS)                     |        |    |
+| 10236C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R    | 09/0   | Manual Updates to Chapters 1, 22, | 10/0   | >  |
+| 4388CP | 6/2019 | 24, 26,                           | 7/2019 |  1 |
+| ]{.und |        |                                   |        | 13 |
+| erline |        | and 31 in Publication (Pub.)      |        | 31 |
+| }](htt |        | 100-04                            |        |    |
+| ps://w |        |                                   |        |    |
+| ww.cms |        |                                   |        |    |
+| .gov/R |        |                                   |        |    |
+| egulat |        |                                   |        |    |
+| ions-a |        |                                   |        |    |
+| nd-Gui |        |                                   |        |    |
+| dance/ |        |                                   |        |    |
+| Guidan |        |                                   |        |    |
+| ce/Tra |        |                                   |        |    |
+| nsmitt |        |                                   |        |    |
+| als/20 |        |                                   |        |    |
+| 19Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R4388C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R3   | 07/0   | Medicare Internet Only Manual     | 08/0   | >  |
+| 288CP] | 2/2015 | Publication 100-04 Chapter 22     | 3/2015 | 91 |
+| {.unde |        | Remittance Advice                 |        | 99 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R3288C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R2   | 12/2   | Medicare Claims Processing Pub.   | 01/2   | >  |
+| 843CP] | 7/2013 | 100-04, Chapter 22 Update         | 8/2014 | 85 |
+| {.unde |        |                                   |        | 13 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2843C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R2   | 11/1   | Testing HIPPA Transactions        | 04/0   | >  |
+| 594CP] | 6/2012 | Following a System Change         | 1/2013 | 80 |
+| {.unde |        |                                   |        | 94 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2594C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R22  | 05/0   | Claim Adjustment Reason Code      | 07/0   | >  |
+| 13CP]{ | 6/2011 | (CARC), Remittance Advice Remark  | 5/2011 | 73 |
+| .under |        | Code (RARC), and Medicare Remit   |        | 69 |
+| line}] |        | Easy Print (MREP) Update          |        |    |
+| (https |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2213C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R2   | 04/2   | IOM 100-04 Chapter 22 Update for  | 05/3   | >  |
+| 205CP] | 9/2011 | Remittance Advice for Version     | 1/2011 | 73 |
+| {.unde |        | 5010-ASC X12N 0050A1 and Related  |        | 08 |
+| rline} |        | Standard Paper Remittance (SPR)   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2205C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+
++--------+--------+-----------------------------------+--------+----+
+| **Rev  | *      | **Subject**                       | **Impl | >  |
+| \#**   | *Issue |                                   | Date** |  * |
+|        | Date** |                                   |        | *C |
+|        |        |                                   |        | R# |
+|        |        |                                   |        | ** |
++========+========+===================================+========+====+
+| [[R2   | 04/2   | Claim Adjustment Reason Code      | 07/0   | >  |
+| 194CP] | 2/2011 | (CARC), Remittance Advice Remark  | 5/2011 | 73 |
+| {.unde |        | Code (RARC), and Medicare Remit   |        | 69 |
+| rline} |        | Easy Print (MREP) Update --       |        |    |
+| ](http |        | Rescinded and replaced by         |        |    |
+| ://www |        | Transmittal 2213                  |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2194C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 11/3   | Shared System Participation in    | 04/0   | >  |
+| 385CP] | 0/2007 | Claim Adjustment Reason Code and  | 7/2008 | 58 |
+| {.unde |        | Remittance Advice Remark Code     |        | 06 |
+| rline} |        | Maintenance                       |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R1385C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 09/2   | Stage 3 NPI Changes for           | 07/0   | >  |
+| 343CP] | 1/2007 | Transaction 835 and Standard      | 2/2007 | 54 |
+| {.unde |        | Paper Remittance Advice           |        | 52 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R1343C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 05/1   | Stage 3 NPI Changes for           | 07/0   | >  |
+| 241CP] | 8/2007 | Transaction 835 and Standard      | 2/2007 | 54 |
+| {.unde |        | Paper Remittance Advice -         |        | 52 |
+| rline} |        | Replaced by Transmittal 1343      |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R1241C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 09/2   | Ending the Contingency Plan for   | 10/2   | >  |
+| 063CP] | 2/2006 | Remittance Advice and Charging    | 3/2006 | 53 |
+| {.unde |        | for PC Print, Medicare Remit Easy |        | 08 |
+| rline} |        | Print, and Duplicate Remittance   |        |    |
+| ](http |        | Advice                            |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R1063C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 08/1   | Revise Chapters 22 and 24 to      | 11/2   | >  |
+| 033CP] | 8/2006 | delete references to free         | 0/2006 | 52 |
+| {.unde |        | downloads of X12 implementation   |        | 47 |
+| rline} |        | guides adopted as HIPAA standards |        |    |
+| ](http |        | from Washington Publishing        |        |    |
+| ://www |        | Company (WPC)                     |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R1033C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 06/3   | Stage 2 NPI Changes for           | 10/0   | >  |
+| R996CP | 0/2006 | Transaction 835, and Standard     | 2/2006 | 50 |
+| ]{.und |        | Paper Remittance Advice, and      |        | 81 |
+| erline |        | Changes in Medicare Claims        |        |    |
+| }](htt |        | Processing Manual, Chapter 22 -   |        |    |
+| p://ww |        | Remittance Advice - Replaces Rev. |        |    |
+| w.cms. |        | 948                               |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R996C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 05/1   | Stage 2 NPI Changes for           | 10/0   | >  |
+| R948CP | 2/2006 | Transaction 835, and Standard     | 2/2006 | 50 |
+| ]{.und |        | Paper Remittance Advice, and      |        | 81 |
+| erline |        | Changes in Medicare Claims        |        |    |
+| }](htt |        | Processing Manual, Chapter 22 -   |        |    |
+| p://ww |        | Remittance Advice                 |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R948C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 03/1   | Suppression of Standard Paper     | 06/0   | >  |
+| R885CP | 0/2006 | Remittance Advice to Providers    | 1/2006 | 43 |
+| ]{.und |        | and Suppliers Also Receiving      |        | 76 |
+| erline |        | Electronic Remittance Advice for  |        |    |
+| }](htt |        | 45 Days or More.                  |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R885C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 05/0   | Fiscal Intermediary (FI)          | 10/0   | >  |
+| R555CP | 2/2005 | Reporting of Add- on Payments     | 3/2005 | 38 |
+| ]{.und |        | that Do Not Result in a           |        | 66 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R555C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+
++--------+--------+-----------------------------------+--------+----+
+| **Rev  | *      | **Subject**                       | **Impl | >  |
+| \#**   | *Issue |                                   | Date** |  * |
+|        | Date** |                                   |        | *C |
+|        |        |                                   |        | R# |
+|        |        |                                   |        | ** |
++========+========+===================================+========+====+
+|        |        | Specific Increase or Decrease in  |        |    |
+|        |        | the Amount Reported as Payable    |        |    |
+|        |        | for a Claim or a Service on a     |        |    |
+|        |        | Remittance Advice.                |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 07/2   | Expansion of paper remittance     | 01/0   | >  |
+| R252CP | 3/2004 | advice to accommodate forced      | 3/2005 | 33 |
+| ]{.und |        | balanced amount, corresponding    |        | 44 |
+| erline |        | change in the flat file, and a    |        |    |
+| }](htt |        | change in the companion document  |        |    |
+| p://ww |        | for fiscal intermediaries (FIs)   |        |    |
+| w.cms. |        | and their shared system           |        |    |
+| gov/Re |        | maintainer (SSM)                  |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R252C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R001 | 10/0   | Initial Publication of Manual     | NA     | >  |
+| CP]{.u | 1/2003 |                                   |        | NA |
+| nderli |        |                                   |        |    |
+| ne}](h |        |                                   |        |    |
+| ttp:// |        |                                   |        |    |
+| www.cm |        |                                   |        |    |
+| s.gov/ |        |                                   |        |    |
+| Regula |        |                                   |        |    |
+| tions- |        |                                   |        |    |
+| and-Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Guida |        |                                   |        |    |
+| nce/Tr |        |                                   |        |    |
+| ansmit |        |                                   |        |    |
+| tals/D |        |                                   |        |    |
+| ownloa |        |                                   |        |    |
+| ds/R1C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+
+> [[Back to top of chapter]{.underline}](#_bookmark0)

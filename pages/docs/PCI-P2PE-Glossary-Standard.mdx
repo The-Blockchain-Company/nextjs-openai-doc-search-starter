@@ -1,0 +1,1278 @@
+> ![Final-PCI-SSC-Mark-R.PNG](vertopal_e5fedc3427044ee5a2a7aed43ad1c498/media/image1.png){width="2.657918853893263in"
+> height="0.8020833333333334in"}
+>
+> **Payment Card Industry (PCI)**
+
+Point-to-Point Encryption
+
+> **Glossary of Terms, Abbreviations, and Acronyms**
+>
+> **Version 3.0**
+>
+> December 2019
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Access         | Mechanisms that limit availability of           |
+| > controls**       | information or information- processing          |
+|                    | resources only to authorized persons or         |
+|                    | applications.                                   |
++--------------------+-------------------------------------------------+
+| > **Account data** | Account data consists of cardholder data and/or |
+|                    | sensitive authentication data. See *Cardholder  |
+|                    | Data* and *Sensitive Authentication Data.*      |
++--------------------+-------------------------------------------------+
+| > **Acquirer**     | Also referred to as "merchant bank," "acquiring |
+|                    | bank," or "acquiring financial institution."    |
+|                    |                                                 |
+|                    | Entity, typically a financial institution, that |
+|                    | processes payment card transactions for         |
+|                    | merchants and is defined by a payment brand as  |
+|                    | an acquirer. Acquirers are subject to payment   |
+|                    | brand rules and procedures regarding merchant   |
+|                    | compliance.                                     |
+|                    |                                                 |
+|                    | See also *Payment processor.*                   |
++--------------------+-------------------------------------------------+
+| > **Advanced       | A block cipher used in symmetric-key            |
+| > Encryption       | cryptography adopted by NIST in November 2001   |
+| > Standard (AES)** | as U.S. FIPS PUB 197 (or "FIPS 197").           |
+|                    |                                                 |
+|                    | See *Strong cryptography*.                      |
++--------------------+-------------------------------------------------+
+| > **Algorithm**    | A clearly specified mathematical process for    |
+|                    | computation; a set of rules, which, if          |
+|                    | followed, will give a prescribed result.        |
++--------------------+-------------------------------------------------+
+| > **American       | A U.S. standards accreditation organization.    |
+| > National         |                                                 |
+| > Standards        |                                                 |
+| > Institute        |                                                 |
+| > (ANSI)**         |                                                 |
++--------------------+-------------------------------------------------+
+| > **Application    | See *P2PE application vendor.*                  |
+| > vendor**         |                                                 |
++--------------------+-------------------------------------------------+
+| > **Asymmetric     | See *Public key cryptography*.                  |
+| > cryptography     |                                                 |
+| > (techniques)**   |                                                 |
++--------------------+-------------------------------------------------+
+| >                  | Process of verifying the identity of an         |
+| **Authentication** | individual, device, or process. Authentication  |
+|                    | typically occurs through the use of one or more |
+|                    | authentication factors such as:                 |
+|                    |                                                 |
+|                    | -   Something you know, such as a password or   |
+|                    |     > passphrase                                |
+|                    |                                                 |
+|                    | -   Something you have, such as a token device  |
+|                    |     > or smart card                             |
+|                    |                                                 |
+|                    | -   Something you are, such as a biometric      |
++--------------------+-------------------------------------------------+
+| > **Authentication | Combination of the user ID or account ID plus   |
+| > credentials**    | the authentication factor(s) used to            |
+|                    | authenticate an individual, device, or process. |
++--------------------+-------------------------------------------------+
+| >                  | **In the context of access control,**           |
+|  **Authorization** | authorization is the granting of access or      |
+|                    | other rights to a user, program, or process.    |
+|                    | Authorization defines what an individual or     |
+|                    | program can do after successful authentication. |
+|                    |                                                 |
+|                    | **In the context of a payment card              |
+|                    | transaction,** authorization occurs when a      |
+|                    | merchant receives transaction approval after    |
+|                    | the acquirer validates the transaction with the |
+|                    | issuer/processor.                               |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Base (master)  | See *Derivation key*.                           |
+| > derivation key   |                                                 |
+| > (BDK)**          |                                                 |
++--------------------+-------------------------------------------------+
+| > **Bit strength** | The effective cryptographic strength measured   |
+|                    | in bits representing what the equivalent key    |
+|                    | length would be of a provably secure,           |
+|                    | hypothetical, symmetric key algorithm. Bit      |
+|                    | strength is never greater than the actual key   |
+|                    | length, and as cryptanalytic attacks improve    |
+|                    | and computational capabilities advance,         |
+|                    | effective cryptographic strength decreases      |
+|                    | (i.e., bit strength values will be reassessed   |
+|                    | periodically to reflect these changes).         |
++--------------------+-------------------------------------------------+
+| > **Cardholder     | At a minimum, cardholder data contains the full |
+| > data (CHD)**     | PAN. Cardholder data may also appear in the     |
+|                    | form of the full PAN plus any of the following: |
+|                    |                                                 |
+|                    | -   Cardholder name                             |
+|                    |                                                 |
+|                    | -   Expiration date                             |
+|                    |                                                 |
+|                    | -   Service code                                |
+|                    |                                                 |
+|                    | See *Sensitive authentication data (SAD)* for   |
+|                    | additional data elements that may be            |
+|                    | transmitted or processed as part of a payment   |
+|                    | transaction.                                    |
++--------------------+-------------------------------------------------+
+| > **Cardholder     | The people, processes, and technology that      |
+| > data environment | store, process, or transmit cardholder data     |
+| > (CDE)**          | and/or sensitive authentication data.           |
++--------------------+-------------------------------------------------+
+| > **Certificate**  | The public key and identity of an entity,       |
+|                    | together with other information, rendered       |
+|                    | unforgeable by signing the certificate with the |
+|                    | private key of the certifying authority that    |
+|                    | issued that certificate.                        |
++--------------------+-------------------------------------------------+
+| > **Certificate    | The process of revoking an otherwise valid      |
+| > revocation**     | certificate by the entity that issued that      |
+|                    | certificate. Revoked certificates are placed on |
+|                    | a Certificate Revocation List (CRL) or the      |
+|                    | information is conveyed using Online            |
+|                    | Certificate Status Protocol (OCSP) as specified |
+|                    | in the product/service specification.           |
++--------------------+-------------------------------------------------+
+| > **Certificate    | A list of revoked certificates. Entities that   |
+| > Revocation List  | generate, maintain, and distribute CRLs can     |
+| > (CRL)**          | include the Root or subordinate CAs.            |
++--------------------+-------------------------------------------------+
+| > **Certification  | Any entity signing public keys, whether in      |
+| > Authority (CA)** | X.509 certificate-based schemes or other        |
+|                    | designs for use in connection with the remote   |
+|                    | distribution of symmetric keys using asymmetric |
+|                    | techniques.                                     |
+|                    |                                                 |
+|                    | See also *Registration Authority (RA)*.         |
++--------------------+-------------------------------------------------+
+| > **Certification  | An entity operating CA/RA platforms in          |
+| > Authority/       | connection with remote-key distribution         |
+| > Registration     | implementations that can support P2PE           |
+| > Authority        | Solutions.                                      |
+| > (CA/RA)          |                                                 |
+| > component        | See also *P2PE component provider.*             |
+| > provider**       |                                                 |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Check value**  | A computed value that is the result of passing  |
+|                    | a data value through a non-reversible           |
+|                    | algorithm. Check values generally are           |
+|                    | calculated using a cryptographic                |
+|                    | transformation, which accepts as input a secret |
+|                    | key and an arbitrary string, then gives a       |
+|                    | cryptographic check value as output. The        |
+|                    | computation of a correct check value without    |
+|                    | knowledge of the secret key shall not be        |
+|                    | feasible. Also referred to as "key check        |
+|                    | value."                                         |
++--------------------+-------------------------------------------------+
+| > **Cipher text**  | Data in its encrypted form.                     |
++--------------------+-------------------------------------------------+
+| > **Clear-text**   | Intelligible data that has meaning and can be   |
+|                    | read or acted upon without the application of   |
+|                    | decryption.                                     |
++--------------------+-------------------------------------------------+
+| > **Clear-text     | An unencrypted cryptographic key that is used   |
+| > key**            | in its current form.                            |
++--------------------+-------------------------------------------------+
+| > **Compromise**   | A violation of the security of a system such    |
+|                    | that an unauthorized disclosure of sensitive    |
+|                    | information may have occurred. This includes    |
+|                    | the unauthorized disclosure, modification,      |
+|                    | substitution, or use of sensitive data          |
+|                    | (including clear-text cryptographic keys and    |
+|                    | other keying material).                         |
++--------------------+-------------------------------------------------+
+| >                  | The property that a computation is              |
+|  **Computationally | theoretically achievable, but is not feasible   |
+| > infeasible**     | in terms of the time or resources required to   |
+|                    | perform it.                                     |
++--------------------+-------------------------------------------------+
+| > **Critical       | Security-related information (for example,      |
+| > security         | cryptographic keys and authentication data such |
+| > parameters       | as passwords and PINs) appearing in clear text  |
+| > (CSP)**          | or otherwise unprotected form, and whose        |
+|                    | disclosure or modification can compromise the   |
+|                    | security of a SCD or the security of the        |
+|                    | information protected by the device.            |
++--------------------+-------------------------------------------------+
+| > **Cryptogram**   | A message or set of data enciphered by a        |
+|                    | cryptographic key.                              |
++--------------------+-------------------------------------------------+
+| > **Cryptographic  | An explicitly defined continuous perimeter that |
+| > boundary**       | establishes the physical bounds of a            |
+|                    | cryptographic module and contains all the       |
+|                    | hardware, software, and/or firmware components  |
+|                    | of a cryptographic module.                      |
++--------------------+-------------------------------------------------+
+| > **Cryptographic  | A parameter used with a cryptographic algorithm |
+| > key**            | that determines:                                |
+|                    |                                                 |
+|                    | -   The transformation of clear-text data into  |
+|                    |     > cipher-text data,                         |
+|                    |                                                 |
+|                    | -   The transformation of cipher-text data into |
+|                    |     > clear-text data,                          |
+|                    |                                                 |
+|                    | -   A digital signature computed from data,     |
+|                    |                                                 |
+|                    | -   The verification of a digital signature     |
+|                    |     > computed from data,                       |
+|                    |                                                 |
+|                    | -   An authentication code computed from data,  |
+|                    |     > or                                        |
+|                    |                                                 |
+|                    | -   An exchange agreement of a shared secret.   |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Data           | A published encryption algorithm used to        |
+| > Encryption       | protect critical information by encrypting data |
+| > Algorithm        | based on a variable secret key. The Data        |
+| > (DEA)**          | Encryption Algorithm is defined in *ANSI X3.92: |
+|                    | Data Encryption Algorithm* for encrypting and   |
+|                    | decrypting data. The algorithm is a 64-bit      |
+|                    | block cipher that uses a 64-bit key. From this  |
+|                    | key, 56 bits are used                           |
+|                    |                                                 |
+|                    | to control the cryptographic process and 8 bits |
+|                    | are used for parity checking to ensure that the |
+|                    | key is transmitted properly.                    |
++--------------------+-------------------------------------------------+
+| >                  | A cryptographic key used to encrypt or decrypt  |
+|  **Data-encryption | account data.                                   |
+| > (encipherment or |                                                 |
+| > exchange) key    |                                                 |
+| > (DEK)**          |                                                 |
++--------------------+-------------------------------------------------+
+| > **Data           | The National Institute of Standards and         |
+| > Encryption       | Technology Data Encryption Standard, adopted by |
+| > Standard (DES)** | the U.S. Government as *Federal Information     |
+|                    | Processing Standard (FIPS) Publication 46,*     |
+|                    | which allows only hardware implementations of   |
+|                    | the data encryption algorithm.                  |
+|                    |                                                 |
+|                    | See *Data Encryption Algorithm*.                |
++--------------------+-------------------------------------------------+
+| > **Decryption**   | A process of transforming unreadable cipher     |
+|                    | text into readable clear text.                  |
++--------------------+-------------------------------------------------+
+| > **Decryption     | The P2PE solution provider's or component       |
+| > environment**    | provider's environment that contains the        |
+|                    | HSMs---or HSMs and Host System(s) for hybrid    |
+|                    | decryption solutions---used to decrypt the      |
+|                    | incoming encrypted account data originating     |
+|                    | from merchant encryption environments.          |
+|                    |                                                 |
+|                    | For purposes of merchant-managed solutions, the |
+|                    | *merchant decryption environment* is a          |
+|                    | restricted zone within the merchant\'s CDE that |
+|                    | contains the HSMs used to decrypt the incoming  |
+|                    | encrypted account data originating from the     |
+|                    | merchant\'s encryption environment.             |
++--------------------+-------------------------------------------------+
+| > **Decryption     | An entity managing a decryption environment     |
+| > management       | that can support a P2PE solution.               |
+| > component        |                                                 |
+| > provider         | See also *P2PE component provider.*             |
+| > (DMCP)**         |                                                 |
++--------------------+-------------------------------------------------+
+| > **Derivation     | A cryptographic key used to cryptographically   |
+| > key**            | compute another key. Normally, a derivation key |
+|                    | is associated with the DUKPT key- management    |
+|                    | method.                                         |
+|                    |                                                 |
+|                    | Normally, derivation keys are used in a         |
+|                    | transaction-receiving (e.g., acquirer) SCD in a |
+|                    | one-to-many relationship to derive or decrypt   |
+|                    | the transaction keys (the derived keys) used by |
+|                    | a large number of originating SCDs (for         |
+|                    | example, POIs).                                 |
++--------------------+-------------------------------------------------+
+| > **Digital        | The result of an asymmetric cryptographic       |
+| > signature**      | transformation of data that allows a recipient  |
+|                    | of the data to validate the origin and          |
+|                    | integrity of the data, and protects the sender  |
+|                    | against forgery by third parties or the         |
+|                    | recipient.                                      |
++--------------------+-------------------------------------------------+
+| > **Double-length  | A cryptographic key having a length of 112      |
+| > key**            | active bits plus 16 parity bits, used with the  |
+|                    | TDES cryptographic algorithm.                   |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Dual control** | A process of using two or more separate         |
+|                    | entities (usually persons), operating in        |
+|                    | concert, to protect sensitive functions or      |
+|                    | information. Both entities are equally          |
+|                    | responsible for the physical protection of      |
+|                    | materials involved in vulnerable transactions.  |
+|                    | No single person must be able to access or use  |
+|                    | the materials (for example, the cryptographic   |
+|                    | key) of the other party.                        |
+|                    |                                                 |
+|                    | For manual key generation, conveyance, loading, |
+|                    | storage, and retrieval, dual control requires   |
+|                    | split knowledge of the key among the entities.  |
+|                    | No single person can gain control of a          |
+|                    | protected item or process.                      |
+|                    |                                                 |
+|                    | Also see *Split knowledge.*                     |
++--------------------+-------------------------------------------------+
+| > **DUKPT**        | Acronym for "Derived Unique Key Per             |
+|                    | Transaction." Defined in *ANSI X9.24 part 1.*   |
+|                    |                                                 |
+|                    | A key-management method that uses a unique key  |
+|                    | for each transaction and prevents the           |
+|                    | disclosure of any past key used by the          |
+|                    | transaction-originating POI. The unique         |
+|                    | transaction keys are derived from a base        |
+|                    | derivation key using only non-secret data       |
+|                    | transmitted as part of each transaction.        |
++--------------------+-------------------------------------------------+
+| > **Encipher**     | See *Encryption*.                               |
++--------------------+-------------------------------------------------+
+| > **Encrypting PIN | A device for secure PIN entry and encryption in |
+| > pad (EPP)**      | an unattended PIN- acceptance device. An EPP    |
+|                    | may have a built-in display or card reader, or  |
+|                    | rely on external displays or card readers       |
+|                    | installed in the unattended device. An EPP      |
+|                    | typically is used in an ATM or other unattended |
+|                    | device (for example, an unattended kiosk or     |
+|                    | automated fuel dispenser) for PIN entry and is  |
+|                    | controlled by a device controller. An EPP has a |
+|                    | clearly defined physical and logical boundary,  |
+|                    | and a tamper-resistant or tamper-evident shell. |
++--------------------+-------------------------------------------------+
+| > **Encryption**   | The (reversible) transformation of data by a    |
+|                    | cryptographic algorithm to produce cipher text  |
+|                    | (i.e., hiding the information content of the    |
+|                    | data).                                          |
++--------------------+-------------------------------------------------+
+| > **Encryption     | A merchant's physical location(s) containing    |
+| > environment**    | the PCI-approved POI devices used for           |
+|                    | account-data acceptance and subsequent          |
+|                    | encryption.                                     |
+|                    |                                                 |
+|                    | Merchant P2PE encryption environments include   |
+|                    | those for brick-and- mortar and/or              |
+|                    | mail-order/telephone-order (MOTO) merchants,    |
+|                    | but do NOT include e-commerce environments.     |
++--------------------+-------------------------------------------------+
+| > **Encryption     | An entity deploying and managing POI devices    |
+| > management       | and any resident P2PE applications and/or P2PE  |
+| > component        | non-payment software that can support a P2PE    |
+| > provider         | solution.                                       |
+| > (EMCP)**         |                                                 |
+|                    | See also *P2PE component provider*.             |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Exclusive-OR   | Binary addition without carry, also known as    |
+| > (XOR)**          | "modulo 2 addition" and defined as:             |
+|                    |                                                 |
+|                    | -   0 + 0 = 0                                   |
+|                    |                                                 |
+|                    | -   0 + 1 = 1                                   |
+|                    |                                                 |
+|                    | -   1 + 0 = 1                                   |
+|                    |                                                 |
+|                    | -   1 + 1 = 0                                   |
++--------------------+-------------------------------------------------+
+| > **FIPS**         | Acronym for "Federal Information Processing     |
+|                    | Standard."                                      |
++--------------------+-------------------------------------------------+
+| > **Firmware**     | Any code within the POI device that provides    |
+|                    | security protections needed to comply with PTS  |
+|                    | device security requirements or which can       |
+|                    | impact compliance to these security             |
+|                    | requirements. Firmware may be further segmented |
+|                    | by code necessary to meet PTS Core, OP, or      |
+|                    | SRED.                                           |
+|                    |                                                 |
+|                    | Other code that exists within the device that   |
+|                    | does not provide security, and cannot impact    |
+|                    | security, is not considered firmware. P2PE      |
+|                    | applications and P2PE non-payment software are  |
+|                    | also not considered firmware.                   |
++--------------------+-------------------------------------------------+
+| > **Hardware       | A physically and logically protected hardware   |
+| > security module  | device that provides a secure set of            |
+| > (HSM)**          | cryptographic services used for cryptographic   |
+|                    | key- management functions and/or the decryption |
+|                    | of account data. For P2PE, these devices must   |
+|                    | be:                                             |
+|                    |                                                 |
+|                    | 1)  Approved and configured to FIPS140-2 (level |
+|                    |     > 3 or higher), or                          |
+|                    |                                                 |
+|                    | 2)  Approved to the PCI HSM standard. See also  |
+|                    |     *Secure cryptographic device.*              |
++--------------------+-------------------------------------------------+
+| > **Hash           | A mathematical function that takes any          |
+| > function**       | arbitrary-length message as input and produces  |
+|                    | a fixed-length output. It must have the         |
+|                    | property that it is computationally infeasible  |
+|                    | to discover two different messages that produce |
+|                    | the same hash result. It may be used to reduce  |
+|                    | a potentially long message into a "hash value"  |
+|                    | or "message digest" that is sufficiently        |
+|                    | compact to be input into a digital-signature    |
+|                    | algorithm.                                      |
++--------------------+-------------------------------------------------+
+| > **Hash value**   | The value returned by a hash function.          |
+|                    | Different hash values may be used for different |
+|                    | purposes and are sometimes referred to as       |
+|                    | hashes, hash codes, checksums, message digests, |
+|                    | and fingerprints.                               |
++--------------------+-------------------------------------------------+
+| > **Hashing**      | Hashing is a one-way (mathematical) function in |
+|                    | which a non-secret algorithm takes any          |
+|                    | arbitrary length message as input and produces  |
+|                    | a fixed length output (usually called a "hash   |
+|                    | code" or "message digest"). A hash function     |
+|                    | should have the following properties:           |
+|                    |                                                 |
+|                    | (1) It is computationally infeasible to         |
+|                    |     > determine the original input given only   |
+|                    |     > the hash code,                            |
+|                    |                                                 |
+|                    | (2) It is computationally infeasible to find    |
+|                    |     > two inputs that give the same hash code.  |
+|                    |                                                 |
+|                    | See also *Input variable*.                      |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Host System**  | For hybrid decryption environments only. A      |
+|                    | combination of software and hardware components |
+|                    | used to decrypt account data. May also be used  |
+|                    | for transaction processing using non-SCD host   |
+|                    | systems.                                        |
++--------------------+-------------------------------------------------+
+| > **Initialization | A binary vector used as the input to initialize |
+| > vector**         | the algorithm for the encryption of a           |
+|                    | clear-text block sequence to increase security  |
+|                    | by introducing additional cryptographic         |
+|                    | variance and to synchronize cryptographic       |
+|                    | equipment. The initialization vector need not   |
+|                    | be secret.                                      |
++--------------------+-------------------------------------------------+
+| > **Input          | Random data string that is concatenated with    |
+| > variable**       | source data before a one-way hash function is   |
+|                    | applied. Input variables can help reduce the    |
+|                    | effectiveness of rainbow table attacks.         |
+|                    |                                                 |
+|                    | See also *Hashing* and *Rainbow table attack.*  |
++--------------------+-------------------------------------------------+
+| > **Integrity**    | Ensuring consistency of data---in particular,   |
+|                    | preventing unauthorized and undetected          |
+|                    | creation, alteration, or destruction of data.   |
++--------------------+-------------------------------------------------+
+| > **Interface**    | A logical section of an SCD that defines a set  |
+|                    | of entry or exit points that provides access to |
+|                    | the device, including information flow or       |
+|                    | physical access.                                |
++--------------------+-------------------------------------------------+
+| > **International  | An international standards accreditation        |
+| > Organization for | organization.                                   |
+| > Standardization  |                                                 |
+| > (ISO)**          |                                                 |
++--------------------+-------------------------------------------------+
+| > **Irreversible   | A non-secret process that transforms an input   |
+| > transformation** | value to produce an output value such that      |
+|                    | knowledge of the process and the output value   |
+|                    | do not feasibly allow the input value to be     |
+|                    | determined.                                     |
++--------------------+-------------------------------------------------+
+| > **Issuer**       | Entity that issues payment cards or performs,   |
+|                    | facilitates, or supports issuing services       |
+|                    | including, but not limited to, issuing banks    |
+|                    | and issuing processors.                         |
+|                    |                                                 |
+|                    | Also referred to as "issuing bank" or "issuing  |
+|                    | financial institution."                         |
++--------------------+-------------------------------------------------+
+| > **Key**          | See *Cryptographic key.*                        |
++--------------------+-------------------------------------------------+
+| > **Key            | A key-establishment protocol for establishing a |
+| > agreement**      | shared secret key between entities in such a    |
+|                    | way that neither of them can predetermine the   |
+|                    | value of that key. That is, the secret key is a |
+|                    | function of information contributed by two or   |
+|                    | more participants.                              |
++--------------------+-------------------------------------------------+
+| > **Key backup**   | Storage of a protected copy of a key during its |
+|                    | operational use.                                |
++--------------------+-------------------------------------------------+
+| > **Key            | A parameter used with other key components in   |
+| > component**      | an approved security function to form a         |
+|                    | clear-text cryptographic key or perform a       |
+|                    | cryptographic function.                         |
+|                    |                                                 |
+|                    | A key component may also be considered a secret |
+|                    | share when it is part of a recognized           |
+|                    | cryptographic secret-sharing scheme.            |
++--------------------+-------------------------------------------------+
+| > **Key-derivation | A process that derives one or more session keys |
+| > process**        | from a shared secret and other (possibly)       |
+|                    | public information.                             |
++--------------------+-------------------------------------------------+
+| > **Key            | Occurs when an instance of a key in one of the  |
+| > destruction**    | permissible key forms no longer exists at a     |
+|                    | specific location.                              |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Key            | A processing platform used with HSM(s) that     |
+| > distribution     | generates keys and securely distributes those   |
+| > host (KDH)**     | keys to POIs and the financial-processing       |
+|                    | platform communicating with those POIs. A KDH   |
+|                    | shall not be used for certificate issuance, and |
+|                    | must not be used for the storage of CA private  |
+|                    | keys.                                           |
++--------------------+-------------------------------------------------+
+| > **Key            | The process of making available a shared secret |
+| > establishment**  | key to one or more entities. Key establishment  |
+|                    | includes key agreement and key transport.       |
++--------------------+-------------------------------------------------+
+| > **Key-encrypting | A cryptographic key used to encrypt or decrypt  |
+| > (encipherment or | other keys.                                     |
+| > exchange) key    |                                                 |
+| > (KEK)**          |                                                 |
++--------------------+-------------------------------------------------+
+| > **Key            | Creation of a new key for subsequent use.       |
+| > generation**     |                                                 |
++--------------------+-------------------------------------------------+
+| > **Key Injection  | An entity that performs cryptographic key       |
+| > facility (KIF)** | services for POI devices and HSMs (including,   |
+|                    | but not limited to, key generation, conveyance, |
+|                    | and/or key loading).                            |
++--------------------+-------------------------------------------------+
+| > **Key injection  | An entity that manages KIF services that can    |
+| > facility         | support a P2PE solution.                        |
+| > component        |                                                 |
+| > provider**       | See also *P2PE component provider.*             |
++--------------------+-------------------------------------------------+
+| > **Key instance** | The occurrence of a key in one of its           |
+|                    | permissible forms (i.e., clear-text key, key    |
+|                    | components, encrypted key).                     |
++--------------------+-------------------------------------------------+
+| > **Key loading**  | Process by which a key is transferred manually  |
+|                    | or electronically into an SCD.                  |
++--------------------+-------------------------------------------------+
+| > **Key loading    | An entity that manages cryptographic key        |
+| > component        | loading for POI devices and HSMs that can       |
+| > provider         | support a P2PE solution.                        |
+| > (KLCP)**         |                                                 |
+|                    | See also *P2PE component provider.*             |
++--------------------+-------------------------------------------------+
+| > **Key-loading    | An SCD that may be used to perform              |
+| > device (KLD)**   | cryptographic key injection/loading or code     |
+|                    | signing.                                        |
++--------------------+-------------------------------------------------+
+| > **Key            | The activities involving the handling of        |
+| > management**     | cryptographic keys and other related security   |
+|                    | parameters (for example, initialization         |
+|                    | vectors, counters) during the entire life cycle |
+|                    | of the keys, including their generation,        |
+|                    | storage, distribution, loading and use,         |
+|                    | deletion, destruction, and archiving.           |
++--------------------+-------------------------------------------------+
+| > **Key management | An entity that manages cryptographic key        |
+| > component        | generation and key conveyance for POI devices   |
+| > provider         | and HSMs that can support a P2PE solution.      |
+| > (KMCP)**         |                                                 |
+|                    | See also *P2PE component provider.*             |
++--------------------+-------------------------------------------------+
+| > **Keying         | The data (for example, keys and initialization  |
+| > material**       | vectors) necessary to establish and maintain    |
+|                    | cryptographic-keying relationships.             |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Key pair**     | A key pair comprises the two complementary keys |
+|                    | for use with an asymmetric encryption           |
+|                    | algorithm. One key, termed the *public key,* is |
+|                    | expected to be widely distributed; and the      |
+|                    | other, termed the *private key,* is expected to |
+|                    | be restricted so that it is known only to the   |
+|                    | appropriate entities.                           |
++--------------------+-------------------------------------------------+
+| > **Key            | Substituting one key for another when the       |
+| > replacement**    | original key is known or suspected to be        |
+|                    | compromised or at the end of its operational    |
+|                    | life.                                           |
++--------------------+-------------------------------------------------+
+| > **Key share**    | Related to a cryptographic key generated such   |
+|                    | that a specified fraction of the total shares   |
+|                    | of such parameters can be combined to form the  |
+|                    | cryptographic key, but such that less than a    |
+|                    | specified fraction does not provide any         |
+|                    | information about the key. Also referred to as  |
+|                    | a "secret share."                               |
++--------------------+-------------------------------------------------+
+| > **Key storage**  | Holding the key in one of the permissible       |
+|                    | forms.                                          |
++--------------------+-------------------------------------------------+
+| > **Key            | A key-establishment protocol under which the    |
+| > transport**      | secret key is determined by the initiating      |
+|                    | party and transferred suitably protected.       |
++--------------------+-------------------------------------------------+
+| > **Key usage**    | Employment of a key for the cryptographic       |
+|                    | purpose for which it was intended.              |
++--------------------+-------------------------------------------------+
+| > **Key variant**  | A new key formed by a process (which need not   |
+|                    | be secret) with the original key, such that one |
+|                    | or more of the non-parity bits of the new key   |
+|                    | differ from the corresponding bits of the       |
+|                    | original key.                                   |
++--------------------+-------------------------------------------------+
+| > **Manual key     | The entry of cryptographic keys into an SCD     |
+| > loading**        | from a printed form, using devices such as      |
+|                    | buttons, thumb wheels, keyboard, or a           |
+|                    | touchscreen.                                    |
++--------------------+-------------------------------------------------+
+| > **Master         | See *Derivation key.*                           |
+| > derivation key   |                                                 |
+| > (MDK)**          |                                                 |
++--------------------+-------------------------------------------------+
+| > **Master File    | This is a symmetric key used to encrypt other   |
+| > Key (MFK)**      | cryptographic keys that are to be stored        |
+|                    | outside of the hardware security module (HSM).  |
++--------------------+-------------------------------------------------+
+| > **Master key**   | In a hierarchy of key-encrypting keys and       |
+|                    | transaction keys, the highest level of          |
+|                    | key-encrypting key is known as a master key.    |
++--------------------+-------------------------------------------------+
+| > **Merchant**     | Any entity that accepts payment cards bearing   |
+|                    | the logos of any of the five members of PCI SSC |
+|                    | (American Express, Discover Financial Services, |
+|                    | JCB International, Mastercard Worldwide, or     |
+|                    | Visa Inc.) as payment for goods and/or          |
+|                    | services.                                       |
++--------------------+-------------------------------------------------+
+| > **Merchant       | See *Decryption environment.*                   |
+| > decryption       |                                                 |
+| > environment**    |                                                 |
++--------------------+-------------------------------------------------+
+| > **Merchant as a  | A merchant who is acting as its own P2PE        |
+| > solution         | solution provider, responsible for role of      |
+| > provider**       | solution provider in meeting, either directly   |
+|                    | or through use of outsourced P2PE components,   |
+|                    | all P2PE Domain requirements.                   |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| >                  | A P2PE solution managed by a merchant rather    |
+| **Merchant-managed | than by a third-party solution provider. These  |
+| > solution (MMS)** | merchant solutions are typically for large      |
+|                    | retail organizations who centrally manage the   |
+|                    | solution on behalf of their own encryption      |
+|                    | environments.                                   |
+|                    |                                                 |
+|                    | In a merchant-managed solution, part of the     |
+|                    | merchant business plays the role of a P2PE      |
+|                    | solution provider (managing POIs, decryption    |
+|                    | environment, etc.) and part of the business     |
+|                    | plays the role of a "merchant" that has no      |
+|                    | access to clear-text account data, etc.         |
+|                    |                                                 |
+|                    | Merchant-managed solutions are not eligible for |
+|                    | PCI listing.                                    |
++--------------------+-------------------------------------------------+
+| > **Message**      | A communication containing one or more          |
+|                    | transactions or related information.            |
++--------------------+-------------------------------------------------+
+| > **Multi-factor   | Method of authenticating a user whereby two or  |
+| > authentication** | more factors are verified. These factors        |
+|                    | include something the user has (such as a smart |
+|                    | card or dongle), something the user knows (such |
+|                    | as a password, passphrase, or PIN), or          |
+|                    | something the user is or does (such as          |
+|                    | fingerprints, other forms of biometrics,        |
+|                    | parametrics, etc.)                              |
++--------------------+-------------------------------------------------+
+| > **Node**         | Any point in a network that does some form of   |
+|                    | processing of data, such as a terminal,         |
+|                    | acquirer, or switch.                            |
++--------------------+-------------------------------------------------+
+| > **Non-PCI        | Payment accounts/cards that are not PCI payment |
+| > payment brand    | brand accounts/cards. Examples of non-PCI       |
+| > accounts/cards** | payment brand accounts/cards may include        |
+|                    | certain loyalty cards or non-PCI payment brand  |
+|                    | store cards. See also *PCI payment brand        |
+|                    | accounts/cards*.                                |
++--------------------+-------------------------------------------------+
+| > **Non-reversible | See *Irreversible transformation.*              |
+| > transformation** |                                                 |
++--------------------+-------------------------------------------------+
+| > **Open           | Optional PTS POI module for POI devices         |
+| > Protocols**      | implementing any communication method that uses |
+|                    | a wireless, local-area network, wide-area       |
+|                    | network, or a public domain protocol or         |
+|                    | security protocol to transport data. This would |
+|                    | include, but is not limited to, Bluetooth, Wi-  |
+|                    | Fi, cellular (GPRS, CDMA), or Ethernet, and a   |
+|                    | serial point-to-point connection that is        |
+|                    | wireless or through a hub, switch, or other     |
+|                    | multiport device.                               |
++--------------------+-------------------------------------------------+
+| > **PAN**          | Acronym for "primary account number" and also   |
+|                    | referred to as "account number." Unique payment |
+|                    | card number (typically for credit or debit      |
+|                    | cards) that identifies the issuer and the       |
+|                    | particular cardholder account. See also         |
+|                    | *Cardholder data.*                              |
++--------------------+-------------------------------------------------+
+| > **Pas            | A string of characters that serves as an        |
+| sword/passphrase** | authenticator of the user.                      |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Payment        | Sometimes referred to as "payment gateway" or   |
+| > processor**      | "payment service provider (PSP)."               |
+|                    |                                                 |
+|                    | An entity engaged by a merchant or other entity |
+|                    | to handle payment card transactions on behalf   |
+|                    | of the merchant or entity. While payment        |
+|                    | processors typically provide acquiring          |
+|                    | services, payment processors are not considered |
+|                    | acquirers unless defined as such by a payment   |
+|                    | card brand.                                     |
+|                    |                                                 |
+|                    | See also *Acquirer.*                            |
++--------------------+-------------------------------------------------+
+| > **PCI-approved   | Point-of-interaction (POI) device evaluated and |
+| > POI device**     | approved via the PCI PTS program, with SRED     |
+|                    | (secure reading and exchange of data) listed as |
+|                    | a "function provided," and with the SRED        |
+|                    | capabilities enabled and active.                |
++--------------------+-------------------------------------------------+
+| > **PCI payment    | Payment accounts/cards associated with one of   |
+| > brand            | the five founding payment card brands of the    |
+| > accounts/cards** | Payment Card Industry Security Standards        |
+|                    | Council (PCI SSC). These accounts/cards are     |
+|                    | issued either by or on behalf of one of the     |
+|                    | founding payment card brands. The founding      |
+|                    | payment card brands are American Express,       |
+|                    | Discover Financial Services, JCB International, |
+|                    | Mastercard Worldwide, and Visa Inc.             |
++--------------------+-------------------------------------------------+
+| > **Physical       | The safeguarding of a cryptographic module,     |
+| > protection**     | cryptographic keys, or other keying materials   |
+|                    | using physical means.                           |
++--------------------+-------------------------------------------------+
+| > **Physically     | An environment equipped with access controls or |
+| > secure           | other mechanisms designed to prevent any        |
+| > environment**    | unauthorized access that would result in the    |
+|                    | disclosure of all or part of any key or other   |
+|                    | secret data stored within the environment.      |
+|                    | Examples include a safe or purpose-built room   |
+|                    | with continuous access control, physical        |
+|                    | security protection, and monitoring.            |
++--------------------+-------------------------------------------------+
+| > **PIN entry      | A device for secure PIN entry and processing.   |
+| > device (PED)**   | The PED typically consists of a keypad for PIN  |
+|                    | entry laid out in a prescribed format, a        |
+|                    | display for user interaction, a processor, and  |
+|                    | storage for PIN processing sufficiently secure  |
+|                    | for the key-management scheme used and          |
+|                    | firmware. A PED has a clearly defined physical  |
+|                    | and logical boundary and a tamper-resistant or  |
+|                    | tamper-evident shell.                           |
++--------------------+-------------------------------------------------+
+| > **Plaintext**    | *See Clear text*                                |
++--------------------+-------------------------------------------------+
+| > **Point of       | The initial point where data is read from a     |
+| > interaction      | card. An electronic transaction-acceptance      |
+| > (POI)**          | product, a POI consists of hardware and         |
+|                    | software, and is hosted in acceptance equipment |
+|                    | to enable a cardholder to perform a card        |
+|                    | transaction. The POI may be attended or         |
+|                    | unattended. POI transactions are typically      |
+|                    | integrated circuit (chip) and/or                |
+|                    | magnetic-stripe card-based payment              |
+|                    | transactions.\"                                 |
+|                    |                                                 |
+|                    | See also *Secure cryptographic device* and      |
+|                    | *PCI-approved POI device.*                      |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **POI device     | Unique instance (combination) of a model name,  |
+| > type**           | hardware version number, and firmware version   |
+|                    | number.                                         |
++--------------------+-------------------------------------------------+
+| > **POI deployment | An entity preparing and deploying POI devices   |
+| > component        | and any resident P2PE applications and/or P2PE  |
+| > provider         | non-payment software that can support a P2PE    |
+| > (PDCP)**         | solution.                                       |
+|                    |                                                 |
+|                    | See also *P2PE component provider.*             |
++--------------------+-------------------------------------------------+
+| > **POI management | An entity managing the POI devices and any      |
+| > component        | resident P2PE applications and/or P2PE          |
+| > provider         | non-payment software once deployed that can     |
+| > (PMCP)**         | support a P2PE solution.                        |
+|                    |                                                 |
+|                    | See also *P2PE component provider.*             |
++--------------------+-------------------------------------------------+
+| > **P2PE**         | Acronym for "point-to-point encryption."        |
++--------------------+-------------------------------------------------+
+| > **P2PE           | All software or other files, *with access to    |
+| > application**    | clear-text account data,* that are intended for |
+|                    | use in a P2PE solution and loaded onto a PCI-   |
+|                    | approved POI device, and that do not meet the   |
+|                    | PTS definition of "firmware."                   |
+|                    |                                                 |
+|                    | PTS firmware is not considered a P2PE payment   |
+|                    | application and as such is not reassessed       |
+|                    | during a P2PE assessment.                       |
+|                    |                                                 |
+|                    | See also *Account data, Firmware,* and *P2PE    |
+|                    | non-payment software*.                          |
++--------------------+-------------------------------------------------+
+| > **P2PE           | A vendor that develops and then sells,          |
+| > application      | distributes, or licenses any P2PE application   |
+| > vendor**         | for use in a P2PE solution. A P2PE solution     |
+|                    | provider may also be a P2PE application vendor. |
++--------------------+-------------------------------------------------+
+| > **P2PE           | A P2PE service that is accepted on a            |
+| > component**      | stand-alone basis as part of the P2PE Program   |
+|                    | and may be incorporated into and/or referenced  |
+|                    | as part of a P2PE solution.                     |
+|                    |                                                 |
+|                    | A P2PE service is assessed to a specific set of |
+|                    | P2PE requirements and results in a PCI P2PE     |
+|                    | component provider listing upon approval. P2PE  |
+|                    | component provider services are performed on    |
+|                    | behalf of other P2PE solution providers for use |
+|                    | in P2PE solutions.                              |
++--------------------+-------------------------------------------------+
+| > **P2PE component | An entity providing a service that is assessed  |
+| > provider**       | to a specific set of P2PE requirements in       |
+|                    | accordance with the P2PE Program Guide, and     |
+|                    | that results in a P2PE component provider       |
+|                    | listing on the PCI SSC website. Component       |
+|                    | providers offer their services on behalf of     |
+|                    | other P2PE solution providers or component      |
+|                    | providers, intended for use in P2PE solutions.  |
++--------------------+-------------------------------------------------+
+| > **P2PE           | Any software or other files, *with no access to |
+| > non-payment      | clear-text account data,* that are intended for |
+| > software**       | use in a P2PE solution and loaded onto a PCI-   |
+|                    | approved POI device, and that do not meet the   |
+|                    | PTS definition of "firmware."                   |
+|                    |                                                 |
+|                    | PTS firmware is not considered P2PE non-payment |
+|                    | software and as such is not reassessed during a |
+|                    | P2PE assessment.                                |
+|                    |                                                 |
+|                    | See also *Account data* and *Firmware*          |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **P2PE           | A combination of secure devices, applications,  |
+| > solution**       | and processes that encrypt cardholder data from |
+|                    | a PCI-approved point-of-interaction (POI)       |
+|                    | device through to decryption, assessed in       |
+|                    | accordance with PCI's P2PE standard and         |
+|                    | included on PCI's list of validated P2PE        |
+|                    | solutions.                                      |
++--------------------+-------------------------------------------------+
+| > **P2PE solution  | An entity that:                                 |
+| > provider**       |                                                 |
+|                    | a)  Designs, implements, and manages a P2PE     |
+|                    |     > solution for merchants (the P2PE solution |
+|                    |     > provider may include outsourced P2PE      |
+|                    |     > components that cover certain aspects of  |
+|                    |     > the P2PE solution---for example, key      |
+|                    |     > injection facility, certification         |
+|                    |     > authority); and                           |
+|                    |                                                 |
+|                    | b)  Is ultimately responsible for the design,   |
+|                    |     > maintenance, and delivery of the overall  |
+|                    |     > P2PE solution.                            |
+|                    |                                                 |
+|                    | A P2PE solution provider may be a third-party   |
+|                    | entity such as a processor, acquirer, or        |
+|                    | payment gateway. A merchant can also be a       |
+|                    | solution provider (see also *Merchant as a      |
+|                    | solution provider* and *Merchant-managed        |
+|                    | solution*).                                     |
++--------------------+-------------------------------------------------+
+| > **Private key**  | A cryptographic key, used with a public-key     |
+|                    | cryptographic algorithm, that is uniquely       |
+|                    | associated with an entity and is not made       |
+|                    | public.                                         |
+|                    |                                                 |
+|                    | In the case of an asymmetric signature system,  |
+|                    | the private key defines the signature           |
+|                    | transformation. In the case of an asymmetric    |
+|                    | encryption system, the private key defines the  |
+|                    | decryption transformation.                      |
++--------------------+-------------------------------------------------+
+| > **Pseudo-random  | A function that produces a value that is        |
+| > function**       | statistically random and essentially random and |
+|                    | unpredictable although generated by an          |
+|                    | algorithm.                                      |
++--------------------+-------------------------------------------------+
+| > **Public key**   | A cryptographic key, used with a public-key     |
+|                    | cryptographic algorithm, uniquely associated    |
+|                    | with an entity, and that may be made public.    |
+|                    |                                                 |
+|                    | In the case of an asymmetric signature system,  |
+|                    | the public key defines the verification         |
+|                    | transformation. In the case of an asymmetric    |
+|                    | encryption system, the public key defines the   |
+|                    | encryption transformation. A key that is        |
+|                    | "publicly known" is not necessarily globally    |
+|                    | available. The key may only be available to all |
+|                    | members of a pre-specified group.               |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Public key     | A cryptographic technique that uses two related |
+| > (asymmetric)     | transformations, a public transformation        |
+| > cryptography**   | (defined by the public key) and a private       |
+|                    | transformation (defined by the private key).    |
+|                    | The two transformations have the property that, |
+|                    | given the public transformation, it is not      |
+|                    | computationally feasible to derive the private  |
+|                    | transformation.                                 |
+|                    |                                                 |
+|                    | A system based on asymmetric cryptographic      |
+|                    | techniques can be any of the following:         |
+|                    |                                                 |
+|                    | -   An encryption system,                       |
+|                    |                                                 |
+|                    | -   A signature system,                         |
+|                    |                                                 |
+|                    | -   A combined encryption and signature system, |
+|                    |     > or                                        |
+|                    |                                                 |
+|                    | -   A key-agreement system.                     |
+|                    |                                                 |
+|                    | With asymmetric cryptographic techniques, there |
+|                    | are four elementary transformations: sign and   |
+|                    | verify for signature systems, and encrypt and   |
+|                    | decrypt for encryption systems. The signature   |
+|                    | and the decryption transformation are kept      |
+|                    | private by the owning entity, whereas the       |
+|                    | corresponding verification and encryption       |
+|                    | transformations are published.                  |
+|                    |                                                 |
+|                    | There exist asymmetric cryptosystems (for       |
+|                    | example, RSA) where the four elementary         |
+|                    | functions may be achieved by only two           |
+|                    | transformations: one private transformation     |
+|                    | suffices for both signing and decrypting        |
+|                    | messages, and one public transformation         |
+|                    | suffices for both verifying and encrypting      |
+|                    | messages. However, this does not conform to the |
+|                    | principle of key separation, and where used,    |
+|                    | the four elementary transformations and the     |
+|                    | corresponding keys should be kept separate.     |
++--------------------+-------------------------------------------------+
+| > **Public key     | A set of roles, policies, and procedures needed |
+| > infrastructure   | to create, manage, distribute, use, store, and  |
+| > (PKI)**          | revoke digital certificates and manage          |
+|                    | public-key encryption.                          |
++--------------------+-------------------------------------------------+
+| > **Rainbow table  | A method of data attack using a pre-computed    |
+| > attack**         | table of hash strings (fixed-length message     |
+|                    | digest) to identify the original data source,   |
+|                    | usually for cracking password or cardholder     |
+|                    | data hashes.                                    |
++--------------------+-------------------------------------------------+
+| > **Random**       | The process of generating values with a high    |
+|                    | level of entropy and which satisfy various      |
+|                    | qualifications, using cryptographic and         |
+|                    | hardware-based "noise" mechanisms. This results |
+|                    | in a value in a set that has equal probability  |
+|                    | of being selected from the total population of  |
+|                    | possibilities, hence unpredictable.             |
++--------------------+-------------------------------------------------+
+| > **Registration   | An entity that performs registration services   |
+| > Authority (RA)** | on behalf of a certification authority (CA).    |
+|                    | Registration authorities (RAs) work with a      |
+|                    | particular certification authority (CA) to vet  |
+|                    | requests for certificates that will then be     |
+|                    | issued by the certification authority.          |
+|                    |                                                 |
+|                    | See also *Certification Authority* and          |
+|                    |                                                 |
+|                    | *Certification Authority/Registration Authority |
+|                    | component provider.*                            |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Remote         | Access to computer networks from a location     |
+| > Access**         | outside of that network.                        |
+|                    |                                                 |
+|                    | Remote access connections can originate either  |
+|                    | from inside the company's own network or from a |
+|                    | remote location outside the company's network.  |
+|                    | An example of technology for remote access is   |
+|                    | VPN.                                            |
++--------------------+-------------------------------------------------+
+| > **Root           | The top-level Certification Authority in a      |
+| > Certification    | public-key infrastructure. An RCA is a CA that  |
+| > Authority        | signs its own public key with the associated    |
+| > (RCA)**          | private key. RCAs only issue certificates to    |
+|                    | subordinate CAs. Root CAs do not issue          |
+|                    | certificates directly to KDHs, EPPs or PEDs.    |
+|                    | RCAs may also issue certificate status lists    |
+|                    | for certificates within their hierarchy.        |
++--------------------+-------------------------------------------------+
+| > **Secret key**   | A cryptographic key, used with a secret-key     |
+|                    | cryptographic algorithm, that is uniquely       |
+|                    | associated with one or more entities and should |
+|                    | not be made public.                             |
++--------------------+-------------------------------------------------+
+| > **Secure         | The set of hardware, software, firmware, or     |
+| > cryptographic    | some combination thereof that implements        |
+| > device (SCD)**   | cryptographic logic or processes (including     |
+|                    | cryptographic algorithms and key generation)    |
+|                    | and is contained within the cryptographic       |
+|                    | boundary.                                       |
+|                    |                                                 |
+|                    | An SCD is used either for the acceptance and    |
+|                    | encryption of account data at the point of      |
+|                    | sale, or for cryptographic key-management       |
+|                    | functions and/or the decryption of account      |
+|                    | data. SCDs used for acceptance or encryption of |
+|                    | account data at the point of sale are also      |
+|                    | referred to at *POIs* or *PCI-approved POI      |
+|                    | devices*. SCDs used for cryptographic           |
+|                    | key-management functions and/or the decryption  |
+|                    | of account data include *HSMs* (host/hardware   |
+|                    | security modules). See also *Point of           |
+|                    | interaction, PCI-approved POI device,* or       |
+|                    | *Hardware security module.*                     |
++--------------------+-------------------------------------------------+
+| > **Secure Reading | A set of PTS POI requirements that provide a    |
+| > and Exchange of  | standardized approach to protecting account     |
+| > Data (SRED)**    | data in POI devices. SRED requirements cover    |
+|                    | all methods of account-data entry supported by  |
+|                    | the POI device, and include physically and      |
+|                    | logically protecting account data within the    |
+|                    | device, protecting any associated sensitive     |
+|                    | data or functions, and providing for the        |
+|                    | encryption of account data before transmission  |
+|                    | outside the device.                             |
++--------------------+-------------------------------------------------+
+| > **Sensitive      | Security-related information (including, but    |
+| > authentication   | not limited to, card- validation codes/values,  |
+| > data (SAD)**     | full-track data from the magnetic stripe,       |
+|                    | magnetic-stripe image on the chip or elsewhere, |
+|                    | PINs, and PIN blocks) used to authenticate      |
+|                    | cardholders and/or authorize payment card       |
+|                    | transactions.                                   |
++--------------------+-------------------------------------------------+
+| > **Sensitive      | Data that must be protected against             |
+| > data**           | unauthorized disclosure, alteration, or         |
+|                    | destruction---especially cardholder data,       |
+|                    | sensitive authentication data, and              |
+|                    | cryptographic keys---and includes design        |
+|                    | characteristics, status information, and so     |
+|                    | forth.                                          |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Session key**  | A key established by a key-management protocol  |
+|                    | that provides security services to data         |
+|                    | transferred between the parties. A single       |
+|                    | protocol execution may establish multiple       |
+|                    | session keys---for example, an encryption key   |
+|                    | and a MAC key.                                  |
++--------------------+-------------------------------------------------+
+| > **Shared         | The secret information shared between parties   |
+| > secret**         | after protocol execution. This may consist of   |
+|                    | one or more session key(s), or it may be a      |
+|                    | single secret that is input to a key-derivation |
+|                    | function to derive session keys.                |
++--------------------+-------------------------------------------------+
+| > **Solution       | See *P2PE solution provider.*                   |
+| > provider**       |                                                 |
++--------------------+-------------------------------------------------+
+| > **Split          | A condition under which two or more entities    |
+| > knowledge**      | separately have key components that             |
+|                    | individually convey no knowledge of the         |
+|                    | resultant cryptographic key.                    |
+|                    |                                                 |
+|                    | Also see *Dual control.*                        |
++--------------------+-------------------------------------------------+
+| > **Strong         | Cryptography based on industry-tested and       |
+| > cryptography**   | accepted algorithms, along with industry-tested |
+|                    | and accepted key lengths and key- management    |
+|                    | practices. Cryptography is a method to protect  |
+|                    | data and includes both encryption (which is     |
+|                    | reversible) and hashing (which is "not          |
+|                    | reversible, or "one way").                      |
+|                    |                                                 |
+|                    | See also *Hashing*.                             |
+|                    |                                                 |
+|                    | See *NIST Special Publication 800-57,* Part 1   |
+|                    | (<http://csrc.nist.gov/publications/)> for more |
+|                    | guidance about cryptographic key strengths and  |
+|                    | algorithms.                                     |
+|                    |                                                 |
+|                    | See *P2PE Domain 5 Normative Annex C: Minimum   |
+|                    | and Equivalent Key Sizes and Strengths for      |
+|                    | Approved Algorithms* for reference to specifics |
+|                    | related to the P2PE standard.                   |
++--------------------+-------------------------------------------------+
+| > **Subordinate CA | If one CA issues a certificate for another CA,  |
+| > and Superior     | the issuing CA is termed the superior CA, and   |
+| > CA**             | the certified CA is termed the subordinate CA.  |
+|                    | Typically, subordinate CAs are used to segment  |
+|                    | risk. Subordinate CAs may issue certificates to |
+|                    | KDHs, SCDs. Subordinate CAs may also issue      |
+|                    | certificates to lower-level CAs and issue       |
+|                    | certificate status lists regarding certificates |
+|                    | the subordinate CA has issued.                  |
++--------------------+-------------------------------------------------+
+| > **Symmetric      | A cryptographic key used in symmetric           |
+| > key**            | cryptographic algorithms. The same symmetric    |
+|                    | key used for encryption is also used for        |
+|                    | decryption.                                     |
++--------------------+-------------------------------------------------+
+| >                  | A characteristic that provides evidence that an |
+| **Tamper-evident** | attack has been attempted.                      |
++--------------------+-------------------------------------------------+
+| > **               | A characteristic that provides passive physical |
+| Tamper-resistant** | protection against an attack.                   |
++--------------------+-------------------------------------------------+
+| > **Tampering**    | The penetration or modification of internal     |
+|                    | operations and/or insertion of active or        |
+|                    | passive tapping mechanisms to determine or      |
+|                    | record secret data.                             |
++--------------------+-------------------------------------------------+
+| > **Terminal**     | A device/system that initiates a transaction.   |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Terminal       | A symmetric key used to encrypt other           |
+| > master key       | cryptographic keys at the point of interaction. |
+| > (TMK)**          |                                                 |
++--------------------+-------------------------------------------------+
+| > **Test           | In the context of Domain 2, special test        |
+| > platform**       | functionality that is separate or absent from   |
+|                    | production-level code. This platform is         |
+|                    | expected to be provided by the application      |
+|                    | vendor to the P2PE assessor, as needed to       |
+|                    | provide a framework that allows for testing of  |
+|                    | the application's functionality outside of a    |
+|                    | production-deployment environment.              |
++--------------------+-------------------------------------------------+
+| > **Transaction**  | A series of messages to perform a predefined    |
+|                    | function.                                       |
++--------------------+-------------------------------------------------+
+| > **Triple Data    | The algorithm specified in *ANSI X9.52, Triple  |
+| > Encryption       | Data Encryption Algorithm Modes of Operation.*  |
+| > Algorithm        |                                                 |
+| > (TDEA)**         |                                                 |
++--------------------+-------------------------------------------------+
+| > **Triple Data    | See *Triple Data Encryption Algorithm.*         |
+| > Encryption       |                                                 |
+| > Standard         |                                                 |
+| > (TDES)**         |                                                 |
++--------------------+-------------------------------------------------+
+| > **Triple-length  | A cryptographic key having a length of 168      |
+| > key**            | active bits plus 24 parity bits, used in        |
+|                    | conjunction with the TDES cryptographic         |
+|                    | algorithm.                                      |
++--------------------+-------------------------------------------------+
+| > **Unprotected    | Components, devices, and recording media that   |
+| > memory**         | retain data for some interval of time that      |
+|                    | reside outside the cryptographic boundary of an |
+|                    | SCD.                                            |
++--------------------+-------------------------------------------------+
+| > **Variant of a   | A new key formed by a process (which need not   |
+| > key**            | be secret) with the original key, such that one |
+|                    | or more of the non-parity bits of the new key   |
+|                    | differ from the corresponding bits of the       |
+|                    | original key.                                   |
++--------------------+-------------------------------------------------+
+| > **Verification** | The process of associating and/or checking a    |
+|                    | unique characteristic.                          |
++--------------------+-------------------------------------------------+
+| > **Versioning     | A process of assigning version schemes to       |
+| > methodology**    | uniquely identify a particular state of an      |
+|                    | application or software. These schemes follow a |
+|                    | version-number format, version-number usage,    |
+|                    | and any wildcard element as defined by the      |
+|                    | software vendor. Version numbers generally are  |
+|                    | assigned in increasing order and correspond to  |
+|                    | a particular change in the software.            |
++--------------------+-------------------------------------------------+
+| > **Whitelist**    | A list of approved items used to make           |
+|                    | processing decisions. For example, a whitelist  |
+|                    | could be a list and/or range of non-PCI payment |
+|                    | brand account/card numbers, approved by the     |
+|                    | solution provider, that are not required to be  |
+|                    | encrypted at the POI. Unless explicitly         |
+|                    | authorized by the relevant payment brand, PCI   |
+|                    | payment brand card/account numbers must not be  |
+|                    | on a whitelist.                                 |
++--------------------+-------------------------------------------------+
+| > **Whitelisting   | Functionality that utilizes an authorized and   |
+| > functionality**  | cryptographically authenticated whitelist to    |
+|                    | output permitted non-PCI payment brand          |
+|                    | account/card numbers. See *Whitelist*.          |
++--------------------+-------------------------------------------------+
+| > **Working key**  | A key used to cryptographically process the     |
+|                    | transaction. A working key is sometimes         |
+|                    | referred to as a "data key," "communications    |
+|                    | key," "session key," or "transaction key."      |
++--------------------+-------------------------------------------------+
+| > **XOR**          | See *Exclusive-Or*.                             |
++--------------------+-------------------------------------------------+
+
++--------------------+-------------------------------------------------+
+| > **Term**         | > **Definition**                                |
++====================+=================================================+
+| > **Zeroize**      | The degaussing, erasing, or overwriting of      |
+|                    | electronically stored data so as to prevent     |
+|                    | recovery of the data.                           |
++--------------------+-------------------------------------------------+

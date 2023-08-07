@@ -240,7 +240,7 @@ export function SearchDialog() {
                   <span className="bg-green-500 p-2 w-8 h-8 rounded-full text-center flex items-center justify-center">
                     <Wand width={18} className="text-white" />
                   </span>
-                  <h5 className="overflow-y-auto font-semibold">Answer:</h5>
+                  <h3 className="font-semibold">Answer:</h3>
                   {answer}
                 </div>
               ) : null}

@@ -195,9 +195,9 @@ export function SearchDialog() {
       <Dialog open={open}>
         <DialogContent className="sm:max-w-[850px] text-black">
           <DialogHeader>
-            <DialogTitle>Hearti AI</DialogTitle>
+            <DialogTitle>Proto AI</DialogTitle>
             <DialogDescription>
-              Ask about PCI DSS Compliance, Cardano and the Plutus Apps SDK, Medicare, or Quantum One.
+             AI augmented search - PCI DSS, Medicare, Cardano, Plutus Apps 
             </DialogDescription>
             <hr />
             <button className="absolute top-0 right-2 p-2" onClick={() => setOpen(false)}>

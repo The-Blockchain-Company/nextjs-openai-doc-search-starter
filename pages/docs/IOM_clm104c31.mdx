@@ -1,0 +1,861 @@
+---
+title: Medicare Claims Processing Manual
+---
+
+> []{#_bookmark0 .anchor}**Chapter 31 - ANSI X12 Formats Other than
+> Claims or Remittance**
+
+## Table of Contents
+
+### *(Rev. 10236, 07-31-20)*
+
+> [**[Transmittals for Chapter
+> 31]{.underline}**](#transmittals-issued-for-this-chapter)
+
+10. [- ASC X12 270/271 Health Care Eligibility Benefit Inquiry and
+    Response](#asc-x12-270271-health-care-eligibility-benefit-inquiry-and-response-implementation)
+    [Implementation](#asc-x12-270271-health-care-eligibility-benefit-inquiry-and-response-implementation)
+
+    1.  [- Background](#background)
+
+    2.  [- Eligibility Connectivity
+        > Workflow](#eligibility-connectivity-workflow)
+
+```{=html}
+<!-- -->
+```
+20. [- ASC X12 276/277 Claims Status Request/Response Transaction
+    Standard](#asc-x12-276277-claims-status-requestresponse-transaction-standard)
+
+    1.  [- Transmission
+        Requirements](#rev.-10236-issued-07-31-2020-effective-08-31-2020-implementation-08-31-2020-1)
+
+        1.  [- Batch Transactions](#batch-transactions)
+
+        2.  [- Online Direct Data Entry
+            > (DDE)](#online-direct-data-entry-dde)
+
+        3.  [- Interactive/Online (Non-DDE)](#interactiveonline-non-dde)
+
+    2.  [- Summary of the ASC X12 276/277 Claim Status Request and
+        Response](#summary-of-the-asc-x12-276277-claim-status-request-and-response-process-for-ab-medicare-administrative-contractors-dme-macs-cedi)
+        [Process for A/B Medicare Administrative Contractors, DME MACs,
+        CEDI](#summary-of-the-asc-x12-276277-claim-status-request-and-response-process-for-ab-medicare-administrative-contractors-dme-macs-cedi)
+
+    3.  [- Flat Files](#flat-files)
+
+    4.  [- Translation Requirements](#translation-requirements)
+
+    5.  [- Transmission Mode](#transmission-mode)
+
+    6.  [- Restriction and Controlling Access to Claims Status
+        > Information](#restriction-and-controlling-access-to-claims-status-information)
+
+    7.  [- Health Care Claim Status Category Codes and Health Care Claim
+        Status](#_bookmark14) [Codes for Use with the Health Care Claim
+        Status Request and Response ASC X12](#_bookmark14) [276/277
+        Claim Status Request and Response](#_bookmark14)
+
+# - ASC X12 270/271 Health Care Eligibility Benefit Inquiry and Response Implementation
+
+> **(Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation:
+> 04-14-14)**
+
+# - Background
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> This section provides information on Medicare's implementation of the
+> Accredited Standards Committee (ASC) X12 Health Care Eligibility
+> Benefit Inquiry and Response (270/271) transaction (short reference:
+> ASC X12 270/271 eligibility transaction). The CMS supports the
+> currently mandated version of the transaction based upon the currently
+> mandated version of the ASC X12 Standards for Electronic Data
+> Interchange Technical Report Type 3\--Health Care Eligibility Benefit
+> Inquiry and Response (270/271), both of which were adopted as the
+> National standard for the health care eligibility benefit inquiry and
+> response under the Health Insurance Portability and Accountability Act
+> of 1996 (HIPAA). The technical report 3 is also known as a TR3 or
+> implementation guide (IG). (Refer to chapter 24 for current versions
+> adopted under HIPAA.)
+
+# -Eligibility Connectivity Workflow
+
+### *(Rev. 10236, Issued: 07-31-2020, Effective: 08-31-2020, Implementation: 08-31-2020)*
+
+> In 200*5*, the Centers for Medicare & Medicaid Services (CMS)
+> implemented the *HIPAA Eligibility Transaction System (HETS 270/271)*
+> to address the standards for the Medicare beneficiary eligibility
+> inquiries, creating a centralized ASC X12 270/271 health care
+> eligibility inquiry *application that can process eligibility
+> transactions in real-time.*
+>
+> *For information regarding HETS connectivity, visit the HETS Help web
+> site.*
+>
+> *[[http://www.cms.gov/Research-Statistics-Data-and-Systems/CMS-Information-]{.underline}](http://www.cms.gov/Research-Statistics-Data-and-Systems/CMS-Information-Technology/HETSHelp/index.html)
+> [[Technology/HETSHelp/index.html]{.underline}](http://www.cms.gov/Research-Statistics-Data-and-Systems/CMS-Information-Technology/HETSHelp/index.html)*
+
+# - ASC X12 276/277 Claims Status Request/Response Transaction Standard
+
+### *(Rev. 10236, Issued: 07-31-2020, Effective: 08-31-2020, Implementation: 08-31-2020)*
+
+> These instructions apply to Medicare Administrative Contractors
+> (MACs), Durable Medical Equipment Medicare Administrative Contractors
+> (DME MACs), the Common Electronic Data Interchange (CEDI) contractor
+> for DME MACs, and their shared systems on Medicare requirements for
+> their implementation of the current HIPAA compliant version of the ASC
+> X12 Health Care Claim Status Request and Response (276/277)
+> transaction (short reference: ASC X12 276/277 claim status request and
+> response.)
+>
+> CMS supports the current version of this transaction as established in
+> its TR3 adopted under HIPAA: the ASC X12 Standards for Electronic Data
+> Interchange Technical Report Type 3---Health Care Claim Status Request
+> and Response (276/277).
+>
+> In order to implement the HIPAA administrative simplification
+> provisions, the ASC X12 276/277 claim status request and response and
+> its implementation specification (now TR3) have been named under part
+> 162 of title 45 of the Code of Federal Regulations as the electronic
+> data interchange (EDI) standard for Health Care Claim Status
+> Request/Response. All other EDI formats for health care claims status
+> request and response became obsolete October 16, 2003. The Final Rule
+> for Health Insurance Reform: Modifications to the Health Insurance
+> Portability and Accountability Act (HIPAA) Electronic Transaction
+> Standards published in the [[Federal Register on
+> January]{.underline}](https://www.federalregister.gov/articles/2009/01/16/E9-740/health-insurance-reform-modifications-to-the-health-insurance-portability-and-accountability-act)
+> [16^th^,
+> 2009](https://www.federalregister.gov/articles/2009/01/16/E9-740/health-insurance-reform-modifications-to-the-health-insurance-portability-and-accountability-act),
+> adopts updated versions of the electronic transactions and TR3 for the
+> ASC X12 276/277 claim status request and response. Furthermore, the
+> Final Rule conveys inclusion of errata to the transaction standard.
+> CMS therefore incorporates by reference any errata documents by the
+> original mandated regulation compliance date through the Federal
+> Register notice(s). Moving forward, all newly adopted errata documents
+> are to be accepted and integrated as part of the EDI transaction.
+>
+> The ASC X12 TR3 for the ASC X12 276/277 claim status request and
+> response standard may be found at *the official ASC X12 website*. The
+> ASC X12 276/277 is a "paired" transaction (the ASC X12 276 is an
+> in-bound claim status request, and the 277 is an outbound claims
+> status response).
+
+# - Transmission Requirements
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> A/B MACs, DME MACs, and CEDI may continue to operate automated
+> response unit (ARU) capability for providers to request and receive
+> claim status information. ARUs are not considered EDI and are not
+> affected by the HIPAA requirements. Nor do they impact response time
+> requirements for the standard transactions implemented under HIPAA.
+
+# - Batch Transactions
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> Contractors must be able to accept the current ASC X12 276 claim
+> status request in batch mode, and respond via the ASC X12 277 claim
+> status response in batch mode. If a contractor currently supports
+> batch capability in any EDI batch format to request claim status, the
+> response time for issuance of an ASC X12 277 claim status response
+> transaction in response must be within one business day of the receipt
+> of a valid ASC X12 276 claim status request transaction.
+
+# - Online Direct Data Entry (DDE)
+
+## (Rev. 4260; Issued: 03-22-19; Effective: 04-22-19; Implementation: 04-22-19)
+
+> The term Medicare beneficiary identifier (Mbi) is a general term
+> describing a beneficiary\'s Medicare identification number. For
+> purposes of this manual, Medicare beneficiary identifier references
+> both the Health Insurance Claim Number (HICN) and the Medicare
+> Beneficiary Identifier (MBI) during the new Medicare card transition
+>
+> period and after for certain business areas that will continue to use
+> the HICN as part of their processes.
+>
+> The HIPAA uses the term "direct data entry" generically to refer to a
+> type of functionality operated by many different payers under a
+> variety of titles. Within this instruction, the acronym DDE is being
+> used to refer to any type of direct data entry system maintained by
+> contractors, or shared system maintainers, including A/B MAC (A) or
+> (HHH) DDE or equivalent functionality that may have a different title.
+> Although DDE operates online, DDE does not typically operate on a
+> detailed inquiry and response basis. For claim status purposes, data
+> is maintained within an interactive database that providers may access
+> to view screens containing a wide variety of information on their
+> claims. A provider accesses that data by furnishing certain
+> identifying data for security purposes to establish their right to
+> read the data and to specify those claim records the provider wishes
+> to review.
+>
+> The information in this database for specific claims or providers is
+> initiated when a provider enters claim data, and is then updated by a
+> contractor to include subsequent actions taken that affect that claim.
+> DDE was specifically permitted to continue in the HIPAA initial
+> transactions final rule (45 CFR 162.923), with the stipulation that
+> direct data entry is subject to "...the applicable data content and
+> data condition requirements of the standard when conducting the
+> transaction. The health care provider is not required to use the
+> format requirements of the standard.\"
+>
+> Data content conformity means that the same information permitted or
+> required by the ASC X12 277 claim status response implementation guide
+> must be reported in the claims status screens (the DDE outbound). The
+> DDE outbound may not report a data element for claim status purposes
+> that is not included in the ASC X12 277 claim status response, exceeds
+> the maximum length of the data element in the ASC X12 277 claim status
+> response, does not meet the minimum length for the data element in the
+> ASC X12 277 claim status response, or that does not meet the ASC X12
+> 277 claim status response requirement that the data element be
+> numeric, alpha-numeric, an amount, or meet another characteristic as
+> specified in the ASC X12 277 claim status response. On the inbound,
+> the DDE system can require less information than the ASC X12 276 claim
+> status request, but not more. The inquirer is not required to furnish
+> information in the DDE inquiry that is available by other means to the
+> contractor. Any data element keyed in a DDE system must conform to the
+> requirements. The ASC X12 standard TR3 include data element length and
+> characteristics in their definition of data attributes.
+>
+> Conformity does not mean that a DDE screen that includes claim status
+> information must display each of the data qualifiers or other means of
+> data identification contained in the ASC X12 277 claim status response
+> implementation guide. DDE screens typically identify, explicitly or by
+> context, the type of information being reported in a field, e.g.,
+> would identify if a number represents a HCPCS, Medicare beneficiary
+> identifier, amount, grams, date of birth, etc. DDE screens would not
+> be expected to use a qualifier contained in the ASC X12 277 claim
+> status response to identify data type if that is otherwise evident in
+> the design or content of the DDE screen.
+>
+> Shared system maintainers must map the DDE claim status data elements
+> to the ASC X12 276/277 claim status request and response
+> implementation guide to determine if the DDE claim status data
+> elements meet the conformity requirements above. If needed, changes
+> must be made to enable contractor DDE claim status data elements to
+> conform.
+>
+> If a contractor continues to support DDE, it must be offered in
+> addition to batch ASC X12 276/277 claim status request and response,
+> but the contractor must take one of two approaches to assure their
+> claim status data content conforms to the requirements:
+
+1.  Eliminate claim status data elements from the DDE screens, unless
+    > those data elements are also needed for a purpose other than claim
+    > status. For example, if a data element is needed in a DDE screen
+    > for claim entry or claim correction, and it is also used to help
+    > determine claim status, retain the data element so it can continue
+    > to be used for claim entry or correction. If a data element is
+    > used solely for claim status, and is not essential for an
+    > alternate purpose, eliminate it; or
+
+2.  If a contractor elects to continue to display claim status-specific
+    > data elements in their DDE screens, those data elements must at a
+    > minimum contain/report data that conforms to:
+
+    -   All required and applicable conditional data elements for those
+        > segments in the ASC X12 277 claim status response; and
+
+    -   Data content as specified for those data elements in the ASC X12
+        > 277 claim status response, as applicable, including compliance
+        > with the data attributes for those data elements as defined in
+        > the ASC X12 277 implementation guide.
+
+> Preliminary feedback from contractors suggests that existing DDE
+> screens used for Medicare may already conform to the ASC X12 277 claim
+> status response implementation guide requirements, but data element
+> mapping is required to verify. For example, since industry input was
+> used to develop the ASC X12 277 claim status response implementation
+> guide as well as, presumably the data elements for claim status
+> currently furnished via DDE, it is unlikely that DDE screen field
+> sizes would be larger than the ASC X12 277 claim status response
+> maximum length or shorter than the ASC X12 277 claim status response
+> minimum length. It is also unlikely that a DDE screen would contain a
+> data element considered important for claim status that is not
+> included in the ASC X12 277 claim status response, or vice versa.
+>
+> If a shared system maintainer determines that DDE screen changes are
+> required, the maintainer in conjunction with its users must determine
+> if it would be cost effective to modify the DDE screens to conform to
+> the ASC X12 277 claim status response implementation guide. If not
+> cost effective, the maintainer must eliminate the claim status-only
+> data elements from the DDE screens and require the contractors to use
+> the batch ASC X12 276/277 claim status request and response, an ARU,
+> and/or other non- EDI means to obtain claim status information.
+>
+> If retention is cost effective, the maintainer must modify these
+> screens as necessary to ensure that providers are able to access all
+> applicable data content available in the ASC X12 277 claim status
+> response. The DDE screens must be able to furnish providers
+> information that conforms to the data that would have been issued to
+> the provider in an ASC X12 277 claim status response. See above for
+> the discussion of conformity.
+
+# - Interactive/Online (Non-DDE)
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> Contractors are not required to accept an ASC X12 276 claim status
+> inquiry or respond with an ASC X12 277 claim status response in an
+> interactive, online mode if they do not already do so. If contractors
+> do support the ASC X12 276/277 claim status request and response in an
+> interactive online mode, it must be offered in addition to batch ASC
+> X12 276/277 claim status request and response.
+
+# - Summary of the ASC X12 276/277 Claim Status Request and Response Process for A/B Medicare Administrative Contractors, DME MACs, CEDI
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+A.  The contractor's translator must perform editing on the submitted
+    > ASC X12 276 claim status request transaction at the ASC X12
+    > standard and implementation levels, and generate an ASC X12 TA1
+    > interchange acknowledgment in batch if an interchange control
+    > error was detected. The contractor shall generate an appropriate
+    > ASC X12 999 implementation acknowledgment in batch if a syntax
+    > error is detected. In the absence of any interchange control or
+    > syntax error, an ASC X12 999 implementation acknowledgement is
+    > issued in the batch mode only, to confirm receipt of an ASC X12
+    > 276 received via batch. See §20.4 for additional translation
+    > requirements. Translation does not apply to DDE screens.
+
+> An ASC X12 TA1 interchange acknowledgment and an ASC X12 999
+> implementation acknowledgment (issued for an ASC X12 276 claim status
+> request submitted in a batch) must be issued within 1 business day of
+> receipt of the ASC X12 276 claim status request.
+>
+> An ASC X12 TA1 interchange acknowledgment and ASC X12 999
+> implementation acknowledgment of an ASC X12 276 claim status request
+> submitted in an interactive/online mode must be issued as quickly as
+> the ASC X12 277 claim status response would have been issued had the
+> ASC X12 276 claim status request been valid.
+>
+> Under the current HIPAA adopted ASC X12 version, inclusive of any
+> adopted Errata moving forward, the contractor's translator shall edit
+> the incoming ASC X12 276 claim status request transaction as
+> documented by the CMS 276/277 Edits spreadsheet (as updated per
+> quarterly release) from the CMS Website:
+> [[http://www.cms.gov/ElectronicBillingEDITrans/10_ClaimStatus.asp#TopOfPage]{.underline}](http://www.cms.gov/ElectronicBillingEDITrans/10_ClaimStatus.asp#TopOfPage)
+
+B.  The shared system shall continue to process claim status
+    > transactions in current ASC X12 version to include edits to verify
+    > that the submitted ASC X12 276 data complies with IG and Medicare
+    > requirements. If edits are failed, the shared system must generate
+    > an edit report following the model established for TR3 and
+    > Medicare program edit reporting for the HIPAA compliant version of
+    > the ASC X12 837 claim implementation. The edit report must include
+    > any reason(s) for the rejection in a concise but explicit manner
+    > that can be understood by provider staff as well as contractor
+    > staff. Contractors will forward the edit messages to submitters
+    > for correction of the edit condition. The shared system must
+    > generate these edit reports within 1 business day.
+
+> The TR3 edits must be performed as defined in the TR3 segment and data
+> element notes, data element attributes, conditions of use, and overall
+> guiding principles for use of the standards as contained in the
+> introduction section and addenda to the IG. The Medicare program edits
+> must be performed as required by current Medicare program
+> instructions.
+
+C.  The A/B MAC or, for DME, the CEDI contractor, shall process inbound
+    > claim status transactions in the current ASC X12 version(s)
+    > (inclusive of any ASC X12 Errata) and beyond to include the edits
+    > defined in the CMS 276/277 Edits spreadsheet as translator
+    > applicable in order to pass to the Part A or Part B Common Edits
+    > and Enhancement Module (CEM) software a CMS defined flat file
+    > format (inclusive of Control Record(s) hereafter referred to as
+    > CTRD).
+
+> For Part A and Part B, the CEM software shall perform all edits not
+> marked as Translator on the CMS 276/277 Edits spreadsheet for inbound
+> claim status transactions in order to pass the fully edited inbound
+> claim status transaction on to the appropriate Part A or Part B shared
+> system for appropriate claim status request processing in the shared
+> system.
+>
+> For DME, the CEDI contractor shall also process inbound claim status
+> transactions in the current ASC X12 version(s) (inclusive of any ASC
+> X12 Errata) and beyond to also include edits defined in the CMS
+> 276/277 Edits spreadsheet other than translator applicable in order to
+> pass the fully edited inbound claim status transaction on to the DME
+> shared system for appropriate claim status request processing in the
+> shared system.
+
+D.  For claim status request and response transactions formatted in the
+    > current ASC X12 version(s) and beyond the shared system:
+
+    -   Updates the Control Record database with the CTRD record for the
+        > activities being processed (e.g. interchange -- ISA segment to
+        > IEA) and appropriate content of the Control Record. Stores any
+        > ASC X12 276 claim status request data elements required for
+        > preparation of a compliant ASC X12 277 claim status response
+        > that are either not retained in the Medicare core system, or
+        > exceed the size limits for that type of data in the Medicare
+        > core system in a temporary file.
+
+> Completes the application request/inquiry according to the components
+> that outbound claim status response requires, as well as, generates
+> and populates the outbound Control Record for the outbound claim
+> status response. These processes shall comply with the TR3 for the ASC
+> X12 transaction and the CMS defined Control Record definition
+> (inclusive of any quarterly release updates). The shared system shall
+> also perform data scrubbing of outbound data prior to the data exiting
+> the Enterprise Data Center (EDC) and being transferred to the Local
+> Data Center (LDC) as deemed appropriate by CMS and the MACs. The
+> initial instructions for the outbound data scrubbing were contained in
+> Transmittal 702, Change Request 6946. This edit process shall be
+> implemented beginning with the October 2010 release for DME and in the
+> January 2011 release for Part A and Part B shared systems. The
+> processes shall be modified through subsequent releases, as directed
+> via future Change Requests, add to the editing process of the
+> reference file mechanism designed for each shared system to perform
+> the data scrubbing conversion process.
+
+# - Flat Files
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> For the current ASC X12 276/277 claim status request and response and
+> beyond inclusive of any adopted Errata by ASC X12, the CMS developed
+> flat files that maintainers and contractors may use. These files are
+> available on the following CMS Web page:
+> [[http://www.cms.gov/ElectronicBillingEDITrans/10_ClaimStatus.asp#TopOfPage]{.underline}](http://www.cms.gov/ElectronicBillingEDITrans/10_ClaimStatus.asp#TopOfPage)
+
+# - Translation Requirements
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> For the current ASC X12 276/277 claim status request and response
+> transactions and beyond inclusive of any adopted Errata by ASC X12,
+> contractors and shared system maintainers shall exchange ASC X12 claim
+> status request and response transactions using the Extended Character
+> Set. except when a CMS and the contractors have deemed to be data
+> scrubbed under the initial instructions for the outbound data
+> scrubbing as contained in Transmittal 702, Change Request 6946 and the
+> modifications through subsequent releases, as directed via future
+> Change Request. Detailed information about the Extended Character Set
+> can be obtained in Appendix B of any ASC X12 TR3.
+
+# - Transmission Mode
+
+## (Rev. 2937, Issued; 04-25-14, Effective: 04-14-14, Implementation: 04-14-14)
+
+> The HIPAA compliant version of the ASC X12 276/277 claim status
+> request and response transaction is a variable-length record designed
+> for wire transmission. The CMS requires that the contractor accept the
+> inbound and transmit the outbound over a wire connection.
+
+# - Restriction and Controlling Access to Claims Status Information
+
+## (Rev. 1, 10-01-03)
+
+> Provide claims status information to providers, suppliers and their
+> agents when an EDI Enrollment Form is on file for that entity, and to
+> network service vendors if there is an EDI Enrollment Form and EDI
+> Network Service Agreement on file. (See Medicare Claims Processing
+> Manual, Chapter 24, EDI Support Requirements for instructions on the
+> enrollment form and the EDI Network Service Agreement.)
+
+5.  []{#_bookmark14 .anchor}**-- Health Care Claim Status Category Codes
+    and Health Care Claim Status Codes for Use with the Health Care
+    Claim Status Request and Response ASC X12 276/277 Claim Status
+    Request and Response *(Rev. 10236, Issued: 07-31-2020, Effective:
+    08-31-2020, Implementation: 08-31-2020)***
+
+> Under HIPAA, all payers must use health care claim status category
+> codes and health care claim status codes approved by the Health Care
+> Code Maintenance Committee as applicable. At each ASC X12 trimester
+> meeting (generally held the months of February, June and October), the
+> Committee may update the claim status category codes and the claim
+> status codes. When instructed, Medicare contractors must update their
+> claims systems to assure that the current version of these codes is
+> used in their claim status responses. The codes sets are available at
+> *the official Washington Publishing Company website*. Included in the
+> code lists are specific details, including the date when a code was
+> added, changed or deleted.
+>
+> CMS will issue recurring, one-time change requests regarding the need
+> for and deadline for future updates to these codes. Contractor and
+> shared system changes will be made as necessary as part of a routine
+> release to reflect applicable changes such as retirement of previously
+> used codes or newly created codes that may impact Medicare. Shortly
+> after the release of each code update, a provider education article
+> will be available at
+> [[http://www.cms.hhs.gov/medlearn/matters]{.underline}](http://www.cms.hhs.gov/medlearn/matters)
+> for contractors to use to conduct provider outreach.
+
+# Transmittals Issued for this Chapter
+
++--------+--------+-----------------------------------+--------+----+
+| **Rev  | *      | **Subject**                       | **Impl | >  |
+| \#**   | *Issue |                                   | Date** |  * |
+|        | Date** |                                   |        | *C |
+|        |        |                                   |        | R# |
+|        |        |                                   |        | ** |
++========+========+===================================+========+====+
+| [      | 07/3   | Update to the IOM Publication     | 08/3   | >  |
+| [R1023 | 1/2020 | (Pub) 100- 04, Medicare Claims    | 1/2020 |  1 |
+| 6CP]{. |        | Processing Manual, Chapters 1, 6, |        | 18 |
+| underl |        | 8, 17, 20, 22, 24, and 31         |        | 57 |
+| ine}]( |        | Referencing the Active Universal  |        |    |
+| https: |        | Resource Locators (URLs) for the  |        |    |
+| //www. |        | Washington Publishing Company     |        |    |
+| cms.go |        | (WPC) and the ASC X12             |        |    |
+| v/file |        | Organizations, and Updates to the |        |    |
+| s/docu |        | HIPAA Eligibility Transaction     |        |    |
+| ment/r |        | System (HETS)                     |        |    |
+| 10236C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R    | 09/0   | Manual Updates to Chapters 1, 22, | 10/0   | >  |
+| 4388CP | 6/2019 | 24, 26,                           | 7/2019 |  1 |
+| ]{.und |        |                                   |        | 13 |
+| erline |        | and 31 in Publication (Pub.)      |        | 31 |
+| }](htt |        | 100-04                            |        |    |
+| ps://w |        |                                   |        |    |
+| ww.cms |        |                                   |        |    |
+| .gov/R |        |                                   |        |    |
+| egulat |        |                                   |        |    |
+| ions-a |        |                                   |        |    |
+| nd-Gui |        |                                   |        |    |
+| dance/ |        |                                   |        |    |
+| Guidan |        |                                   |        |    |
+| ce/Tra |        |                                   |        |    |
+| nsmitt |        |                                   |        |    |
+| als/20 |        |                                   |        |    |
+| 19Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R4388C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R    | 03/2   | Update to Chapter 31 in           | 04/2   | >  |
+| 4260CP | 2/2019 | Publication (Pub.) 100-04 to      | 2/2019 |  1 |
+| ]{.und |        | Provide Language-Only Changes for |        | 11 |
+| erline |        | the New Medicare Card Project     |        | 78 |
+| }](htt |        |                                   |        |    |
+| ps://w |        |                                   |        |    |
+| ww.cms |        |                                   |        |    |
+| .gov/R |        |                                   |        |    |
+| egulat |        |                                   |        |    |
+| ions-a |        |                                   |        |    |
+| nd-Gui |        |                                   |        |    |
+| dance/ |        |                                   |        |    |
+| Guidan |        |                                   |        |    |
+| ce/Tra |        |                                   |        |    |
+| nsmitt |        |                                   |        |    |
+| als/20 |        |                                   |        |    |
+| 19Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R4260C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R2   | 04/2   | Medicare Claims Processing Pub.   | 04/1   | >  |
+| 937CP] | 5/2014 | 100-04 Chapter 31 Update          | 4/2014 | 86 |
+| {.unde |        |                                   |        | 40 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2937C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R2   | 031    | Medicare Claims Processing Pub.   | 04/1   | >  |
+| 909CP] | 4/2014 | 100-04 Chapter 31 Update --       | 4/2014 | 86 |
+| {.unde |        | Rescinded and replaced by         |        | 40 |
+| rline} |        | Transmittal 2937                  |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2909C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R2   | 02/2   | Update for Pub. 100-04. Medicare  | 03/2   | >  |
+| 165CP] | 5/2011 | Claims Processing Manual, Chapter | 5/2011 | 72 |
+| {.unde |        | 31                                |        | 45 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R2165C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R1   | 01/0   | Revision of Chapter 31            | 04/0   | >  |
+| 149CP] | 5/2007 | Eligibility Rules of Behavior     | 2/2007 | 54 |
+| {.unde |        |                                   |        | 31 |
+| rline} |        |                                   |        |    |
+| ](http |        |                                   |        |    |
+| ://www |        |                                   |        |    |
+| .cms.g |        |                                   |        |    |
+| ov/Reg |        |                                   |        |    |
+| ulatio |        |                                   |        |    |
+| ns-and |        |                                   |        |    |
+| -Guida |        |                                   |        |    |
+| nce/Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Trans |        |                                   |        |    |
+| mittal |        |                                   |        |    |
+| s/Down |        |                                   |        |    |
+| loads/ |        |                                   |        |    |
+| R1149C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 06/2   | Eligibility Rules of Behavior     | 07/2   | >  |
+| R991CP | 3/2006 |                                   | 4/2006 | 51 |
+| ]{.und |        |                                   |        | 38 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R991C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 03/2   | Eligibility Transaction URL       | 06/2   | >  |
+| R892CP | 4/2006 | Update                            | 6/2006 | 43 |
+| ]{.und |        |                                   |        | 66 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R892C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 12/2   | Revision to Chapter 31-Addition   | 01/2   | >  |
+| R793CP | 9/2005 | of Hospice Data HIPAA270/271      | 3/2006 | 41 |
+| ]{.und |        | Eligibility                       |        | 93 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R793C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 12/2   | Revision to Chapter 31-Addition   | 01/2   | >  |
+| R791CP | 3/2005 | of Hospice Data HIPAA270/271      | 3/2006 | 41 |
+| ]{.und |        | Eligibility                       |        | 93 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R791C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 06/1   | Access Process for HIPAA 270/271  | 08/2   | >  |
+| R583CP | 5/2005 | (Extranet Only)                   | 2/2005 | 38 |
+| ]{.und |        |                                   |        | 83 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R583C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+
++--------+--------+-----------------------------------+--------+----+
+| **Rev  | *      | **Subject**                       | **Impl | >  |
+| \#**   | *Issue |                                   | Date** |  * |
+|        | Date** |                                   |        | *C |
+|        |        |                                   |        | R# |
+|        |        |                                   |        | ** |
++========+========+===================================+========+====+
+| [[     | 05/2   | Access Process for HIPAA 270/271  | 08/2   | >  |
+| R565CP | 0/2005 | (Extranet Only)                   | 2/2005 | 38 |
+| ]{.und |        |                                   |        | 83 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R565C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 03/0   | Claims Status Code/Claim Status   | 07/0   | >  |
+| R490CP | 4/2005 | Category Code Update              | 5/2005 | 37 |
+| ]{.und |        |                                   |        | 15 |
+| erline |        |                                   |        |    |
+| }](htt |        |                                   |        |    |
+| p://ww |        |                                   |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R490C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 12/1   | Update to Health Care Claims      | 04/0   | >  |
+| R406CP | 7/2004 | Status Category Codes and Health  | 4/2005 | 35 |
+| ]{.und |        | Care Claim Status Codes for Use   |        | 66 |
+| erline |        | with the Health Care Claim Status |        |    |
+| }](htt |        | Request and Response ASC X12N     |        |    |
+| p://ww |        | 276/277.                          |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R406C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[     | 07/2   | Update to Health Care Claims      | 01/0   | >  |
+| R230CP | 3/2004 | Status Category Codes and Health  | 3/2005 | 33 |
+| ]{.und |        | Care Claim Status Codes for Use   |        | 61 |
+| erline |        | with the Health Care Claim Status |        |    |
+| }](htt |        | Request and Response (ASC X12N    |        |    |
+| p://ww |        | 276/277)                          |        |    |
+| w.cms. |        |                                   |        |    |
+| gov/Re |        |                                   |        |    |
+| gulati |        |                                   |        |    |
+| ons-an |        |                                   |        |    |
+| d-Guid |        |                                   |        |    |
+| ance/G |        |                                   |        |    |
+| uidanc |        |                                   |        |    |
+| e/Tran |        |                                   |        |    |
+| smitta |        |                                   |        |    |
+| ls/Dow |        |                                   |        |    |
+| nloads |        |                                   |        |    |
+| /R230C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [      | 02/0   | Health Care Claims Status         | N/A    | >  |
+| [R096C | 6/2004 | Category Codes and Health Care    |        | 30 |
+| P]{.un |        | Claim Status Codes for Use with   |        | 17 |
+| derlin |        | the Health Care Claim Status      |        |    |
+| e}](ht |        | Request and Response (ASC X12N    |        |    |
+| tp://w |        | 276/277)                          |        |    |
+| ww.cms |        |                                   |        |    |
+| .gov/R |        |                                   |        |    |
+| egulat |        |                                   |        |    |
+| ions-a |        |                                   |        |    |
+| nd-Gui |        |                                   |        |    |
+| dance/ |        |                                   |        |    |
+| Guidan |        |                                   |        |    |
+| ce/Tra |        |                                   |        |    |
+| nsmitt |        |                                   |        |    |
+| als/Do |        |                                   |        |    |
+| wnload |        |                                   |        |    |
+| s/R96C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+| [[R001 | 10/0   | Initial Publication of Manual     | NA     | >  |
+| CP]{.u | 1/2003 |                                   |        | NA |
+| nderli |        |                                   |        |    |
+| ne}](h |        |                                   |        |    |
+| ttp:// |        |                                   |        |    |
+| www.cm |        |                                   |        |    |
+| s.gov/ |        |                                   |        |    |
+| Regula |        |                                   |        |    |
+| tions- |        |                                   |        |    |
+| and-Gu |        |                                   |        |    |
+| idance |        |                                   |        |    |
+| /Guida |        |                                   |        |    |
+| nce/Tr |        |                                   |        |    |
+| ansmit |        |                                   |        |    |
+| tals/D |        |                                   |        |    |
+| ownloa |        |                                   |        |    |
+| ds/R1C |        |                                   |        |    |
+| P.pdf) |        |                                   |        |    |
++--------+--------+-----------------------------------+--------+----+
+
+> [[Back to top of chapter]{.underline}](#_bookmark0)

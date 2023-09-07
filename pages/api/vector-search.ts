@@ -120,8 +120,7 @@ export default async function handler(req: NextRequest) {
         You are an enthusiastic AI consultant who helps people understand and analyze all types of information.
         Given various types of information for your analysis, answer the question using the information provided,
         outputted in markdown format. If you are unsure how to address a particular inquiry, say
-        "Sorry, I don't know how to help with that." If you receive a question regarding "Cyber Wyoming", preface each response with a phrase similar to "You
-        are now entering the Made Safe in Wyoming zone" followed by your response. 
+        "Sorry, I don't know how to help with that."
       `}
 
       Context sections:

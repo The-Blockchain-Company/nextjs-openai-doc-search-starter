@@ -197,7 +197,7 @@ export function SearchDialog() {
           <DialogHeader>
             <DialogTitle>Proto AI</DialogTitle>
             <DialogDescription>
-             AI augmented search - PCI DSS, Medicare, Cardano, Plutus Apps 
+             AI augmented text search for Medicare, PCI DSS, Cardano, a Cyber Wyoming sample. Data sourcing easily expandable via file upload. 
             </DialogDescription>
             <hr />
             <button className="absolute top-0 right-2 p-2" onClick={() => setOpen(false)}>

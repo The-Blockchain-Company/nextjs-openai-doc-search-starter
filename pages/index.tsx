@@ -28,7 +28,7 @@ export default function Home() {
           <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
             <Link href="https://revnetsystems.com" className="flex items-center justify-center">
               <p className="text-base mr-2">Rev AI</p>
-              <Image src={'/rev.svg'} width="32" height="30" alt="Revnet-Systems-Logo" />
+              <Image src={'/IMG_5089.png'} width="20" height="20" alt="Revnet-Systems-Logo" />
             </Link>
           </div>
           <div className="border-l border-gray-300 w-1 h-4" />

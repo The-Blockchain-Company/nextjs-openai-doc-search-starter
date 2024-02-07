@@ -28,7 +28,7 @@ export default function Home() {
           <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
             <Link href="https://hearti.co" className="flex items-center justify-center">
               <p className="text-base mr-2">Built by Hearti.ai</p>
-              <Image src={'/hearty2.svg'} width="20" height="20" alt="Hearti logo" />
+              <Image src={'/rev.svg'} width="318" height="300" alt="Revnet-Systems-Logo" />
             </Link>
           </div>
           <div className="border-l border-gray-300 w-1 h-4" />

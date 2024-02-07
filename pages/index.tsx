@@ -27,7 +27,7 @@ export default function Home() {
         <div className="py-8 w-full flex items-center justify-center space-x-6">
           <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
             <Link href="https://revnetsystems.com" className="flex items-center justify-center">
-              <p className="text-base mr-2">RevNet Sytems</p>
+              <p className="text-base mr-2">Rev AI</p>
               <Image src={'/rev.svg'} width="32" height="30" alt="Revnet-Systems-Logo" />
             </Link>
           </div>

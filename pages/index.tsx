@@ -11,10 +11,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Proto AI</title>
+        <title>Rev AI</title>
         <meta
-          name="description"
-          content="AI Powered Compliance Tools"
+          name="Rev AI"
+          content="We custom tailor Rev for each clients unique needs."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -28,7 +28,7 @@ export default function Home() {
           <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
             <Link href="https://hearti.co" className="flex items-center justify-center">
               <p className="text-base mr-2">Built by Hearti.ai</p>
-              <Image src={'/rev.svg'} width="318" height="300" alt="Revnet-Systems-Logo" />
+              <Image src={'/rev.svg'} width="32" height="30" alt="Revnet-Systems-Logo" />
             </Link>
           </div>
           <div className="border-l border-gray-300 w-1 h-4" />
@@ -39,14 +39,6 @@ export default function Home() {
                 className="flex items-center justify-center"
               >
                 <Image src={'/github.svg'} width="20" height="20" alt="Github logo" />
-              </Link>
-            </div>
-            <div className="opacity-75 transition hover:opacity-100 cursor-pointer">
-              <Link
-                href="https://twitter.com/blockchaincoio"
-                className="flex items-center justify-center"
-              >
-                <Image src={'/twitter.svg'} width="20" height="20" alt="Twitter logo" />
               </Link>
             </div>
           </div>

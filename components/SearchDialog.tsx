@@ -68,7 +68,7 @@ export function SearchDialog() {
   const [promptIndex, setPromptIndex] = React.useState(0)
   const [promptData, dispatchPromptData] = React.useReducer(promptDataReducer, [])
 
-  const cantHelp = answer?.trim() === "Sorry, I don't know how to help with that."
+  const cantHelp = answer?.trim() === "Sorry, I've yet to learn the knowledge required to answer your inquiry. Please upload additional files to my knowledge base."
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -195,9 +195,9 @@ export function SearchDialog() {
       <Dialog open={open}>
         <DialogContent className="sm:max-w-[850px] text-black">
           <DialogHeader>
-            <DialogTitle>Proto AI</DialogTitle>
+            <DialogTitle>Rev AI</DialogTitle>
             <DialogDescription>
-             AI augmented text search for Medicare, PCI DSS, Cardano, a Cyber Wyoming sample. Data sourcing easily expandable via file upload. 
+              Each client receives a custom implementation of Rev based on their own unique needs. For a quick demo, ask Rev about PCI DSS compliance. 
             </DialogDescription>
             <hr />
             <button className="absolute top-0 right-2 p-2" onClick={() => setOpen(false)}>

@@ -131,11 +131,14 @@ export default async function handler(req: NextRequest) {
       """
 
       Answer as markdown (including related code snippets if available):
-    `
+    `    const chatMessage: ChatCompletionRequestMessage = {
+      role: 'user',
+      content: prompt,
+    }
 
     const completionOptions: CreateCompletionRequest = {
       model: 'gpt-3.5-turbo',
-      prompt,
+      messages: [chatMessage],
       max_tokens: 512,
       temperature: 0,
       stream: true,

@@ -11,7 +11,7 @@ import { toMarkdown } from 'mdast-util-to-markdown'
 import { toString } from 'mdast-util-to-string'
 import { mdxjs } from 'micromark-extension-mdxjs'
 import 'openai'
-import { Configuration, OpenAIApi } from 'openai'
+import OpenAI from 'openai'
 import { basename, dirname, join } from 'path'
 import { u } from 'unist-builder'
 import { filter } from 'unist-util-filter'
@@ -415,12 +415,11 @@ async function generateEmbeddings() {
         const input = content.replace(/\n/g, ' ')
 
         try {
-          const configuration = new Configuration({
+          const openai = new OpenAI({
             apiKey: process.env.OPENAI_KEY,
           })
-          const openai = new OpenAIApi(configuration)
 
-          const embeddingResponse = await openai.createEmbedding({
+          const embeddingResponse = await openai.embeddings.create({
             model: 'text-embedding-ada-002',
             input,
           })

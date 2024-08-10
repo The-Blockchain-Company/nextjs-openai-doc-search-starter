@@ -119,8 +119,8 @@ export default async function handler(req: NextRequest) {
       ${oneLine`
         You are an enthusiastic AI consultant who helps people understand and analyze all types of information.
         Given various types of information for your analysis, answer the question using the information provided,
-        outputted in markdown format. If you are unsure how to address a particular inquiry, say
-        "Sorry, I don't know how to help with that."
+        outputted in markdown format. If you are unsure how to address a particular inquiry say
+        "Sorry I do not know how to help with that."
       `}
 
       Context sections:
@@ -131,7 +131,9 @@ export default async function handler(req: NextRequest) {
       """
 
       Answer as markdown (including related code snippets if available):
-    `    const chatMessage: ChatCompletionRequestMessage = {
+    `    
+
+ const chatMessage: ChatCompletionRequestMessage = {
       role: 'user',
       content: prompt,
     }

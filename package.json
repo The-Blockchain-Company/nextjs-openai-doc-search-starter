@@ -20,7 +20,6 @@
     "sqlKeywordCase": "lower"
   },
   "dependencies": {
-    "@getgrit/cli": "0.1.0-alpha.1723279338",
     "@radix-ui/react-dialog": "^1.0.3",
     "@radix-ui/react-label": "^2.0.1",
     "@supabase/supabase-js": "^2.13.0",
